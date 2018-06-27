@@ -1,6 +1,7 @@
 cubocubo
 
 #En la máquina DB:
+```
 _DB_PASSWORD="cubocubo"
 _IP="172.24.99.217"
 sudo apt install redis-server
@@ -17,8 +18,9 @@ sudo -u postgres createuser airflow
 sudo -u postgres psql airflow -c "alter user airflow with encrypted password '$_DB_PASSWORD';"
 sudo -u postgres psql airflow -c "grant all privileges on database airflow to airflow;"
 sudo systemctl restart postgresql.service
-
+```
 #En la master:
+```
 _DB_PASSWORD="cubocubo"
 _IP="172.24.99.217"
 conda install -y psycopg2 redis-py
@@ -56,8 +58,9 @@ run_this_last = DummyOperator(task_id='DOES_NOTHING', dag=dag)
 EOF
 
 airflow initdb
-
+```
 #En los workers: 
+```
 _DB_PASSWORD="cubocubo"
 _IP="172.24.99.217"
 conda install -y psycopg2 redis-py
@@ -76,3 +79,4 @@ sed -i "s%celery_result_backend =.*%celery_result_backend = redis://$_IP:6379/0%
 
 ln -s /web_storage/dags "$AIRFLOW_HOME/dags"
 ln -s /web_storage/plugins "$AIRFLOW_HOME/plugins"
+```
