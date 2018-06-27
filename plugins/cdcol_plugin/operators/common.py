@@ -35,7 +35,7 @@ def readNetCDF(file):
     return _xarr
 def getUpstreamVariable(task, context,key='return_value'):
     task_instance = context['task_instance']
-    upstream_tasks = task.get_flat_relatives(upstream=True)
+    upstream_tasks = task.get_direct_relatives(upstream=True)
     upstream_task_ids = [task.task_id for task in upstream_tasks]
     upstream_variable_values = task_instance.xcom_pull(task_ids=upstream_task_ids, key=key)
     return list(itertools.chain.from_iterable(upstream_variable_values))
