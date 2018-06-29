@@ -37,21 +37,21 @@ class CDColReduceOperator(BaseOperator):
                     raise
         folder=self.folder
         if self.str_files is None:
-            self.str_files=common.getUpstreamVariable(context)
+            self.str_files=common.getUpstreamVariable(self, context)
         if self.str_files is None or len(self.str_files) == 0:
             raise AirflowSkipException("there is not files")
         i=0
-        _files=[ x for x in self.str_files if "{}.nc".format(self.output_type) in x and (lat_lon is None or "{}_{}".format(*self.lat_lon) in x) and year is None or "_{}_".format(year)]
+        _files=[ x for x in self.str_files if "{}.nc".format(self.output_type) in x and (self.lat_lon is None or "{}_{}".format(*self.lat_lon) in x) and self.year is None or "_{}_".format(self.year)]
         kwargs=self.alg_kwargs
+        xarrs=[]
         for _f in _files:
-            xanm="xarr"+str(i)
-            kwargs[xanm] = common.readNetCDF(_f)
-            i+=1
-            if len(kwargs[xanm].data_vars) == 0:
+            
+            _xarr = common.readNetCDF(_f)
+            if len(_xarr.data_vars) == 0:
                 open(folder+"{}_{}_no_data.lock".format(self.lat[0],self.lon[0]), "w+").close()
                 return []
-        dc.close()
-        
+            xarrs.append(_xarr)
+        kwargs["xarrs"]=xarrs
         kwargs["product"]=self.product
         exec(open(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py").read(),kwargs)
         fns=[]
