@@ -18,6 +18,9 @@ def saveNC(output,filename, history):
     coords=output.coords
     cnames=()
     for x in coords:
+        if not 'units' in coords[x].attrs:
+            if x == "time":
+                coords[x].attrs["units"]=u"seconds since 1970-01-01 00:00:00"
         netcdf_writer.create_coordinate(nco, x, coords[x].values, coords[x].units)
         cnames=cnames+(x,)
     _crs=output.crs
@@ -25,13 +28,15 @@ def saveNC(output,filename, history):
         _crs=CRS(str(_crs.spatial_ref))
     netcdf_writer.create_grid_mapping_variable(nco, _crs)
     for band in output.data_vars:
+        #Para evitar problemas con xarray <0.11
+        if band in coords.keys() or band == 'crs':
+            continue
         output.data_vars[band].values[np.isnan(output.data_vars[band].values)]=nodata
         var= netcdf_writer.create_variable(nco, band, Variable(output.data_vars[band].dtype, nodata, cnames, None) ,set_crs=True)
         var[:] = netcdf_writer.netcdfy_data(output.data_vars[band].values)
     nco.close()
 def readNetCDF(file):
     _xarr=xr.open_dataset(file)
-    print(_xarr.crs)
     return _xarr
 def getUpstreamVariable(task, context,key='return_value'):
     task_instance = context['task_instance']

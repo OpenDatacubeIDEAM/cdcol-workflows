@@ -9,7 +9,7 @@ from cdcol_plugin.operators import common
 #Each map task of the identity mapper is a CDColFromFileOperator
 class CDColFromFileOperator(BaseOperator):
     @airflow_utils.apply_defaults
-    def __init__(self, execID, algorithm,version, product,str_files=None, output_type="output",params={}, *args,**kwargs):
+    def __init__(self, execID, algorithm,version, product,str_files=None, lat=None, lon=None, output_type="output",params={}, *args,**kwargs):
         """
             algorithm: algorithm to execute over the query results
             version: algorithm version
@@ -21,6 +21,8 @@ class CDColFromFileOperator(BaseOperator):
         self.algorithm = algorithm
         self.version = version
         self.str_files = str_files
+        self.lat=lat
+        self.lon=lon
         self.alg_kwargs=params
         self.folder = "{}/{}/{}_{}/".format(common.RESULTS_FOLDER, execID,algorithm,version,)
         self.product = product

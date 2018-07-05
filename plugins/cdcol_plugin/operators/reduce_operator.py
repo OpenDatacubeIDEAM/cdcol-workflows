@@ -9,7 +9,7 @@ from cdcol_plugin.operators import common
 #Each reduce task of the reducer is a CDColReduceOperator
 class CDColReduceOperator(BaseOperator):
     @airflow_utils.apply_defaults
-    def __init__(self, execID, algorithm,version, product, params={}, str_files=None, output_type="output", lat_lon=None,year=None, *args,**kwargs):
+    def __init__(self, execID, algorithm,version, product, params={}, str_files=None, output_type="output", lat=None, lon=None,year=None, *args,**kwargs):
         """
             algorithm: algorithm to execute over the query results
             version: algorithm version
@@ -25,7 +25,8 @@ class CDColReduceOperator(BaseOperator):
         self.folder = "{}/{}/{}_{}/".format(common.RESULTS_FOLDER, execID,algorithm,version,)
         self.product = product
         self.output_type=output_type
-        self.lat_lon=lat_lon
+        self.lat=lat
+        self.lon=lon
         self.year=year
      
     def execute(self, context):
@@ -41,7 +42,7 @@ class CDColReduceOperator(BaseOperator):
         if self.str_files is None or len(self.str_files) == 0:
             raise AirflowSkipException("there is not files")
         i=0
-        _files=[ x for x in self.str_files if "{}.nc".format(self.output_type) in x and (self.lat_lon is None or "{}_{}".format(*self.lat_lon) in x) and self.year is None or "_{}_".format(self.year)]
+        _files=[ x for x in self.str_files if "{}.nc".format(self.output_type) in x and (self.lat is None or "{}_{}".format(self.lat[0],self.lon[0]) in x) and self.year is None or "_{}_".format(self.year)]
         kwargs=self.alg_kwargs
         xarrs=[]
         for _f in _files:
@@ -57,10 +58,10 @@ class CDColReduceOperator(BaseOperator):
         fns=[]
 
         history = u'Creado con CDCOL con el algoritmo {} y  ver. {}'.format(self.algorithm,str(self.version))
-        if not self.lat_lon is None and not self.year is None: 
-            _exp="{}_{}_{}_{}_{}".format(self.task_id,str(self.algorithm),self.lat_lon[0],self.lat_lon[1],self.year )
-        elif not self.lat_lon is None:
-            _exp="{}_{}_{}_{}_all".format(self.task_id,str(self.algorithm),self.lat_lon[0],self.lat_lon[1] )
+        if not self.lat is None and not self.year is None: 
+            _exp="{}_{}_{}_{}_{}".format(self.task_id,str(self.algorithm),self.lat[0],self.lon[0],self.year )
+        elif not self.lat is None:
+            _exp="{}_{}_{}_{}_all".format(self.task_id,str(self.algorithm),self.lat[0],self.lon[0] )
         elif not self.year is None: 
             _exp="{}_{}_{}_{}_{}".format(self.task_id,str(self.algorithm),"All","All",self.year )
         else:
