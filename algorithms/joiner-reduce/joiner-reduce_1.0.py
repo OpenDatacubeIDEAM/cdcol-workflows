@@ -1,6 +1,7 @@
 #Joiner: Une dos o más datasets en uno solo. 
 #Los dos datasets deben tener las mismas bandas (variables) y deben tener 
 #parámetros: xarrs (generado por el operador reducer), bands (opcional, pero debe existir si en algún dataset hay bandas adicionales)
+import xarray as xr
 output=None
 try: 
     bands
