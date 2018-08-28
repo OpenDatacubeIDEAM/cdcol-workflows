@@ -83,7 +83,7 @@ def wofs_classify(dataset_in, clean_mask=None, no_data=-9999, enforce_float64=Fa
 
         r8 = band1 <= 379
         classified[_tmp2 & r8] = 1 #Node 14
-        classified[_tmp2 & ~r8] = 1  # Node 15
+        classified[_tmp2 & ~r8] = 0  # Node 15
 
         _tmp &= r7
 
@@ -105,7 +105,7 @@ def wofs_classify(dataset_in, clean_mask=None, no_data=-9999, enforce_float64=Fa
         r11 = ndi_52 <= 0.23
         _tmp = r1 & r11
 
-        r12 = band1 <= 0.23
+        r12 = band1 <= 334.5
         _tmp2 = _tmp & ~r12
         classified[_tmp2] = 0 #Node 23
 
@@ -123,7 +123,7 @@ def wofs_classify(dataset_in, clean_mask=None, no_data=-9999, enforce_float64=Fa
 
         _tmp &= ~r14
 
-        r15 = band <= 364.5
+        r15 = band3 <= 364.5
         _tmp2 = _tmp & r15
 
         r16 = band1 <= 129.5
@@ -168,7 +168,7 @@ def wofs_classify(dataset_in, clean_mask=None, no_data=-9999, enforce_float64=Fa
     blue = dataset_in.blue
     green = dataset_in.green
     red = dataset_in.red
-    nir = dataset_in.nit
+    nir = dataset_in.nir
     swir1 = dataset_in.swir1
     swir2 = dataset_in.swir2
 

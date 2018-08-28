@@ -18,16 +18,17 @@ def queryMapByTile(lat,lon,time_ranges,dag, algorithm,version,params={},taxprefi
         dag=dag, task_id="{}{}{}".format(taxprefix,str(LAT),str(LON)),**kwargs) for LAT in range(*lat) for LON in range(*lon)]
 
 def queryMapByTileByYear(lat,lon,time_ranges,dag, algorithm,version,params={},taxprefix="med",**kwargs):
+    print time_ranges[0][0].split('-')[0]
+    print time_ranges[0][1].split('-')[0]
 
     return [CDColQueryOperator(
         algorithm=algorithm, version=version,
 
         lat=(LAT, LAT + 1),
         lon=(LON, LON + 1),
-        time_ranges=[("01-01-"+str(T),+"31-12-"+str(T))],
+        time_ranges=[("01-01-"+str(T),"31-12-"+str(T))],
         params=params,
-        dag=dag, task_id="{}{}{}{}".format(taxprefix, str(LAT), str(LON), str("01-01-"+T+"_31-12-"+T)), **kwargs) for LAT in range(*lat) for LON in range(*lon)
-        for T in xrange(int(time_ranges[0][0].split('-')[2]), int(time_ranges[0][1].split('-')[2]) + 1) ]
+        dag=dag, task_id="{}{}{}".format(taxprefix, str(LAT), str(LON)), **kwargs) for LAT in range(*lat) for LON in range(*lon) for T in xrange(int(time_ranges[0][0].split('-')[0]), (int(time_ranges[0][1].split('-')[0]))+1) ]
 
 
 def IdentityMap(upstream,algorithm,version,dag, taxprefix,params={}):
