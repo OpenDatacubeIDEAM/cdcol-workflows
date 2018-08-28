@@ -21,7 +21,7 @@ args = {
 dag = DAG(
     dag_id='query_by_year', default_args=args,
     schedule_interval=None,
-    dagrun_timeout=timedelta(minutes=15))
+    dagrun_timeout=timedelta(minutes=30))
 
 queryLS8 = dag_utils.queryMapByTileByYear( lat=_lat,
         lon=_lon,time_ranges=[("2013-01-01","2014-12-31")],
@@ -44,6 +44,8 @@ wofs_classification=dag_utils.IdentityMap(
             'bands':["blue","green","red","nir", "swir1","swir2"],
             'minValid':1,
         })
+
+joins=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce",version="1.0",dag=dag, taxprefix="joined")
 
 reduce= CDColReduceOperator(
     task_id='print_context',

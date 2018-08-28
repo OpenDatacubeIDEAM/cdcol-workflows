@@ -3,6 +3,7 @@ import os
 from airflow.models import BaseOperator
 from airflow import utils as airflow_utils
 from cdcol_plugin.operators import common
+from airflow.exceptions import AirflowException, AirflowSensorTimeout, AirflowSkipException
 
 
 #This class define the CDColFromFileOperator, that will be used to make an Identity Mapper
