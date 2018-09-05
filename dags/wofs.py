@@ -14,7 +14,7 @@ args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
     'execID':"wofs",
-    'product':"wofs"
+    'product':"LS8_OLI_LASRC"
 }
 
 dag = DAG(
