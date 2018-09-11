@@ -7,8 +7,14 @@ from cdcol_utils import dag_utils
 from datetime import timedelta
 from pprint import pprint
 
-_lat = (2, 4)
-_lon = (-69, -67)
+_params = {
+    'lat': (0,2),
+    'lon': (-74,-72),
+    'time_ranges': [("2014-01-01", "2014-12-31")],
+    'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
+    'minValid':1,
+    'normalized':True,
+}
 
 args = {
     'owner': 'cubo',
@@ -22,14 +28,15 @@ dag = DAG(
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=15))
 
-maskedLS8 = dag_utils.queryMapByTile(lat=_lat,
-                                     lon=_lon, time_ranges=[("2013-01-01", "2013-12-31")],
+maskedLS8 = dag_utils.queryMapByTile(lat=_params['lat'],
+                                     lon=_params['lon'],
+                                     time_ranges=_params['time_ranges'],
                                      algorithm="mascara-landsat", version="1.0",
                                      product="LS8_OLI_LASRC",
                                      params={
-                                         'normalized': True,
-                                         'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
-                                         'minValid': 1,
+                                         'normalized':_params['normalized'],
+                                         'bands': _params['bands'],
+                                         'minValid': _params['minValid'],
                                      },
                                      dag=dag, taxprefix="maskedLS8_")
 
@@ -40,9 +47,9 @@ medians = dag_utils.IdentityMap(
     taxprefix="medianas_",
     dag=dag,
     params={
-        'normalized': True,
-        'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
-        'minValid': 1,
+        'normalized': _params['normalized'],
+        'bands': _params['bands'],
+        'minValid': _params['minValid'],
     })
 
 mosaic = CDColReduceOperator(

@@ -40,9 +40,9 @@ def IdentityMap(upstream,algorithm,version,dag, taxprefix,params={}):
     
     return tasks
     
-def OneReduce(upstream, algorithm,version, dag, tax_id, params={}):
+def OneReduce(upstream, algorithm,version, dag, taxprefix, params={}):
     reduce= CDColReduceOperator(
-        task_id=task_id,
+        task_id=taxprefix,
         algorithm=algorithm,
         version=version,
         params=params,
@@ -65,7 +65,9 @@ def reduceByTile(upstream, algorithm,version, dag, taxprefix, params={}):
                 dag=dag)
         prev>>reducers[key]
     return reducers.values()
-    
+
+
+
 def print_xcom(ds, **kwargs):
     #pprint(kwargs)
     task=kwargs['task']

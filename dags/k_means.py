@@ -14,19 +14,21 @@ _params = {
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
     'normalized':True,
+    'classes':4
 }
+
 
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID': "ndvi",
+    'execID': "kmeans",
     'product': "LS8_OLI_LASRC"
 }
 
 dag = DAG(
-    dag_id='ndvi', default_args=args,
+    dag_id='kmeans', default_args=args,
     schedule_interval=None,
-    dagrun_timeout=timedelta(minutes=120))
+    dagrun_timeout=timedelta(minutes=15))
 
 maskedLS8 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      lon=_params['lon'],
@@ -52,12 +54,33 @@ medians = dag_utils.IdentityMap(
         'minValid': _params['minValid'],
     })
 
-ndvi=dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", dag=dag, taxprefix="ndvi")
 
-mosaic = CDColReduceOperator(
+mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", dag=dag, taxprefix="mosaic")
+
+
+preprocess = dag_utils.IdentityMap(mosaic, algorithm="kmeans-preprocess", version="1.0", dag=dag, taxprefix="preprocess")
+
+pca = dag_utils.IdentityMap(
+   preprocess,
+    algorithm="pca-wf",
+    version="1.0",
+    taxprefix="pca_",
+    dag=dag,
+)
+kmeans = dag_utils.IdentityMap(
+    pca,
+    algorithm="k-means-wf",
+    version="1.0",
+    taxprefix="kmeans_",
+    dag=dag,
+    params={'classes': _params['classes']}
+)
+
+
+reduce= CDColReduceOperator(
     task_id='print_context',
-    algorithm='joiner',
+    algorithm='test-reduce',
     version='1.0',
     dag=dag)
 
-map(lambda b: b >> mosaic, ndvi)
+map(lambda b: b >> reduce, kmeans)

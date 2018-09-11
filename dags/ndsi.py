@@ -1,9 +1,8 @@
-# coding=utf8
+#coding=utf8
 import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
 from cdcol_utils import dag_utils
-
 from datetime import timedelta
 from pprint import pprint
 
@@ -15,19 +14,17 @@ _params = {
     'minValid':1,
     'normalized':True,
 }
-
-args = {
-    'owner': 'cubo',
-    'start_date': airflow.utils.dates.days_ago(2),
-    'execID': "ndvi",
-    'product': "LS8_OLI_LASRC"
+args={
+	'owner':'cubo',
+	'start_date':airflow.utils.dates.days_ago(2),
+	'execID':"multiple_ndsi",
+	'product':"multi_ndsi"
 }
-
-dag = DAG(
-    dag_id='ndvi', default_args=args,
-    schedule_interval=None,
-    dagrun_timeout=timedelta(minutes=120))
-
+dag=DAG(
+	dag_id='multiple_storage_unit_ndsi', default_args=args,
+	schedule_interval=None,
+	dagrun_timeout=timedelta(minutes=120)
+)
 maskedLS8 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      lon=_params['lon'],
                                      time_ranges=_params['time_ranges'],
@@ -51,13 +48,11 @@ medians = dag_utils.IdentityMap(
         'bands': _params['bands'],
         'minValid': _params['minValid'],
     })
-
-ndvi=dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", dag=dag, taxprefix="ndvi")
-
-mosaic = CDColReduceOperator(
-    task_id='print_context',
-    algorithm='joiner',
-    version='1.0',
-    dag=dag)
-
-map(lambda b: b >> mosaic, ndvi)
+ndsi=dag_utils.IdentityMap(medians, algorithm="ndsi-wf", version="1.0", dag=dag, taxprefix="ndsi")
+mosaic=CDColReduceOperator(
+	task_id='print_context',
+	algorithm='joiner',
+	version='1.0',
+	dag=dag
+)
+map(lambda b: b>>mosaic,ndsi)

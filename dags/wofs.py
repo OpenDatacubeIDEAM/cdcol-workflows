@@ -20,7 +20,7 @@ args = {
 dag = DAG(
     dag_id='wofs', default_args=args,
     schedule_interval=None,
-    dagrun_timeout=timedelta(minutes=30))
+    dagrun_timeout=timedelta(minutes=120))
 
 queryLS8 = dag_utils.queryMapByTileByYear( lat=_lat,
         lon=_lon,time_ranges=[("2014-01-01","2015-12-31")],

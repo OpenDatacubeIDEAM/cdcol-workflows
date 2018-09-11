@@ -1,5 +1,5 @@
 #Kmeans - 4 clases
-km_centroids, kmvalues=kmeans2(r_PCA.Y,clases)
+km_centroids, kmvalues=kmeans2(r_PCA.Y,classes)
 #Salida:
 salida[:,nan_mask.reshape(sp)]=np.nan
 kmv= kmvalues.T.reshape(sp)
