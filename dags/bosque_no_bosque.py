@@ -7,9 +7,9 @@ from datetime import timedelta
 from pprint import pprint
 
 _params = {
-	'lat': (0,2),
-	'lon': (-74,-72),
-	'time_ranges': [("2014-01-01", "2014-12-31")],
+	'lat': (9,11),
+	'lon': (-76,-74),
+	'time_ranges': [("2013-01-01", "2013-12-31")],
 	'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
 	'minValid':1,
 	'normalized':True,
@@ -32,21 +32,38 @@ dag=DAG(
 	dagrun_timeout=timedelta(minutes=20)
 )
 
-maskedLS8=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
+
+masked0=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 	time_ranges= _params['time_ranges'],
 	algorithm="mascara-landsat", version="1.0",
-        product="LS8_OLI_LASRC",
+        product=_params['products'][0],
         params={
                 'normalized':_params['normalized'],
                 'bands':_params['bands'],
                 'minValid': _params['minValid']
         },
-        dag=dag, taxprefix="maskedLS8_"
+        dag=dag, taxprefix="masked_"+_params['products'][0]
 
 )
+if len(_params['products']) > 1:
+	masked1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
+									   time_ranges=_params['time_ranges'],
+									   algorithm="mascara-landsat", version="1.0",
+									   product=_params['products'][1],
+									   params={
+										   'normalized': _params['normalized'],
+										   'bands': _params['bands'],
+										   'minValid': _params['minValid']
+									   },
+									   dag=dag, taxprefix="masked_"+_params['products'][1]
+
+									   )
+	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", dag=dag,taxprefix="joined")
+else:
+	full_query = masked0
 
 medians=dag_utils.IdentityMap(
-	maskedLS8,
+	full_query,
 	algorithm="compuesto-temporal-medianas-wf",
 	version="1.0",
 	taxprefix="medianas_",
