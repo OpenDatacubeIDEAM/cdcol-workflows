@@ -48,7 +48,7 @@ def OneReduce(upstream, algorithm,version, dag, taxprefix, params={}):
         params=params,
         dag=dag)
     map(lambda b: b>>reduce,upstream)
-    return reduce
+    return [reduce]
     
 def reduceByTile(upstream, algorithm,version, dag, taxprefix, params={}):
     reducers={}
