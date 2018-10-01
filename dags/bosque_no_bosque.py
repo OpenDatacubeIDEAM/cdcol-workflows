@@ -16,7 +16,7 @@ _params = {
 	'ndvi_threshold': 0.7,
 	'vegetation_rate': 0.3,
 	'slice_size': 3,
-	'products': ["LS8_OLI_LASRC"],
+	'products': ["LS8_OLI_LASRC", "LS7_ETM_LEDAPS"],
 	'mosaic': True
 }
 
@@ -88,7 +88,7 @@ bosque=dag_utils.IdentityMap(
 )
 if _params['mosaic']:
 	mosaic=CDColReduceOperator(
-		task_id='print_context',
+		task_id='mosaic',
 		algorithm='joiner',
 		version='1.0',
 		dag=dag
