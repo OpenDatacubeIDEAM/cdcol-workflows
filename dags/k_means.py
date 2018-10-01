@@ -57,25 +57,14 @@ medians = dag_utils.IdentityMap(
 
 mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", dag=dag, taxprefix="mosaic")
 
-
-preprocess = dag_utils.IdentityMap(mosaic, algorithm="preprocess-one", version="1.0", dag=dag, taxprefix="preprocess")
-
-pca = dag_utils.IdentityMap(
-   preprocess,
-    algorithm="deteccion-cambios-pca-wf",
-    version="1.0",
-    taxprefix="pca_",
-    dag=dag,
-)
 kmeans = dag_utils.IdentityMap(
-    pca,
+    mosaic,
     algorithm="k-means-wf",
     version="1.0",
     taxprefix="kmeans_",
     dag=dag,
     params={'classes': _params['classes']}
 )
-
 
 reduce= CDColReduceOperator(
     task_id='print_context',
