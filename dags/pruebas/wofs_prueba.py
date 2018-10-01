@@ -18,7 +18,7 @@ _params = {
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID':"wofs",
+    'execID':"wofs_prueba",
     'product':"LS8_OLI_LASRC"
 }
 
