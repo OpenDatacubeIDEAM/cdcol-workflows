@@ -17,7 +17,7 @@ def perform_timeseries_analysis(dataset_in, no_data=-9999):
     """
 
     data_vars = dataset_in.data_vars
-    key = data_vars.keys()[0]
+    key = "wofs"
 
     data = data_vars[key]
 
