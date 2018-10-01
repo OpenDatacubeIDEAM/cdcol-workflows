@@ -293,7 +293,21 @@ def get_spatial_ref(crs):
 
 crs_org=xarr0.crs
 output = wofs_classify(xarr0)
-output.attrs["crs"]=crs_org
+
+ncoords=[]
+xdims=[]
+xcords={}
+nbar=xarr0
+for x in nbar.coords:
+	if(x!='time'):
+		ncoords.append((x, nbar.coords[x]))
+		xdims.append(x)
+		xcords[x]=nbar.coords[x]
+variables = {"wofs": xr.DataArray(output, dims=xdims, coords=ncoords)}
+output = xr.Dataset(variables, attrs={'crs':nbar.crs})
+for x in output.coords:
+	output.coords[x].attrs["units"]=nbar.coords[x].units
+
 print "clasifica"
 
 

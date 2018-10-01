@@ -15,7 +15,9 @@ _params = {
 	'normalized':True,
 	'ndvi_threshold': 0.7,
 	'vegetation_rate': 0.3,
-	'slice_size': 3
+	'slice_size': 3,
+	'products': ["LS8_OLI_LASRC"],
+	'mosaic': True
 }
 
 args={
@@ -29,6 +31,7 @@ dag=DAG(
 	schedule_interval=None,
 	dagrun_timeout=timedelta(minutes=20)
 )
+
 maskedLS8=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 	time_ranges= _params['time_ranges'],
 	algorithm="mascara-landsat", version="1.0",
@@ -66,10 +69,19 @@ bosque=dag_utils.IdentityMap(
 	},
 	dag=dag, taxprefix="bosque",
 )
-mosaic=CDColReduceOperator(
-	task_id='print_context',
-	algorithm='joiner',
-	version='1.0',
-	dag=dag
-)
-map(lambda b: b>>mosaic,bosque)
+if _params['mosaic']:
+	mosaic=CDColReduceOperator(
+		task_id='print_context',
+		algorithm='joiner',
+		version='1.0',
+		dag=dag
+	)
+	map(lambda b: b>>mosaic,bosque)
+else:
+	reduce = CDColReduceOperator(
+		task_id='print_context',
+		algorithm='test-reduce',
+		version='1.0',
+		dag=dag)
+
+	map(lambda b: b >> reduce, bosque)
