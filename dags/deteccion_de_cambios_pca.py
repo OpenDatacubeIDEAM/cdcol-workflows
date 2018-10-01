@@ -21,14 +21,14 @@ _params = {
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID': "kmeans",
+    'execID': "deteccionDeCambiosPCA",
     'product': "LS8_OLI_LASRC"
 }
 
 dag = DAG(
-    dag_id='kmeans', default_args=args,
+    dag_id='deteccion_cambios_PCA', default_args=args,
     schedule_interval=None,
-    dagrun_timeout=timedelta(minutes=15))
+    dagrun_timeout=timedelta(minutes=120))
 
 period1 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      lon=_params['lon'], time_ranges=_params['time_ranges'],
@@ -79,11 +79,11 @@ mosaic1 = dag_utils.OneReduce(medians1, algorithm="joiner", version="1.0", dag=d
 
 mosaic2 = dag_utils.OneReduce(medians2, algorithm="joiner", version="1.0", dag=dag, taxprefix="mosaic2")
 
-preprocess = dag_utils.reduceByTile(mosaic1+mosaic2, algorithm="joiner", version="1.0", dag=dag, taxprefix="preprocess")
+preprocess = dag_utils.reduceByTile(mosaic1+mosaic2, algorithm="preprocess-two", version="1.0", dag=dag, taxprefix="preprocess")
 
 pca = dag_utils.IdentityMap(
    preprocess,
-    algorithm="pca-wf",
+    algorithm="deteccion-cambios-pca-wf",
     version="1.0",
     taxprefix="pca_",
     dag=dag,

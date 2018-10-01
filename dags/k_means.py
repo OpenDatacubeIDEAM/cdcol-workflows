@@ -28,7 +28,7 @@ args = {
 dag = DAG(
     dag_id='kmeans', default_args=args,
     schedule_interval=None,
-    dagrun_timeout=timedelta(minutes=15))
+    dagrun_timeout=timedelta(minutes=120))
 
 maskedLS8 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      lon=_params['lon'],
@@ -58,11 +58,11 @@ medians = dag_utils.IdentityMap(
 mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", dag=dag, taxprefix="mosaic")
 
 
-preprocess = dag_utils.IdentityMap(mosaic, algorithm="kmeans-preprocess", version="1.0", dag=dag, taxprefix="preprocess")
+preprocess = dag_utils.IdentityMap(mosaic, algorithm="preprocess-one", version="1.0", dag=dag, taxprefix="preprocess")
 
 pca = dag_utils.IdentityMap(
    preprocess,
-    algorithm="pca-wf",
+    algorithm="deteccion-cambios-pca-wf",
     version="1.0",
     taxprefix="pca_",
     dag=dag,

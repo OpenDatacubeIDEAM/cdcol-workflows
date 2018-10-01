@@ -8,8 +8,8 @@ from datetime import timedelta
 from pprint import pprint
 
 _params = {
-    'lat': (0,2),
-    'lon': (-74,-72),
+    'lat': (8,10),
+    'lon': (-75,-73),
     'time_ranges': [("2014-01-01","2015-12-31")],
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
@@ -23,7 +23,7 @@ args = {
 }
 
 dag = DAG(
-    dag_id='wofs', default_args=args,
+    dag_id='wofs_prueba', default_args=args,
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
@@ -51,10 +51,10 @@ wofs_classification=dag_utils.IdentityMap(
         taxprefix="wofs_",
         dag=dag)
 
-joins=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce",version="1.0",dag=dag, taxprefix="joined")
+#joins=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce",version="1.0",dag=dag, taxprefix="joined")
 
 time_series=dag_utils.IdentityMap(
-        joins,
+    wofs_classification,
         algorithm="wofs-time-series-wf",
         version="1.0",
         taxprefix="wofs_time_series_",
