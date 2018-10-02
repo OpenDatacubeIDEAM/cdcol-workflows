@@ -21,7 +21,7 @@ class CDColReduceOperator(BaseOperator):
         self.algorithm = algorithm
         self.version = version
         self.str_files = str_files
-        self.alg_kwargs=kwargs
+        self.alg_kwargs=params
         self.folder = "{}/{}/{}_{}/".format(common.RESULTS_FOLDER, execID,algorithm,version,)
         self.product = product
         self.output_type=output_type
