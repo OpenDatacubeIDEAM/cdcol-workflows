@@ -27,7 +27,7 @@ args={
 dag=DAG(
 	dag_id='bosque_no_bosque_multiunidad', default_args=args,
 	schedule_interval=None, 
-	dagrun_timeout=timedelta(minutes=20)
+	dagrun_timeout=timedelta(minutes=120)
 )
 maskedLS8 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      lon=_params['lon'],
@@ -52,7 +52,7 @@ maskedLS7 = dag_utils.queryMapByTile(lat=_params['lat'],
                                          'minValid': _params['minValid'],
                                      },
                                      dag=dag, taxprefix="maskedLS7_")
-joins=dag_utils.reduceByTile(maskedLS7+maskedLS8, algorithm="joiner-reduce-wofs", version="1.0", dag=dag, taxprefix="joined")
+joins=dag_utils.reduceByTile(maskedLS7+maskedLS8, algorithm="joiner-reduce", version="1.0", dag=dag, taxprefix="joined")
 medians=dag_utils.IdentityMap(
 	joins,
 	algorithm="compuesto-temporal-medianas-wf",

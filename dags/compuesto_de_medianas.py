@@ -28,7 +28,7 @@ args = {
 dag = DAG(
     dag_id='compuesto_de_medianas', default_args=args,
     schedule_interval=None,
-    dagrun_timeout=timedelta(minutes=15))
+    dagrun_timeout=timedelta(minutes=120))
 
 masked0=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 	time_ranges= _params['time_ranges'],

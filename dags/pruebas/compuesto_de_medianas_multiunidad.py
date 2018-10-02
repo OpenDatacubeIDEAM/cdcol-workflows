@@ -2,7 +2,7 @@
 import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
-from dags.cdcol_utils import dag_utils
+from cdcol_utils import dag_utils
 
 from datetime import timedelta
 from pprint import pprint
@@ -26,7 +26,7 @@ args = {
 dag = DAG(
     dag_id='compuesto_de_medianas_multiunidad', default_args=args,
     schedule_interval=None,
-    dagrun_timeout=timedelta(minutes=15))
+    dagrun_timeout=timedelta(minutes=120))
 
 maskedLS8 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      lon=_params['lon'],
@@ -52,7 +52,7 @@ maskedLS7 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      },
                                      dag=dag, taxprefix="maskedLS7_")
 
-joins = dag_utils.reduceByTile(maskedLS7 + maskedLS8, algorithm="joiner-reduce-wofs", version="1.0", dag=dag, taxprefix="joined")
+joins = dag_utils.reduceByTile(maskedLS7 + maskedLS8, algorithm="joiner-reduce", version="1.0", dag=dag, taxprefix="joined")
 medians = dag_utils.IdentityMap(
     joins,
     algorithm="compuesto-temporal-medianas-wf",
