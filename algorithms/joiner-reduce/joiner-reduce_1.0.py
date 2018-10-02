@@ -13,6 +13,6 @@ for _xarr in xarrs:
     if output is None: 
         output = _xarr
     else: 
-        output=xr.concat(output,_xarr.copy(deep=True),'time')
+        output=xr.concat([output,_xarr.copy(deep=True)],'time')
 
 print(output.coords['time'])
