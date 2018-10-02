@@ -56,7 +56,7 @@ if len(_params['products']) > 1:
 									   dag=dag, taxprefix="masked_{}_".format(_params['products'][1])
 
 									   )
-	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", dag=dag,taxprefix="joined")
+	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", dag=dag,taxprefix="joined", params={'bands': _params['bands']})
 else:
 	full_query = masked0
 
