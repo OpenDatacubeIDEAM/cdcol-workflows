@@ -34,13 +34,14 @@ def perform_timeseries_analysis(dataset_in, no_data=-9999):
                                 data.values.shape).astype(int)
     # Create xarray of data
     time = data.time
-
+    print(data.coords)
+    print(data.dims)
     if hasattr(data, "latitude"):
         latitude = data.latitude
         longitude = data.longitude
         clean_data = xr.DataArray(clean_data_raw,
-                                  coords=[time, latitude, longitude],
-                                  dims=['time', 'latitude', 'longitude'])
+                                  coords=data.coords,
+                                  dims=data.dims)
     else:
         y = data.y
         x = data.x

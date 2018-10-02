@@ -17,7 +17,7 @@ _params = {
 	'vegetation_rate': 0.3,
 	'slice_size': 3,
 	'products': ["LS8_OLI_LASRC", "LS7_ETM_LEDAPS"],
-	'mosaic': True
+	'mosaic': False
 }
 
 args={
@@ -42,7 +42,7 @@ masked0=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                 'bands':_params['bands'],
                 'minValid': _params['minValid']
         },
-        dag=dag, taxprefix="masked_"+_params['products'][0]
+        dag=dag, taxprefix="masked_{}_".format(_params['products'][0])
 
 )
 if len(_params['products']) > 1:
@@ -55,7 +55,7 @@ if len(_params['products']) > 1:
 										   'bands': _params['bands'],
 										   'minValid': _params['minValid']
 									   },
-									   dag=dag, taxprefix="masked_"+_params['products'][1]
+									   dag=dag, taxprefix="masked_{}_".format(_params['products'][1])
 
 									   )
 	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", dag=dag,taxprefix="joined")
@@ -86,19 +86,20 @@ bosque=dag_utils.IdentityMap(
 	},
 	dag=dag, taxprefix="bosque",
 )
-if _params['mosaic']:
-	mosaic=CDColReduceOperator(
-		task_id='mosaic',
-		algorithm='joiner',
-		version='1.0',
-		dag=dag
-	)
-	map(lambda b: b>>mosaic,bosque)
-else:
-	reduce = CDColReduceOperator(
-		task_id='print_context',
-		algorithm='test-reduce',
-		version='1.0',
-		dag=dag)
 
-	map(lambda b: b >> reduce, bosque)
+
+if _params['mosaic']:
+	task_id = 'mosaic'
+	algorithm = 'joiner'
+
+else:
+	task_id = 'print_context'
+	algorithm = 'test-reduce'
+
+join = CDColReduceOperator(
+	task_id=task_id,
+	algorithm=algorithm,
+	version='1.0',
+	dag=dag
+)
+map(lambda b: b >> join, bosque)

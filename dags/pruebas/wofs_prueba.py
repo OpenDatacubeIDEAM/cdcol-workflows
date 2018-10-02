@@ -14,6 +14,8 @@ _params = {
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
     'normalized':True,
+    'products': ["LS8_OLI_LASRC", "LS7_ETM_LEDAPS"],
+	'mosaic': True
 }
 args = {
     'owner': 'cubo',
@@ -27,11 +29,11 @@ dag = DAG(
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
-queryLS8 = dag_utils.queryMapByTileByYear(
+wofs_classification = dag_utils.queryMapByTileByYear(
     lat=_params['lat'],
     lon=_params['lon'],
     time_ranges=_params['time_ranges'],
-    algorithm="just-query",
+    algorithm="wofs-wf",
     version="1.0",
     product="LS8_OLI_LASRC",
     params={
@@ -40,16 +42,8 @@ queryLS8 = dag_utils.queryMapByTileByYear(
         'minValid':_params['minValid'],
     },
     dag=dag,
-    taxprefix="queryLS8_"
+    taxprefix="wofs_"
 )
-
-
-wofs_classification=dag_utils.IdentityMap(
-        queryLS8,
-        algorithm="wofs-wf",
-        version="1.0",
-        taxprefix="wofs_",
-        dag=dag)
 
 joins=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce",version="1.0",dag=dag, taxprefix="joined")
 
@@ -61,10 +55,18 @@ time_series=dag_utils.IdentityMap(
         dag=dag
 )
 
-reduce= CDColReduceOperator(
-    task_id='print_context',
-    algorithm='test-reduce',
-    version='1.0',
-    dag=dag)
+if _params['mosaic']:
+	task_id = 'mosaic'
+	algorithm = 'joiner'
 
-map(lambda b: b>>reduce,time_series)
+else:
+	task_id = 'print_context'
+	algorithm = 'test-reduce'
+
+join = CDColReduceOperator(
+	task_id=task_id,
+	algorithm=algorithm,
+	version='1.0',
+	dag=dag
+)
+map(lambda b: b >> join, bosque)

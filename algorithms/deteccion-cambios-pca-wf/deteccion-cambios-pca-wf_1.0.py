@@ -4,8 +4,8 @@ from scipy.cluster.vq import kmeans2,vq
 import xarray as xr
 import numpy as np
 
-medians = xarrs[0]
-medians = xarrs[1]
+medians1 = xarrs[0]
+medians2 = xarrs[1]
 #Preprocesar:
 nmed=None
 nan_mask=None
@@ -25,8 +25,29 @@ for band in medians1:
     nan_mask=np.logical_or(nan_mask, np.isnan(c))
     c[np.isnan(c)]=np.nanmedian(c)
     nmed=np.vstack((nmed,c))
-del medians1
-del medians2
+
 #PCA
 r_PCA=PCA(nmed.T)
 salida= r_PCA.Y.T.reshape((r_PCA.Y.T.shape[0],)+sp)
+#Kmeans - 4 clases
+km_centroids, kmvalues=kmeans2(r_PCA.Y,4)
+#Salida:
+salida[:,nan_mask.reshape(sp)]=np.nan
+kmv= kmvalues.T.reshape(sp)
+kmv[nan_mask.reshape(sp)]=nodata
+coordenadas = []
+dimensiones =[]
+xcords = {}
+for coordenada in xarrs[0].coords:
+    if(coordenada != 'time'):
+        coordenadas.append( ( coordenada, xarrs[0].coords[coordenada]) )
+        dimensiones.append(coordenada)
+        xcords[coordenada] = xarr0.coords[coordenada]
+valores = {"kmeans": xr.DataArray(kmv, dims=dimensiones, coords=coordenadas)}
+i=1
+for x in salida:
+    valores["pc"+str(i)]=xr.DataArray(x, dims=dimensiones, coords=coordenadas)
+    i+=1
+output = xr.Dataset(valores, attrs={'crs': xarrs[0].crs})
+for coordenada in output.coords:
+    output.coords[coordenada].attrs["units"] = xarrs[0].coords[coordenada].units

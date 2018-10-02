@@ -14,7 +14,8 @@ _params = {
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
     'normalized':True,
-    'classes':4
+    'classes':4,
+    'products': ["LS8_OLI_LASRC", "LS7_ETM_LEDAPS"],
 }
 
 
@@ -30,20 +31,37 @@ dag = DAG(
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
-maskedLS8 = dag_utils.queryMapByTile(lat=_params['lat'],
-                                     lon=_params['lon'],
-                                     time_ranges=_params['time_ranges'],
-                                     algorithm="mascara-landsat", version="1.0",
-                                     product="LS8_OLI_LASRC",
-                                     params={
-                                         'normalized':_params['normalized'],
-                                         'bands': _params['bands'],
-                                         'minValid': _params['minValid'],
-                                     },
-                                     dag=dag, taxprefix="maskedLS8_")
+masked0=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
+	time_ranges= _params['time_ranges'],
+	algorithm="mascara-landsat", version="1.0",
+        product=_params['products'][0],
+        params={
+                'normalized':_params['normalized'],
+                'bands':_params['bands'],
+                'minValid': _params['minValid']
+        },
+        dag=dag, taxprefix="masked_{}_".format(_params['products'][0])
+
+)
+if len(_params['products']) > 1:
+	masked1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
+									   time_ranges=_params['time_ranges'],
+									   algorithm="mascara-landsat", version="1.0",
+									   product=_params['products'][1],
+									   params={
+										   'normalized': _params['normalized'],
+										   'bands': _params['bands'],
+										   'minValid': _params['minValid']
+									   },
+									   dag=dag, taxprefix="masked_{}_".format(_params['products'][1])
+
+									   )
+	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", dag=dag,taxprefix="joined")
+else:
+	full_query = masked0
 
 medians = dag_utils.IdentityMap(
-    maskedLS8,
+    full_query,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
     taxprefix="medianas_",
@@ -66,10 +84,10 @@ kmeans = dag_utils.IdentityMap(
     params={'classes': _params['classes']}
 )
 
-reduce= CDColReduceOperator(
+join = CDColReduceOperator(
     task_id='print_context',
     algorithm='test-reduce',
     version='1.0',
-    dag=dag)
-
-map(lambda b: b >> reduce, kmeans)
+    dag=dag
+)
+map(lambda b: b >> join, kmeans)

@@ -79,23 +79,7 @@ mosaic1 = dag_utils.OneReduce(medians1, algorithm="joiner", version="1.0", dag=d
 
 mosaic2 = dag_utils.OneReduce(medians2, algorithm="joiner", version="1.0", dag=dag, taxprefix="mosaic2")
 
-preprocess = dag_utils.reduceByTile(mosaic1+mosaic2, algorithm="preprocess-two", version="1.0", dag=dag, taxprefix="preprocess")
-
-pca = dag_utils.IdentityMap(
-   preprocess,
-    algorithm="deteccion-cambios-pca-wf",
-    version="1.0",
-    taxprefix="pca_",
-    dag=dag,
-)
-kmeans = dag_utils.IdentityMap(
-    pca,
-    algorithm="k-means-wf",
-    version="1.0",
-    taxprefix="kmeans_",
-    dag=dag,
-    params={'classes': _classes}
-)
+pca = dag_utils.reduceByTile(mosaic1+mosaic2, algorithm="deteccion-cambios-pca-wf", version="1.0", dag=dag, taxprefix="pca_")
 
 
 reduce= CDColReduceOperator(
@@ -104,4 +88,4 @@ reduce= CDColReduceOperator(
     version='1.0',
     dag=dag)
 
-map(lambda b: b >> reduce, kmeans)
+map(lambda b: b >> reduce, pca)

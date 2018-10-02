@@ -8,25 +8,26 @@ from datetime import timedelta
 from pprint import pprint
 
 _params = {
-    'lat': (0,2),
-    'lon': (-74,-72),
-    'time_ranges': [("2014-01-01", "2014-12-31")],
+    'lat': (9,10),
+    'lon': (-76,-74),
+    'time_ranges': [("2013-01-01", "2013-12-31")],
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
     'normalized':True,
+    'modelos':'/web_storage/downloads/models/',
     'products': ["LS8_OLI_LASRC", "LS7_ETM_LEDAPS"],
-	'mosaic': False
 }
+
 
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID': "ndvi",
+    'execID': "kmeans",
     'product': "LS8_OLI_LASRC"
 }
 
 dag = DAG(
-    dag_id='ndvi', default_args=args,
+    dag_id='kmeans', default_args=args,
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
@@ -59,6 +60,7 @@ if len(_params['products']) > 1:
 else:
 	full_query = masked0
 
+
 medians = dag_utils.IdentityMap(
     full_query,
     algorithm="compuesto-temporal-medianas-wf",
@@ -71,15 +73,28 @@ medians = dag_utils.IdentityMap(
         'minValid': _params['minValid'],
     })
 
-ndvi=dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", dag=dag, taxprefix="ndvi")
 
-if _params['mosaic']:
-	task_id = 'mosaic'
-	algorithm = 'joiner'
+mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", dag=dag, taxprefix="mosaic")
 
-else:
-	task_id = 'print_context'
-	algorithm = 'test-reduce'
+generic_classification = dag_utils.IdentityMap(
+    mosaic,
+    algorithm="clasificador-generico-wf",
+    version="1.0",
+    taxprefix="clasificador_generico_",
+    dag=dag,
+    params={
+        'normalized':_params['normalized'],
+        'bands': _params['bands'],
+        'minValid': _params['minValid'],
+        'modelos': _params['modelos']
+    }
+)
 
-join = CDColReduceOperator(task_id=task_id,algorithm=algorithm,version='1.0',dag=dag)
-map(lambda b: b >> join, ndvi)
+
+join = CDColReduceOperator(
+        task_id='print_context',
+        algorithm='test-reduce',
+        version='1.0',
+        dag=dag
+    )
+map(lambda b: b >> join, generic_classification)
