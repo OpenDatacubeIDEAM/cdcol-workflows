@@ -45,7 +45,7 @@ wofs_classification = dag_utils.queryMapByTileByYear(
     taxprefix="wofs_"
 )
 
-joins=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce",version="1.0",dag=dag, taxprefix="joined")
+joins=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce-wofs",version="1.0",dag=dag, taxprefix="joined")
 
 time_series=dag_utils.IdentityMap(
     joins,

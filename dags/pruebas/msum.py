@@ -45,7 +45,7 @@ maskedLS7 = dag_utils.queryMapByTile( lat=_lat,
         },
         dag=dag, taxprefix="maskedLS7_")
 
-joins=dag_utils.reduceByTile(maskedLS7+maskedLS8, algorithm="joiner-reduce",version="1.0",dag=dag, taxprefix="joined")
+joins=dag_utils.reduceByTile(maskedLS7+maskedLS8, algorithm="joiner-reduce-wofs",version="1.0",dag=dag, taxprefix="joined")
 medians=dag_utils.IdentityMap(
         joins,
         algorithm="compuesto-temporal-medianas-wf",
