@@ -31,7 +31,7 @@ dag = DAG(
     dagrun_timeout=timedelta(minutes=120))
 
 period1 = dag_utils.queryMapByTile(lat=_params['lat'],
-                                     lon=_params['lon'], time_ranges=_params['time_ranges'],
+                                     lon=_params['lon'], time_ranges=_params['time_ranges'][0],
                                      algorithm="mascara-landsat", version="1.0",
                                      product="LS8_OLI_LASRC",
                                      params={
