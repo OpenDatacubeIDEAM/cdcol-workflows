@@ -33,16 +33,17 @@ dag=DAG(
 )
 
 
-masked0=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
+masked0=dag_utils.queryMapByTile(
+	lat=_params['lat'],
+	lon=_params['lon'],
 	time_ranges= _params['time_ranges'],
 	algorithm="mascara-landsat", version="1.0",
-        product=_params['products'][0],
-        params={
-                'normalized':_params['normalized'],
-                'bands':_params['bands'],
-                'minValid': _params['minValid']
-        },
-        dag=dag, taxprefix="masked_{}_".format(_params['products'][0])
+	product=_params['products'][0],
+	params={
+		'normalized':_params['normalized'],
+		'bands':_params['bands'],
+		'minValid': _params['minValid']
+	}, queue='airflow_small_tasks', dag=dag, taxprefix="masked_{}_".format(_params['products'][0])
 
 )
 if len(_params['products']) > 1:
@@ -55,10 +56,10 @@ if len(_params['products']) > 1:
 										   'bands': _params['bands'],
 										   'minValid': _params['minValid']
 									   },
-									   dag=dag, taxprefix="masked_{}_".format(_params['products'][1])
+									   queue='airflow_small_tasks', dag=dag,  taxprefix="masked_{}_".format(_params['products'][1])
 
 									   )
-	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", dag=dag,taxprefix="joined" , params={'bands': _params['bands']})
+	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue='airflow', dag=dag,  taxprefix="joined" , params={'bands': _params['bands']})
 else:
 	full_query = masked0
 
@@ -67,6 +68,7 @@ medians=dag_utils.IdentityMap(
 	algorithm="compuesto-temporal-medianas-wf",
 	version="1.0",
 	taxprefix="medianas_",
+	queue='airflow_small_tasks',
 	dag=dag,
 	params={
 		'normalized':_params['normalized'],
@@ -74,7 +76,7 @@ medians=dag_utils.IdentityMap(
         'minValid': _params['minValid']
 	},
 )
-ndvi=dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", dag=dag, taxprefix="ndvi")
+ndvi=dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", queue='airflow_small_tasks', dag=dag,  taxprefix="ndvi")
 bosque=dag_utils.IdentityMap(
 	ndvi,
 	algorithm="bosque-no-bosque-wf",
@@ -84,22 +86,24 @@ bosque=dag_utils.IdentityMap(
 		'vegetation_rate':_params['vegetation_rate'],
 		'slice_size':_params['slice_size']
 	},
-	dag=dag, taxprefix="bosque",
+	queue='airflow_small_tasks', dag=dag,  taxprefix="bosque",
 )
 
 
 if _params['mosaic']:
 	task_id = 'mosaic'
 	algorithm = 'joiner'
+	queue = 'airflow'
 
 else:
 	task_id = 'print_context'
 	algorithm = 'test-reduce'
+	queue = 'airflow_small_tasks'
 
 join = CDColReduceOperator(
 	task_id=task_id,
 	algorithm=algorithm,
 	version='1.0',
-	dag=dag
+	queue=queue, dag=dag
 )
 map(lambda b: b >> join, bosque)

@@ -8,16 +8,17 @@ from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColRe
 from datetime import timedelta, datetime
 from pprint import pprint
 
-def queryMapByTile(lat,lon,time_ranges,dag, queue, algorithm,version,params={},taxprefix="med",**kwargs):
+def queryMapByTile(lat,lon,time_ranges, queue, dag,  algorithm,version,params={},taxprefix="med",**kwargs):
     return [CDColQueryOperator(
         algorithm=algorithm,version=version,
         lat=(LAT,LAT+1), 
         lon=(LON,LON+1),
         time_ranges=time_ranges,
         params=params,
-        dag=dag, queue=queue, task_id="{}{}{}".format(taxprefix,str(LAT),str(LON)),**kwargs) for LAT in range(*lat) for LON in range(*lon)]
+        queue=queue,
+        dag=dag, task_id="{}{}{}".format(taxprefix,str(LAT),str(LON)),**kwargs) for LAT in range(*lat) for LON in range(*lon)]
 
-def queryMapByTileByYear(lat,lon,time_ranges,dag, queue, algorithm,version,params={},taxprefix="med",**kwargs):
+def queryMapByTileByYear(lat,lon,time_ranges,queue, dag, algorithm,version,params={},taxprefix="med",**kwargs):
 
     return [CDColQueryOperator(
         algorithm=algorithm, version=version,
@@ -26,31 +27,33 @@ def queryMapByTileByYear(lat,lon,time_ranges,dag, queue, algorithm,version,param
         lon=(LON, LON + 1),
         time_ranges=[("01-01-"+str(T),"31-12-"+str(T))],
         params=params,
-        dag=dag, queue=queue, task_id="{}{}{}_{}".format(taxprefix, str(LAT), str(LON), "01-01-"+str(T)+"_31-12-"+str(T)), **kwargs) for LAT in range(*lat) for LON in range(*lon) for T in xrange(int(time_ranges[0][0].split('-')[0]), (int(time_ranges[0][1].split('-')[0]))+1) ]
+        queue=queue,
+        dag=dag, task_id="{}{}{}_{}".format(taxprefix, str(LAT), str(LON), "01-01-"+str(T)+"_31-12-"+str(T)), **kwargs) for LAT in range(*lat) for LON in range(*lon) for T in xrange(int(time_ranges[0][0].split('-')[0]), (int(time_ranges[0][1].split('-')[0]))+1) ]
 
 
-def IdentityMap(upstream,algorithm,version,dag, queue, taxprefix,params={}):
+def IdentityMap(upstream,algorithm,version, queue, dag, taxprefix,params={}):
     i=1
     tasks=[]
     for prev in upstream:
-        _t=CDColFromFileOperator(algorithm=algorithm,version=version,dag=dag, queue=queue, lat=prev.lat, lon=prev.lon, task_id=taxprefix+str(i),params=params)
+        _t=CDColFromFileOperator(algorithm=algorithm,version=version,queue=queue, dag=dag,  lat=prev.lat, lon=prev.lon, task_id=taxprefix+str(i),params=params)
         i+=1
         prev>>_t
         tasks.append(_t)
     
     return tasks
     
-def OneReduce(upstream, algorithm,version, dag, queue, taxprefix, params={}):
+def OneReduce(upstream, algorithm,version, queue, dag,  taxprefix, params={}):
     reduce= CDColReduceOperator(
         task_id=taxprefix,
         algorithm=algorithm,
         version=version,
         params=params,
-        dag=dag, queue=queue)
+        queue=queue,
+        dag=dag)
     map(lambda b: b>>reduce,upstream)
     return [reduce]
     
-def reduceByTile(upstream, algorithm,version, dag, queue, taxprefix, params={}):
+def reduceByTile(upstream, algorithm,version, queue, dag,  taxprefix, params={}):
     reducers={}
     for prev in upstream:
         key="{}_{}".format(prev.lat,prev.lon)
@@ -62,8 +65,8 @@ def reduceByTile(upstream, algorithm,version, dag, queue, taxprefix, params={}):
                 params=params,
                 lat=prev.lat,
                 lon=prev.lon,
-                dag=dag,
-                queue=queue)
+                queue=queue,
+                dag=dag)
         prev>>reducers[key]
     return reducers.values()
 

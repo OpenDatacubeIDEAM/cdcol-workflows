@@ -39,7 +39,7 @@ period1 = dag_utils.queryMapByTile(lat=_params['lat'],
                                          'bands': _params['bands'],
                                          'minValid': _params['minValid'],
                                      },
-                                     dag=dag, taxprefix="period1_")
+                                    queue='airflow_small_tasks', dag=dag, taxprefix="period1_")
 
 period2 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      lon=_params['lon'], time_ranges=_params['time_ranges'][1],
@@ -50,12 +50,13 @@ period2 = dag_utils.queryMapByTile(lat=_params['lat'],
                                          'bands': _params['bands'],
                                          'minValid': _params['minValid'],
                                      },
-                                     dag=dag, taxprefix="period2_")
+                                   queue='airflow_small_tasks', dag=dag, taxprefix="period2_")
 medians1 = dag_utils.IdentityMap(
    period1,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
     taxprefix="medianas_",
+    queue='airflow_small_tasks',
     dag=dag,
     params={
         'normalized': _params['normalized'],
@@ -68,6 +69,7 @@ medians2 = dag_utils.IdentityMap(
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
     taxprefix="medianas_",
+    queue='airflow_small_tasks',
     dag=dag,
     params={
         'normalized': _params['normalized'],
@@ -75,17 +77,18 @@ medians2 = dag_utils.IdentityMap(
         'minValid': _params['minValid'],
     })
 
-mosaic1 = dag_utils.OneReduce(medians1, algorithm="joiner", version="1.0", dag=dag, taxprefix="mosaic1")
+mosaic1 = dag_utils.OneReduce(medians1, algorithm="joiner", version="1.0", queue='airflow', dag=dag, taxprefix="mosaic1")
 
-mosaic2 = dag_utils.OneReduce(medians2, algorithm="joiner", version="1.0", dag=dag, taxprefix="mosaic2")
+mosaic2 = dag_utils.OneReduce(medians2, algorithm="joiner", version="1.0", queue='airflow', dag=dag, taxprefix="mosaic2")
 
-pca = dag_utils.reduceByTile(mosaic1+mosaic2, algorithm="deteccion-cambios-pca-wf", version="1.0", dag=dag, taxprefix="pca_")
+pca = dag_utils.reduceByTile(mosaic1+mosaic2, algorithm="deteccion-cambios-pca-wf", version="1.0", queue='airflow', dag=dag, taxprefix="pca_")
 
 
 reduce= CDColReduceOperator(
     task_id='print_context',
     algorithm='test-reduce',
     version='1.0',
+    queue='airflow',
     dag=dag)
 
 map(lambda b: b >> reduce, pca)

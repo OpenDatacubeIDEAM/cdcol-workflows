@@ -40,27 +40,29 @@ wofs_classification = dag_utils.queryMapByTileByYear(
         'bands':_params['bands'],
         'minValid':_params['minValid'],
     },
+    queue='airflow_small_tasks',
     dag=dag,
     taxprefix="wofs_"
 )
 
-reduce=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce-wofs",version="1.0",dag=dag, taxprefix="joined", params={'bands': _params['bands']})
+reduce=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce-wofs",version="1.0",queue='airflow', dag=dag, taxprefix="joined", params={'bands': _params['bands']})
 
 time_series=dag_utils.IdentityMap(
     reduce,
         algorithm="wofs-time-series-wf",
         version="1.0",
         taxprefix="wofs_time_series_",
+        queue='airflow',
         dag=dag
 )
 
 if _params['mosaic']:
-	task_id = 'mosaic'
-	algorithm = 'joiner'
+    task_id = 'mosaic'
+    algorithm = 'joiner'
 
 else:
 	task_id = 'print_context'
 	algorithm = 'test-reduce'
 
-join = CDColReduceOperator(task_id=task_id,algorithm=algorithm,version='1.0',dag=dag)
+join = CDColReduceOperator(task_id=task_id,algorithm=algorithm,version='1.0',queue='airflow',dag=dag)
 map(lambda b: b >> join, time_series)
