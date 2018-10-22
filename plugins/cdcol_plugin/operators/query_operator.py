@@ -39,13 +39,11 @@ class CDColQueryOperator(BaseOperator):
         dc = datacube.Datacube(app=self.execID)
         i=0
         kwargs=self.alg_kwargs
-        for tr in self.time_ranges:
-            xanm="xarr"+str(i)
-            kwargs[xanm] = dc.load(product=self.product, longitude=self.lon, latitude=self.lat, time=tr)
-            i+=1
-            if len(kwargs[xanm].data_vars) == 0:
-                open(folder+"{}_{}_no_data.lock".format(self.lat[0],self.lon[0]), "w+").close()
-                return []
+        xanm="xarr0"
+        kwargs[xanm] = dc.load(product=self.product, longitude=self.lon, latitude=self.lat, time=self.time_ranges)
+        if len(kwargs[xanm].data_vars) == 0:
+            open(folder+"{}_{}_no_data.lock".format(self.lat[0],self.lon[0]), "w+").close()
+            return []
         dc.close()
         
         kwargs["product"]=self.product
