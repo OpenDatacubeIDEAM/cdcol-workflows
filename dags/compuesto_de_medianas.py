@@ -10,11 +10,11 @@ from pprint import pprint
 _params = {
     'lat': (9,11),
 	'lon': (-76,-74),
-	'time_ranges': ("2013-01-01", "2013-12-31"),
+	'time_ranges': ("2008-01-01", "2018-12-31"),
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
     'normalized':True,
-    'products': ["LS8_OLI_LASRC", "LS7_ETM_LEDAPS"],
+    'products': ["LS7_ETM_LEDAPS"],
 	'mosaic': True
 }
 
@@ -22,7 +22,7 @@ args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
     'execID': "compuestoDeMedianas",
-    'product': "LS8_OLI_LASRC"
+    'product': "LS7_ETM_LEDAPS"
 }
 
 dag = DAG(
@@ -55,7 +55,7 @@ if len(_params['products']) > 1:
                                       queue='airflow_small_tasks',dag=dag , taxprefix="masked_{}_".format(_params['products'][1])
 
 									   )
-	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue='airflow', dag=dag,   taxprefix="joined", params={'bands': _params['bands']},)
+	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue='airflow_small_tasks', dag=dag,   taxprefix="joined", params={'bands': _params['bands']},)
 else:
 	full_query = masked0
 
