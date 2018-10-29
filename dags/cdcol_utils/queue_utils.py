@@ -3,8 +3,8 @@ import datetime
 scores = {
     'small':range(0,2) ,
     'medium':range(3,4),
-    'large':range(5,10),
-    'xlarge':range(10,18)
+    'large':range(5,8),
+    'xlarge':range(8,18)
 }
 
 def get_queue_by_year(time_range, entrada_multi_temporal,tiles ):
