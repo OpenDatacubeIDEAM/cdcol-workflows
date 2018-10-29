@@ -8,9 +8,9 @@ from datetime import timedelta
 from pprint import pprint
 
 _params = {
-    'lat': (9,11),
-	'lon': (-76,-74),
-	'time_ranges': ("2008-01-01", "2009-12-31"),
+    'lat': (9,10),
+	'lon': (-76,-75),
+	'time_ranges': ("2008-01-01", "2010-12-31"),
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
     'normalized':True,
