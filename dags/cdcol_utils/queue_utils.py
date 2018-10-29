@@ -7,11 +7,11 @@ scores = {
     'xlarge':range(10,18)
 }
 
-def get_queue_by_year(time_range, resultado_multi_temporal,tiles ):
+def get_queue_by_year(time_range, entrada_multi_temporal,tiles ):
     start_date_value = datetime.datetime.strptime(time_range[0], "%d-%m-%Y")
     end_date_value = datetime.datetime.strptime(time_range[1], "%d-%m-%Y")
     anhos += 1 + (end_date_value.year - start_date_value.year)
-    score = (anhos*tiles) if resultado_multi_temporal else anhos;
+    score = (anhos*tiles) if entrada_multi_temporal else anhos;
     if score in scores['small']:
         return 'airflow_small'
     elif scores['medium']:
