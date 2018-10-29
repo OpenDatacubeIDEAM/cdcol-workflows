@@ -1,16 +1,22 @@
+import datetime
+
 scores = {
-    'small':(0,2) ,
-    'medium':(3,8)
+    'small':range(0,2) ,
+    'medium':range(3,4),
+    'large':range(5,10),
+    'xlarge':range(10,18)
 }
 
-def get_queue_by_year(time_range, algoritmo, ):
-    start_date_value = datetime.datetime.strptime(start_date, "%d-%m-%Y")
-    end_date_value = datetime.datetime.strptime(end_date, "%d-%m-%Y")
+def get_queue_by_year(time_range, resultado_multi_temporal,tiles ):
+    start_date_value = datetime.datetime.strptime(time_range[0], "%d-%m-%Y")
+    end_date_value = datetime.datetime.strptime(time_range[1], "%d-%m-%Y")
     anhos += 1 + (end_date_value.year - start_date_value.year)
-
-    if anhos <=2:
+    score = (anhos*tiles) if resultado_multi_temporal else anhos;
+    if score in scores['small']:
         return 'airflow_small'
-    elif anhos >= 3 and anhos <=8:
+    elif scores['medium']:
         return 'airflow_medium'
-    elif anhos >= 9 and anhos <=15:
+    elif scores['large']:
         return 'airflow_large'
+    else:
+        return 'airflow_xlarge'
