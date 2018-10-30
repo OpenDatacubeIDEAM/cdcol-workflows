@@ -20,7 +20,7 @@ _params = {
 
 _queues = {
 
-    'mascara-landsat': 'airflow_small',
+    'mascara-landsat': queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
     'joiner-reduce': 'airflow_small',
     'compuesto-temporal-medianas-wf':'airflow_small',
     'ndvi-wf' : 'airflow_small',
