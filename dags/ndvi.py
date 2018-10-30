@@ -2,7 +2,7 @@
 import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
-from cdcol_utils import dag_utils
+from cdcol_utils import dag_utils, queue_utils
 
 from datetime import timedelta
 from pprint import pprint
@@ -25,7 +25,7 @@ _queues = {
     'compuesto-temporal-medianas-wf':'airflow_small',
     'ndvi-wf' : 'airflow_small',
     'joiner': 'airflow_small',
-    'test-reduce': 'airflow_small',
+    'test-reduce': queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1),
 }
 
 args = {
