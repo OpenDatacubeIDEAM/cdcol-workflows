@@ -21,10 +21,10 @@ _params = {
 _queues = {
 
     'mascara-landsat': queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
-    'joiner-reduce': 'airflow_small',
-    'compuesto-temporal-medianas-wf':'airflow_small',
-    'ndvi-wf' : 'airflow_small',
-    'joiner': 'airflow_small',
+    'joiner-reduce': queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
+    'compuesto-temporal-medianas-wf':queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
+    'ndvi-wf' : queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
+    'joiner': queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=(_params['lat'][1] - _params['lat'][0])*(_params['lon'][1] - _params['lon'][0]) ),
     'test-reduce': queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1),
 }
 
