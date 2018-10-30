@@ -31,12 +31,12 @@ _queues = {
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID':"wofs",
+    'execID':"wofs-wf",
     'product':"LS8_OLI_LASRC"
 }
 
 dag = DAG(
-    dag_id='wofs', default_args=args,
+    dag_id='wofs-wf', default_args=args,
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
@@ -57,10 +57,10 @@ wofs_classification = dag_utils.queryMapByTileByYear(
     taxprefix="wofs_"
 )
 
-reduce=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce-wofs",version="1.0",queue=_queues['joiner-reduce-wofs'], dag=dag, taxprefix="joined", params={'bands': _params['bands']})
+reducer=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce-wofs",version="1.0",queue=_queues['joiner-reduce-wofs'], dag=dag, taxprefix="joined", params={'bands': _params['bands']})
 
 time_series=dag_utils.IdentityMap(
-    reduce,
+    reducer,
         algorithm="wofs-time-series-wf",
         version="1.0",
         taxprefix="wofs_time_series_",
