@@ -1,8 +1,7 @@
 import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
-from cdcol_utils import dag_utils
-from cdcol_utils import queue_utils
+from cdcol_utils import dag_utils, queue_utils
 
 
 from datetime import timedelta
