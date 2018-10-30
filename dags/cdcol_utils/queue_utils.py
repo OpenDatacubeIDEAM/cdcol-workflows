@@ -3,7 +3,7 @@ import datetime
 scores = {
     'small':range(0,2) ,
     'medium':range(3,4),
-    'large':range(5,8),
+    'large':range(5,7),
     'xlarge':range(8,18)
 }
 

@@ -3,6 +3,7 @@ import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
 from cdcol_utils import dag_utils
+from cdcol_utils import queue_utils as qu
 
 from datetime import timedelta
 from pprint import pprint
@@ -10,7 +11,7 @@ from pprint import pprint
 _params = {
     'lat': (9,10),
 	'lon': (-76,-75),
-	'time_ranges': ("2008-01-01", "2016-12-31"),
+	'time_ranges': ("2008-01-01", "2018-12-31"),
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
     'normalized':True,
