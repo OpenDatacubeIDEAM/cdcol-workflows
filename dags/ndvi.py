@@ -18,6 +18,16 @@ _params = {
 	'mosaic': False
 }
 
+_queues = {
+
+    'mascara-landsat': 'airflow_small',
+    'joiner-reduce': 'airflow_small',
+    'compuesto-temporal-medianas-wf':'airflow_small',
+    'ndvi-wf' : 'airflow_small',
+    'joiner': 'airflow_small',
+    'test-reduce': 'airflow_small',
+}
+
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
@@ -38,7 +48,7 @@ masked0=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                 'normalized':_params['normalized'],
                 'bands':_params['bands'],
                 'minValid': _params['minValid']
-        },queue='airflow_small_tasks',dag=dag, taxprefix="masked_{}_".format(_params['products'][0])
+        },queue=_queues['mascara-landsat'],dag=dag, taxprefix="masked_{}_".format(_params['products'][0])
 
 )
 if len(_params['products']) > 1:
@@ -50,8 +60,8 @@ if len(_params['products']) > 1:
 										   'normalized': _params['normalized'],
 										   'bands': _params['bands'],
 										   'minValid': _params['minValid']
-									   },queue='airflow_small_tasks',dag=dag, taxprefix="masked_{}_".format(_params['products'][1]))
-	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0",queue='airflow_small_tasks', dag=dag,taxprefix="joined",params={'bands': _params['bands']})
+									   },queue=_queues['mascara-landsat'],dag=dag, taxprefix="masked_{}_".format(_params['products'][1]))
+	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0",queue=_queues['joiner-reduce'], dag=dag,taxprefix="joined",params={'bands': _params['bands']})
 else:
 	full_query = masked0
 
@@ -60,7 +70,7 @@ medians = dag_utils.IdentityMap(
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
     taxprefix="medianas_",
-    queue='airflow_small_tasks',
+    queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
         'normalized': _params['normalized'],
@@ -68,17 +78,17 @@ medians = dag_utils.IdentityMap(
         'minValid': _params['minValid'],
     })
 
-ndvi=dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", queue='airflow_small_tasks', dag=dag, taxprefix="ndvi")
+ndvi=dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", queue=_queues['ndvi-wf'], dag=dag, taxprefix="ndvi")
 
 if _params['mosaic']:
     task_id = 'mosaic'
     algorithm = 'joiner'
-    queue = 'airflow',
+    queue = _queues['joiner'],
 
 else:
     task_id = 'print_context'
     algorithm = 'test-reduce'
-    queue = 'airflow_small_tasks',
+    queue = _queues['test-reduce'],
 
 join = CDColReduceOperator(task_id=task_id,algorithm=algorithm,version='1.0',queue=queue,dag=dag)
 map(lambda b: b >> join, ndvi)
