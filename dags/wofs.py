@@ -16,14 +16,14 @@ _params = {
     'minValid':1,
     'normalized':True,
     'mosaic':True,
-    'tiles':(_params['lat'][1] - _params['lat'][0])*(_params['lon'][1] - _params['lon'][0])
 }
 
 _queues = {
+
     'wofs-wf': qu.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
     'joiner-reduce-wofs': qu.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
     'wofs-time-series-wf': qu.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
-    'mosaic': qu.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=_params['tiles'] ),
+    'mosaic': qu.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=(_params['lat'][1] - _params['lat'][0])*(_params['lon'][1] - _params['lon'][0]) ),
     'test-reduce': qu.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1),
 }
 
