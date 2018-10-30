@@ -19,6 +19,7 @@ _params = {
 	'mosaic': True
 }
 
+
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
