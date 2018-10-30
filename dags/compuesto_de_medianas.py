@@ -40,7 +40,7 @@ masked0=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                 'bands':_params['bands'],
                 'minValid': _params['minValid']
         },
-        queue='airflow_large', dag=dag, taxprefix="masked_{}_".format(_params['products'][0])
+        queue='airflow_xlarge', dag=dag, taxprefix="masked_{}_".format(_params['products'][0])
 
 )
 if len(_params['products']) > 1:
@@ -53,10 +53,10 @@ if len(_params['products']) > 1:
 										   'bands': _params['bands'],
 										   'minValid': _params['minValid']
 									   },
-                                      queue='airflow_large',dag=dag , taxprefix="masked_{}_".format(_params['products'][1])
+                                      queue='airflow_xlarge',dag=dag , taxprefix="masked_{}_".format(_params['products'][1])
 
 									   )
-	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue='airflow_large', dag=dag,   taxprefix="joined", params={'bands': _params['bands']},)
+	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue='airflow_xlarge', dag=dag,   taxprefix="joined", params={'bands': _params['bands']},)
 else:
 	full_query = masked0
 
@@ -65,7 +65,7 @@ medians = dag_utils.IdentityMap(
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
     taxprefix="medianas_",
-    queue='airflow_large',dag=dag,
+    queue='airflow_xlarge',dag=dag,
     params={
         'normalized': _params['normalized'],
         'bands': _params['bands'],
@@ -75,13 +75,13 @@ medians = dag_utils.IdentityMap(
 if _params['mosaic']:
     task_id = 'mosaic'
     algorithm = 'joiner'
-    queue = 'airflow_large'
+    queue = 'airflow_xlarge'
 
 
 else:
     task_id = 'print_context'
     algorithm = 'test-reduce'
-    queue = 'airflow_large'
+    queue = 'airflow_xlarge'
 
 
 join = CDColReduceOperator(task_id=task_id,algorithm=algorithm,version='1.0', queue=queue, dag=dag)
