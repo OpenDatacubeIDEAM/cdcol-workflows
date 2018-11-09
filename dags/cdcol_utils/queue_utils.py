@@ -14,11 +14,7 @@ input_types = {
     'multi_unidad_temporal':3
 }
 
-def assign_queue(time_range, entrada_multi_temporal,tiles ):
-    start_date_value = datetime.datetime.strptime(time_range[0], "%Y-%m-%d")
-    end_date_value = datetime.datetime.strptime(time_range[1], "%Y-%m-%d")
-    anhos = 1 + (end_date_value.year - start_date_value.year)
-    score = (anhos*tiles) if entrada_multi_temporal else anhos;
+def get_queue_by_score(score):
     if score in scores['small']:
         return 'airflow_small'
     elif score in scores['medium']:
@@ -27,3 +23,20 @@ def assign_queue(time_range, entrada_multi_temporal,tiles ):
         return 'airflow_large'
     else:
         return 'airflow_xlarge'
+
+def assign_queue(input_type={}, time_range={}, lat={}, lon={}, unidades={} ):
+
+    score = 1
+    if input_type:
+        if 'temporal' in input_type:
+            start_date_value = datetime.datetime.strptime(time_range[0], "%Y-%m-%d")
+            end_date_value = datetime.datetime.strptime(time_range[1], "%Y-%m-%d")
+            anhos = 1 + (end_date_value.year - start_date_value.year)
+            score *= anhos
+        if 'area' in input_type:
+            tiles = (lat[1]-lat[0])*(lon[1]-lon[0])
+            score *= tiles
+        if 'unidad' in input_type:
+            score *= unidades
+    return get_queue_by_score(score)
+

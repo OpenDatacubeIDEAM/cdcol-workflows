@@ -19,13 +19,15 @@ _params = {
 
 _queues = {
 
-    'mascara-landsat': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1,  ),
-    'joiner-reduce': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
-    'compuesto-temporal-medianas-wf':queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
-    'joiner': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
-    'deteccion-cambios-pca-wf': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
-    'test-reduce': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1),
+    'mascara-landsat': queue_utils.assign_queue(),
+    'joiner-reduce': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
+    'compuesto-temporal-medianas-wf':queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products']) ),
+    'joiner': queue_utils.assign_queue(input_type='multi_area',lat=_params['lat'], lon=_params['lon'] ),
+    'deteccion-cambios-pca-wf': queue_utils.assign_queue(input_type='multi_area',lat=_params['lat'], lon=_params['lon'] ),
+    'test-reduce': queue_utils.assign_queue(input_type='multi_area',lat=_params['lat'], lon=_params['lon'] ),
 }
+
+
 
 
 args = {

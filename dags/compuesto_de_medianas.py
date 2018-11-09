@@ -21,11 +21,11 @@ _params = {
 
 _queues = {
 
-    'mascara-landsat': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1,  ),
-    'joiner-reduce': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
-    'compuesto-temporal-medianas-wf':queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
-    'joiner': queue_utils,
-    'test-reduce': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1),
+    'mascara-landsat': queue_utils.assign_queue(),
+    'joiner-reduce': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
+    'compuesto-temporal-medianas-wf':queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products']) ),
+    'joiner': queue_utils.assign_queue(input_type='multi_area',lat=_params['lat'], lon=_params['lon'] ),
+    'test-reduce': queue_utils.assign_queue(),
 }
 
 args = {
@@ -54,9 +54,7 @@ if len(_params['products']) > 1:
 									   algorithm="mascara-landsat", version="1.0",
 									   product=_params['products'][1],
 									   params={'bands': _params['bands']},
-                                      queue=_queues['mascara-landsat'],dag=dag , taxprefix="masked_{}_".format(_params['products'][1])
-
-									   )
+                                      queue=_queues['mascara-landsat'],dag=dag , taxprefix="masked_{}_".format(_params['products'][1]))
 	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue=_queues['joiner-reduce'], dag=dag,   taxprefix="joined", params={'bands': _params['bands']},)
 else:
 	full_query = masked0

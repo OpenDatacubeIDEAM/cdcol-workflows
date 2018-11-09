@@ -2,7 +2,7 @@ import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
 from cdcol_utils import dag_utils
-from cdcol_utils import queue_utils as qu
+from cdcol_utils import queue_utils
 
 
 from datetime import timedelta
@@ -20,11 +20,11 @@ _params = {
 
 _queues = {
 
-    'wofs-wf': qu.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
-    'joiner-reduce-wofs': qu.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
-    'wofs-time-series-wf': qu.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
-    'mosaic': qu.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=(_params['lat'][1] - _params['lat'][0])*(_params['lon'][1] - _params['lon'][0]) ),
-    'test-reduce': qu.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1),
+    'wofs-wf': queue_utils.get_queue_by_year(),
+    'joiner-reduce-wofs': queue_utils.get_queue_by_year(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
+    'wofs-time-series-wf': queue_utils.get_queue_by_year(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
+    'mosaic': queue_utils.get_queue_by_year(input_type='multi_temporal_unidad_area', time_range=_params['time_ranges'], lat=_params['lat'], lon=_params['lon'], unidades=len(_params['products'])),
+    'test-reduce': queue_utils.get_queue_by_year(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
 }
 
 
