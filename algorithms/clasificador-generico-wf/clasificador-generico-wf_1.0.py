@@ -1,4 +1,4 @@
-#Parámetros: normalized, minValid, bands, modelos
+#Parámetros: bands, modelos
 # In[7]:
 import xarray as xr
 import numpy as np

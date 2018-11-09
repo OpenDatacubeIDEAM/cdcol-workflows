@@ -47,11 +47,6 @@ wofs_classification = dag_utils.queryMapByTileByYear(
     algorithm="wofs-wf",
     version="1.0",
     product="LS8_OLI_LASRC",
-    params={
-        'normalized':_params['normalized'],
-        'bands':_params['bands'],
-        'minValid':_params['minValid'],
-    },
     queue= _queues['wofs-wf'],
     dag=dag,
     taxprefix="wofs_"

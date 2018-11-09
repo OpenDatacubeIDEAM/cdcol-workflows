@@ -19,6 +19,14 @@ _params = {
 	'mosaic': True
 }
 
+_queues = {
+
+    'mascara-landsat': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1,  ),
+    'joiner-reduce': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
+    'compuesto-temporal-medianas-wf':queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
+    'joiner': queue_utils,
+    'test-reduce': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1),
+}
 
 args = {
     'owner': 'cubo',
@@ -36,12 +44,8 @@ masked0=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 	time_ranges= _params['time_ranges'],
 	algorithm="mascara-landsat", version="1.0",
         product=_params['products'][0],
-        params={
-                'normalized':_params['normalized'],
-                'bands':_params['bands'],
-                'minValid': _params['minValid']
-        },
-        queue='airflow_xlarge', dag=dag, taxprefix="masked_{}_".format(_params['products'][0])
+        params={'bands':_params['bands']},
+        queue=_queues['mascara-landsat'], dag=dag, taxprefix="masked_{}_".format(_params['products'][0])
 
 )
 if len(_params['products']) > 1:
@@ -49,15 +53,11 @@ if len(_params['products']) > 1:
 									   time_ranges=_params['time_ranges'],
 									   algorithm="mascara-landsat", version="1.0",
 									   product=_params['products'][1],
-									   params={
-										   'normalized': _params['normalized'],
-										   'bands': _params['bands'],
-										   'minValid': _params['minValid']
-									   },
-                                      queue='airflow_xlarge',dag=dag , taxprefix="masked_{}_".format(_params['products'][1])
+									   params={'bands': _params['bands']},
+                                      queue=_queues['mascara-landsat'],dag=dag , taxprefix="masked_{}_".format(_params['products'][1])
 
 									   )
-	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue='airflow_xlarge', dag=dag,   taxprefix="joined", params={'bands': _params['bands']},)
+	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue=_queues['joiner-reduce'], dag=dag,   taxprefix="joined", params={'bands': _params['bands']},)
 else:
 	full_query = masked0
 
@@ -66,7 +66,7 @@ medians = dag_utils.IdentityMap(
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
     taxprefix="medianas_",
-    queue='airflow_xlarge',dag=dag,
+    queue=_queues['compuesto-temporal-medianas-wf'],dag=dag,
     params={
         'normalized': _params['normalized'],
         'bands': _params['bands'],
@@ -76,13 +76,13 @@ medians = dag_utils.IdentityMap(
 if _params['mosaic']:
     task_id = 'mosaic'
     algorithm = 'joiner'
-    queue = 'airflow_xlarge'
+    queue = _queues['joiner']
 
 
 else:
     task_id = 'print_context'
     algorithm = 'test-reduce'
-    queue = 'airflow_xlarge'
+    queue = _queues['test-reduce']
 
 
 join = CDColReduceOperator(task_id=task_id,algorithm=algorithm,version='1.0', queue=queue, dag=dag)

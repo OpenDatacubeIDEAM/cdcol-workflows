@@ -20,12 +20,12 @@ _params = {
 
 _queues = {
 
-    'mascara-landsat': queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
-    'joiner-reduce': queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
-    'compuesto-temporal-medianas-wf':queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
-    'ndvi-wf' : queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
-    'joiner': queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=(_params['lat'][1] - _params['lat'][0])*(_params['lon'][1] - _params['lon'][0]) ),
-    'test-reduce': queue_utils.get_queue_by_year(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1),
+    'mascara-landsat': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1,  ),
+    'joiner-reduce': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
+    'compuesto-temporal-medianas-wf':queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
+    'ndvi-wf' : queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
+    'joiner': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
+    'test-reduce': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1),
 }
 
 args = {

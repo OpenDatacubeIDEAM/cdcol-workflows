@@ -17,6 +17,16 @@ _params = {
     'classes':4
 }
 
+_queues = {
+
+    'mascara-landsat': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1,  ),
+    'joiner-reduce': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
+    'compuesto-temporal-medianas-wf':queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=True, tiles=1 ),
+    'joiner': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
+    'deteccion-cambios-pca-wf': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1 ),
+    'test-reduce': queue_utils.assign_queue(time_range=_params['time_ranges'], entrada_multi_temporal=False, tiles=1),
+}
+
 
 args = {
     'owner': 'cubo',
@@ -34,29 +44,21 @@ period1 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      lon=_params['lon'], time_ranges=_params['time_ranges'][0],
                                      algorithm="mascara-landsat", version="1.0",
                                      product="LS8_OLI_LASRC",
-                                     params={
-                                         'normalized': _params['normalized'],
-                                         'bands': _params['bands'],
-                                         'minValid': _params['minValid'],
-                                     },
-                                    queue='airflow_small_tasks', dag=dag, taxprefix="period1_")
+                                     params={'bands': _params['bands']},
+                                    queue=_queues['mascara-landsat'], dag=dag, taxprefix="period1_")
 
 period2 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      lon=_params['lon'], time_ranges=_params['time_ranges'][1],
                                      algorithm="mascara-landsat", version="1.0",
                                      product="LS8_OLI_LASRC",
-                                     params={
-                                         'normalized': _params['normalized'],
-                                         'bands': _params['bands'],
-                                         'minValid': _params['minValid'],
-                                     },
-                                   queue='airflow_small_tasks', dag=dag, taxprefix="period2_")
+                                     params={'bands': _params['bands']},
+                                   queue=_queues['mascara-landsat'], dag=dag, taxprefix="period2_")
 medians1 = dag_utils.IdentityMap(
    period1,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
     taxprefix="medianas_",
-    queue='airflow_small_tasks',
+    queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
         'normalized': _params['normalized'],
@@ -69,7 +71,7 @@ medians2 = dag_utils.IdentityMap(
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
     taxprefix="medianas_",
-    queue='airflow_small_tasks',
+    queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
         'normalized': _params['normalized'],
@@ -77,18 +79,18 @@ medians2 = dag_utils.IdentityMap(
         'minValid': _params['minValid'],
     })
 
-mosaic1 = dag_utils.OneReduce(medians1, algorithm="joiner", version="1.0", queue='airflow', dag=dag, taxprefix="mosaic1")
+mosaic1 = dag_utils.OneReduce(medians1, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic1")
 
-mosaic2 = dag_utils.OneReduce(medians2, algorithm="joiner", version="1.0", queue='airflow', dag=dag, taxprefix="mosaic2")
+mosaic2 = dag_utils.OneReduce(medians2, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic2")
 
-pca = dag_utils.reduceByTile(mosaic1+mosaic2, algorithm="deteccion-cambios-pca-wf", version="1.0", queue='airflow', dag=dag, taxprefix="pca_")
+pca = dag_utils.reduceByTile(mosaic1+mosaic2, algorithm="deteccion-cambios-pca-wf", version="1.0", queue=_queues['deteccion-cambios-pca-wf'], dag=dag, taxprefix="pca_")
 
 
 reduce= CDColReduceOperator(
     task_id='print_context',
     algorithm='test-reduce',
     version='1.0',
-    queue='airflow',
+    queue=_queues['test-reduce'],
     dag=dag)
 
 map(lambda b: b >> reduce, pca)
