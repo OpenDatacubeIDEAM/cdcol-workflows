@@ -8,12 +8,13 @@ from datetime import timedelta
 from pprint import pprint
 
 _params = {
-    'lat': (9,11),
-    'lon': (-76,-74),
+    'lat': (9,10),
+    'lon': (-76,-75),
     'time_ranges': [("2013-01-01", "2013-12-31"), ("2014-01-01", "2014-12-31")],
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
     'normalized':True,
+    'products': ["LS7_ETM_LEDAPS"],
     'classes':4
 }
 
@@ -34,7 +35,7 @@ args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
     'execID': "deteccionDeCambiosPCA",
-    'product': "LS8_OLI_LASRC"
+    'product': _params['products'][0]
 }
 
 dag = DAG(
@@ -45,14 +46,14 @@ dag = DAG(
 period1 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      lon=_params['lon'], time_ranges=_params['time_ranges'][0],
                                      algorithm="mascara-landsat", version="1.0",
-                                     product="LS8_OLI_LASRC",
+                                     product=_params['products'][0],
                                      params={'bands': _params['bands']},
                                     queue=_queues['mascara-landsat'], dag=dag, taxprefix="period1_")
 
 period2 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      lon=_params['lon'], time_ranges=_params['time_ranges'][1],
                                      algorithm="mascara-landsat", version="1.0",
-                                     product="LS8_OLI_LASRC",
+                                     product=_params['products'][0],
                                      params={'bands': _params['bands']},
                                    queue=_queues['mascara-landsat'], dag=dag, taxprefix="period2_")
 medians1 = dag_utils.IdentityMap(
