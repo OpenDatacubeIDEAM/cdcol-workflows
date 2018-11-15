@@ -9,10 +9,10 @@ from datetime import timedelta
 from pprint import pprint
 
 _params = {
-    'lat': (9,10),
-	'lon': (-76,-75),
+    'lat': (0,4),
+	'lon': (-70,-69),
 	'time_ranges': ("2008-01-01", "2008-12-31"),
-    'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
+    'bands': ["blue", "green", "red", "nir", "swir1", "swir2","pixel_qa"],
     'minValid':1,
     'normalized':True,
     'products': ["LS7_ETM_LEDAPS"],
