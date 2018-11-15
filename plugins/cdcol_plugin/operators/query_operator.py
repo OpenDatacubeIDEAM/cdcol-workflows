@@ -6,6 +6,17 @@ from cdcol_plugin.operators import common
 import datacube
 import re
 
+import time
+import logging
+
+logging.basicConfig(
+    format='%(levelname)s : %(asctime)s : %(message)s',
+    level=logging.DEBUG
+)
+
+# To print loggin information in the console
+logging.getLogger().addHandler(logging.StreamHandler())
+
 class CDColQueryOperator(BaseOperator):
     @airflow_utils.apply_defaults
     def __init__(self, execID, algorithm,version, product, lat, lon, time_ranges, params={}, *args,**kwargs):
@@ -40,12 +51,21 @@ class CDColQueryOperator(BaseOperator):
         i=0
         kwargs=self.alg_kwargs
         xanm="xarr0"
-        kwargs[xanm] = dc.load(product=self.product, longitude=self.lon, latitude=self.lat, time=self.time_ranges)
+
+        start = time.time()
+        print(kwargs['bands'])
+        if kwargs['bands']:
+            kwargs[xanm] = dc.load(product=self.product, measurements=kwargs['bands'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
+        else:
+            kwargs[xanm] = dc.load(product=self.product, longitude=self.lon, latitude=self.lat, time=self.time_ranges)
+
         if len(kwargs[xanm].data_vars) == 0:
             open(folder+"{}_{}_no_data.lock".format(self.lat[0],self.lon[0]), "w+").close()
             return []
         dc.close()
-        
+        end = time.time()
+        logging.info('TIEMPO DE CONSULTA:' + str((end - start)))
+
         kwargs["product"]=self.product
         exec(open(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py").read(),kwargs)
         fns=[]

@@ -53,7 +53,7 @@ wofs_classification = dag_utils.queryMapByTileByYear(
     taxprefix="wofs_"
 )
 
-reducer=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce-wofs",version="1.0",queue=_queues['joiner-reduce-wofs'], dag=dag, taxprefix="joined", params={'bands': _params['bands']})
+reducer=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce-wofs",version="1.0",queue=_queues['joiner-reduce-wofs'], dag=dag, taxprefix="joined")
 
 time_series=dag_utils.IdentityMap(
     reducer,

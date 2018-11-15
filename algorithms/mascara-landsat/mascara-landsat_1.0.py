@@ -31,6 +31,6 @@ cloud_mask=isin(xarr0["pixel_qa"].values, validValues)
 for band in bands:
     # np.where es la funcion where de la libreria numpy que retorna un arreglo o un set de arreglos con datos que cumplen con la condicion dada por parametro
     # 
-    xarr0[band].values=np.where(np.logical_and(xarr0.data_vars[band]!=nodata,cloud_mask),xarr0.data_vars[band], np.nan)
- 
+    xarr0[band].values=np.where(np.logical_and(xarr0.data_vars[band]!=nodata,cloud_mask),xarr0.data_vars[band], np.nan).astype(np.int16)
+
 output=xarr0
