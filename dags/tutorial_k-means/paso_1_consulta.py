@@ -1,20 +1,16 @@
 # coding=utf8
 import airflow
 from airflow.models import DAG
-from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
-
+from airflow.operators import CDColQueryOperator
 from datetime import timedelta
 from pprint import pprint
 
 _params = {
-    'lat': (9,10),
-    'lon': (-76,-75),
-    'time_ranges': ("2013-01-01", "2015-12-31"),
+    'lat': (0,1),
+    'lon': (-70,-69),
+    'time_ranges': ("2017-01-01", "2017-12-31"),
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
-    'minValid':1,
     'products': ["LS8_OLI_LASRC"],
-    'normalized':True,
-    'mosaic':True,
 }
 
 args = {
