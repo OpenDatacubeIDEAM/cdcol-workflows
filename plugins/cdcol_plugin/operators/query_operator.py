@@ -53,11 +53,7 @@ class CDColQueryOperator(BaseOperator):
         xanm="xarr0"
 
         start = time.time()
-        print(kwargs['bands'])
-        if kwargs['bands']:
-            kwargs[xanm] = dc.load(product=self.product, measurements=kwargs['bands'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
-        else:
-            kwargs[xanm] = dc.load(product=self.product, longitude=self.lon, latitude=self.lat, time=self.time_ranges)
+        kwargs[xanm] = dc.load(product=self.product, longitude=self.lon, latitude=self.lat, time=self.time_ranges)
 
         if len(kwargs[xanm].data_vars) == 0:
             open(folder+"{}_{}_no_data.lock".format(self.lat[0],self.lon[0]), "w+").close()
