@@ -3,6 +3,9 @@ import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
 
+from datetime import timedelta
+from pprint import pprint
+
 _params = {
     'lat': (9,10),
     'lon': (-76,-75),
