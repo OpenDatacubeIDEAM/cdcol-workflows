@@ -21,12 +21,12 @@ _params = {
 args = {
     'owner': 'mp.mancipe10',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID':"mp.mancipe10-paso-4-consulta-utils",
+    'execID':"mp.mancipe10-paso-5-medianas-utils",
     'product':_params['products'][0]
 }
 
 dag = DAG(
-    dag_id='mp.mancipe10-paso-4-consulta-utils', default_args=args,
+    dag_id='mp.mancipe10-paso-5-medianas-utils', default_args=args,
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
@@ -39,3 +39,18 @@ consulta=dag_utils.queryMapByTile(lat=_params['lat'],
                                   params={'bands':_params['bands']},
                                   queue='airflow_small',
                                   dag=dag, taxprefix="masked_{}_".format(_params['products'][0]))
+
+medianas = dag_utils.IdentityMap(
+    consulta,
+    algorithm="compuesto-temporal-medianas-wf",
+    version="1.0",
+    taxprefix="medianas_",
+    queue='airflow_small',
+    dag=dag,
+    params={
+        'normalized': _params['normalized'],
+        'bands': _params['bands'],
+        'minValid': _params['minValid'],
+    })
+
+medianas
