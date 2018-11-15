@@ -5,6 +5,7 @@ from cdcol_utils import dag_utils, queue_utils
 
 
 from datetime import timedelta
+from pprint import pprint
 
 _params = {
     'lat': (9,11),
