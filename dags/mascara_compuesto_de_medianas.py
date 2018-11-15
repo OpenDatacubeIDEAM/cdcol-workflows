@@ -10,7 +10,7 @@ from pprint import pprint
 
 _params = {
     'lat': (0,6),
-	'lon': (-70,69),
+	'lon': (-70,-69),
 	'time_ranges': ("2017-01-01", "2017-12-31"),
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
