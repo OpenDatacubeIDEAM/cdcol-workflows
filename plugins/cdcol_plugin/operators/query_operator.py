@@ -54,18 +54,18 @@ class CDColQueryOperator(BaseOperator):
 
 
         start = time.time()
-        if kwargs['bands']:
-            kwargs[xanm] = dc.load(product=self.product, measurements=kwargs['bands'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
-        else:
-            kwargs[xanm] = dc.load(product=self.product, longitude=self.lon, latitude=self.lat, time=self.time_ranges)
+        # if kwargs['bands']:
+        #     kwargs[xanm] = dc.load(product=self.product, measurements=kwargs['bands'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
+        # else:
+        #     kwargs[xanm] = dc.load(product=self.product, longitude=self.lon, latitude=self.lat, time=self.time_ranges)
+        kwargs[xanm] = dc.load(product=self.product, longitude=self.lon, latitude=self.lat, time=self.time_ranges)
 
         if len(kwargs[xanm].data_vars) == 0:
             open(folder+"{}_{}_no_data.lock".format(self.lat[0],self.lon[0]), "w+").close()
             return []
         dc.close()
         end = time.time()
-        logging.info('TIEMPO DE CONSULTA:' + str((end - start)))
-
+        logging.info('TIEMPO CONSULTA:' + str((end - start)))
         kwargs["product"]=self.product
         exec(open(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py").read(),kwargs)
         fns=[]
