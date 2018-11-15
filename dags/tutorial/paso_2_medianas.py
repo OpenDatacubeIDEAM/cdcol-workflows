@@ -1,7 +1,7 @@
 # coding=utf8
 import airflow
 from airflow.models import DAG
-from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
+from airflow.operators import CDColQueryOperator, CDColFromFileOperator
 
 from datetime import timedelta
 from pprint import pprint
