@@ -51,6 +51,6 @@ medianas = CDColFromFileOperator(algorithm="compuesto-temporal-medianas-wf",
                                'bands': _params['bands'],
                                'minValid': _params['minValid'],
                            },
-                           queue='airflow_small',dag=dag, task_id="query_")
+                           queue='airflow_small',dag=dag, task_id="medianas_")
 
 consulta>>medianas

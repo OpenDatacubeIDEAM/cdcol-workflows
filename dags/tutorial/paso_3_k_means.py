@@ -15,6 +15,7 @@ _params = {
     'products': ["LS8_OLI_LASRC"],
     'normalized':True,
     'mosaic':True,
+    'classes':4
 }
 
 args = {
