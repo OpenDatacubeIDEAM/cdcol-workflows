@@ -65,11 +65,4 @@ kmeans = dag_utils.IdentityMap(
     params={'classes': _params['classes']}
 )
 
-print_context = CDColReduceOperator(
-    task_id='print_context',
-    algorithm='test-reduce',
-    version='1.0',
-    queue='airflow_medium',
-    dag=dag
-)
-map(lambda b: b >> print_context, kmeans)
+kmeans
