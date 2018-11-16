@@ -17,10 +17,17 @@ _params = {
 _queues = {
 
     'wofs-wf': queue_utils.assign_queue(),
-    'joiner-reduce-wofs': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
-    'wofs-time-series-wf': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
-    'mosaic': queue_utils.assign_queue(input_type='multi_temporal_unidad_area', time_range=_params['time_ranges'], lat=_params['lat'], lon=_params['lon'], unidades=len(_params['products'])),
-    'test-reduce': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
+    'joiner-reduce-wofs': queue_utils.assign_queue(
+        input_type='multi_temporal',
+        time_range=_params['time_ranges']),
+    'wofs-time-series-wf': queue_utils.assign_queue(
+        input_type='multi_temporal',
+        time_range=_params['time_ranges']),
+    'mosaic': queue_utils.assign_queue(
+        input_type='multi_temporal_area',
+        time_range=_params['time_ranges'],
+        lat=_params['lat'],
+        lon=_params['lon']),
 }
 
 
@@ -59,15 +66,10 @@ time_series=dag_utils.IdentityMap(
         dag=dag
 )
 
-if _params['mosaic']:
-    queue = _queues['mosaic']
-    task_id = 'mosaic'
-    algorithm = 'joiner'
 
-else:
-    queue = _queues['print_context']
-    task_id = 'print_context'
-    algorithm = 'test-reduce'
-
-join = CDColReduceOperator(task_id=task_id,algorithm=algorithm,version='1.0',queue=queue,dag=dag)
+join = CDColReduceOperator(task_id='mosaic',
+                           algorithm='joiner',
+                           version='1.0',
+                           queue=_queues['mosaic'],
+                           dag=dag)
 map(lambda b: b >> join, time_series)

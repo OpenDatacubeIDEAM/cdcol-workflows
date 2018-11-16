@@ -17,8 +17,12 @@ _params = {
 _queues = {
 
     'wofs-wf': queue_utils.assign_queue(),
-    'joiner-reduce-wofs': queue_utils.assign_queue(input_type='multi_temporal_unidad',time_range=_params['time_ranges'],unidades=len(_params['products'])),
-    'wofs-time-series-wf': queue_utils.assign_queue(input_type='multi_temporal_unidad',time_range=_params['time_ranges'],unidades=len(_params['products'])),
+    'joiner-reduce-wofs': queue_utils.assign_queue(
+        input_type='multi_temporal',
+        time_range=_params['time_ranges']),
+    'wofs-time-series-wf': queue_utils.assign_queue(
+        input_type='multi_temporal',
+        time_range=_params['time_ranges']),
 
 }
 
@@ -47,8 +51,12 @@ wofs_classification = dag_utils.queryMapByTileByYear(
     taxprefix="wofs_"
 )
 
-reducer=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce-wofs",version="1.0",queue=_queues['joiner-reduce-wofs'], dag=dag, taxprefix="joined")
-
+reducer=dag_utils.reduceByTile(wofs_classification,
+                               algorithm="joiner-reduce-wofs",
+                               version="1.0",
+                               queue=_queues['joiner-reduce-wofs'],
+                               dag=dag,
+                               taxprefix="joined")
 time_series=dag_utils.IdentityMap(
     reducer,
         algorithm="wofs-time-series-wf",
