@@ -1,0 +1,32 @@
+{
+  "workflow": "deteccion_de_cambios_pca",
+  "version": "1.0",
+  "owner": "nombre_o_id",
+  "mosaic":false,
+  "lat": [
+    1,
+    3
+  ],
+  "lon": [
+    -69,
+    -67
+  ],
+  "time_ranges": [
+    ["2013-01-01",
+    "2013-12-31-"],
+    ["2014-01-01",
+    "2014-12-31"]
+  ],
+  "bands": [
+    "blue",
+    "green",
+    "red",
+    "nir",
+    "swir1",
+    "swir2"
+  ],
+  "normalized": true,
+  "minValid": 1,
+  "classes" : [],
+  "products": ["LS8_OLI_LASRC"]
+}

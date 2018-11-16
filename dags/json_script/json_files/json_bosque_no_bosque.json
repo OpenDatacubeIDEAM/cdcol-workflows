@@ -1,0 +1,33 @@
+{
+  "workflow": "bosque_no_bosque",
+  "version": "1.0",
+  "owner": "nombre_o_id",
+  "mosaic":false,
+  "lat": [
+    1,
+    3
+  ],
+  "lon": [
+    -69,
+    -67
+  ],
+  "time_ranges": [
+    "2013-01-01",
+    "2013-12-31"
+  ],
+  "products": ["LS8_OLI_LASRC"],
+  "minValid": 1,
+  "normalized": true,
+  "vegetation_rate": 0.3,
+  "ndvi_threshold": 0.7,
+  "slice_size": 3,
+  "bands": [
+    "blue",
+    "green",
+    "red",
+    "nir",
+    "swir1",
+    "swir2"
+  ]
+}
+
