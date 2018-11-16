@@ -56,7 +56,7 @@ def readNetCDF(file):
     try:
         _xarr=xr.open_dataset(file)
     except Exception as e:
-        logging.info('TIEMPO CARGA NC EXCEPTION:' + str(e)) 
+        logging.info('CARGA NC EXCEPTION:' + str(e)) 
     # _xarr=xr.open_dataset(file)
     end = time.time()
     logging.info('TIEMPO CARGA NC:' + str((end - start)))
