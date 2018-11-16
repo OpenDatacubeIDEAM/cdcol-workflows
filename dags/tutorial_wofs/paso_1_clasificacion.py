@@ -22,12 +22,12 @@ _queues = {
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID':"df.nino10_paso_1_clasificacion",
+    'execID':"mp.mancipe10_paso_1_clasificacion",
     'product':_params['products'][0]
 }
 
 dag = DAG(
-    dag_id='df.nino10_paso_1_clasificacion', default_args=args,
+    dag_id='mp.mancipe10_paso_1_clasificacion', default_args=args,
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 

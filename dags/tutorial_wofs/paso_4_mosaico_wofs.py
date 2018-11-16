@@ -17,21 +17,22 @@ _params = {
 _queues = {
 
     'wofs-wf': queue_utils.assign_queue(),
-    'joiner-reduce-wofs': queue_utils.assign_queue(input_type='multi_temporal_unidad',time_range=_params['time_ranges'],unidades=len(_params['products'])),
-    'wofs-time-series-wf': queue_utils.assign_queue(input_type='multi_temporal_unidad',time_range=_params['time_ranges'],unidades=len(_params['products'])),
-
+    'joiner-reduce-wofs': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
+    'wofs-time-series-wf': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
+    'mosaic': queue_utils.assign_queue(input_type='multi_temporal_unidad_area', time_range=_params['time_ranges'], lat=_params['lat'], lon=_params['lon'], unidades=len(_params['products'])),
+    'test-reduce': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
 }
 
 
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID':"mp.mancipe10_paso_3_series_de_tiempo",
+    'execID':"mp.mancipe10_paso_4_mosaico_wofs",
     'product':_params['products'][0]
 }
 
 dag = DAG(
-    dag_id='mp.mancipe10_paso_3_series_de_tiempo', default_args=args,
+    dag_id='mp.mancipe10_paso_4_mosaico_wofs', default_args=args,
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
@@ -58,4 +59,15 @@ time_series=dag_utils.IdentityMap(
         dag=dag
 )
 
-time_series
+if _params['mosaic']:
+    queue = _queues['mosaic']
+    task_id = 'mosaic'
+    algorithm = 'joiner'
+
+else:
+    queue = _queues['print_context']
+    task_id = 'print_context'
+    algorithm = 'test-reduce'
+
+join = CDColReduceOperator(task_id=task_id,algorithm=algorithm,version='1.0',queue=queue,dag=dag)
+map(lambda b: b >> join, time_series)
