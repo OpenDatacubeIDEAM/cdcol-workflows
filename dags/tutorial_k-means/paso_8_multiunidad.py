@@ -37,7 +37,7 @@ consulta_ls8=dag_utils.queryMapByTile(lat=_params['lat'],
                                       version="1.0",
                                       product=_params['products'][0],
                                       params={'bands':_params['bands']},
-                                      queue='airflow-small', dag=dag, taxprefix="masked_{}_".format(_params['products'][0]))
+                                      queue='airflow_small', dag=dag, taxprefix="masked_{}_".format(_params['products'][0]))
 
 consulta_ls7 = dag_utils.queryMapByTile(lat=_params['lat'],
                                         lon=_params['lon'],
@@ -46,12 +46,12 @@ consulta_ls7 = dag_utils.queryMapByTile(lat=_params['lat'],
                                         version="1.0",
                                         product=_params['products'][1],
                                         params={'bands': _params['bands']},
-                                        queue='airflow-small',dag=dag, taxprefix="masked_{}_".format(_params['products'][1]))
+                                        queue='airflow_small',dag=dag, taxprefix="masked_{}_".format(_params['products'][1]))
 
 reducer = dag_utils.reduceByTile(consulta_ls7+consulta_ls8,
                                  algorithm="joiner-reduce",
                                  version="1.0",
-                                 queue='airflow-small',
+                                 queue='airflow_medium',
                                  dag=dag,
                                  taxprefix="joined" ,
                                  params={'bands': _params['bands']})
@@ -61,7 +61,7 @@ medianas = dag_utils.IdentityMap(reducer,
                                  algorithm="compuesto-temporal-medianas-wf",
                                  version="1.0",
                                  taxprefix="medianas_",
-                                 queue='airflow-small',
+                                 queue='airflow_small',
                                  dag=dag,
                                  params={
                                      'normalized': _params['normalized'],
@@ -70,19 +70,18 @@ medianas = dag_utils.IdentityMap(reducer,
                                  })
 
 
-mosaico = dag_utils.OneReduce(medianas, algorithm="joiner", version="1.0",  queue='airflow-medium', dag=dag, taxprefix="mosaic")
+mosaico = dag_utils.OneReduce(medianas,
+                              algorithm="joiner",
+                              version="1.0",
+                              queue='airflow_medium',
+                              dag=dag, taxprefix="mosaic")
 
 kmeans = dag_utils.IdentityMap(mosaico,
                                algorithm="k-means-wf",
                                version="1.0",
                                taxprefix="kmeans_",
-                               queue='airflow-medium',
+                               queue='airflow_medium',
                                dag=dag,
                                params={'classes': _params['classes']})
 
-print_context = CDColReduceOperator(task_id='print_context',
-                                    algorithm='test-reduce',
-                                    version='1.0',
-                                    queue='airflow_medium',
-                                    dag=dag)
-map(lambda b: b >> print_context, kmeans)
+kmeans
