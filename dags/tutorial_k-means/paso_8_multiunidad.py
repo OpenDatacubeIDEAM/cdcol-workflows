@@ -48,7 +48,13 @@ consulta_ls7 = dag_utils.queryMapByTile(lat=_params['lat'],
                                         params={'bands': _params['bands']},
                                         queue='airflow-small',dag=dag, taxprefix="masked_{}_".format(_params['products'][1]))
 
-reducer = dag_utils.reduceByTile(consulta_ls7+consulta_ls8, algorithm="joiner-reduce", version="1.0", queue='airflow-small',dag=dag,taxprefix="joined" , params={'bands': _params['bands']})
+reducer = dag_utils.reduceByTile(consulta_ls7+consulta_ls8,
+                                 algorithm="joiner-reduce",
+                                 version="1.0",
+                                 queue='airflow-small',
+                                 dag=dag,
+                                 taxprefix="joined" ,
+                                 params={'bands': _params['bands']})
 
 
 medianas = dag_utils.IdentityMap(reducer,

@@ -38,7 +38,8 @@ consulta=dag_utils.queryMapByTile(lat=_params['lat'],
                                   product=_params['products'][0],
                                   params={'bands':_params['bands']},
                                   queue='airflow_small',
-                                  dag=dag, taxprefix="masked_{}_".format(_params['products'][0]))
+                                  dag=dag,
+                                  taxprefix="masked_{}_".format(_params['products'][0]))
 
 medianas = dag_utils.IdentityMap(
     consulta,

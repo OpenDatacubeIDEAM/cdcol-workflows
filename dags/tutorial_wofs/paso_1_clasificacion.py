@@ -15,9 +15,7 @@ _params = {
 }
 
 _queues = {
-
     'wofs-wf': queue_utils.assign_queue(),
-    'test-reduce': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
 }
 
 
@@ -45,5 +43,4 @@ wofs_classification = dag_utils.queryMapByTileByYear(
     taxprefix="wofs_"
 )
 
-join = CDColReduceOperator(task_id='print_context',algorithm='test-reduce',version='1.0',queue=_queues['test-reduce'],dag=dag)
-map(lambda b: b >> join, wofs_classification)
+wofs_classification
