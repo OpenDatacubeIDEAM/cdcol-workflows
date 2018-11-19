@@ -60,7 +60,7 @@ medians1 = dag_utils.IdentityMap(
    period1,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
-    taxprefix="medianas_",
+    taxprefix="medianas_1",
     queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
@@ -73,7 +73,7 @@ medians2 = dag_utils.IdentityMap(
    period2,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
-    taxprefix="medianas_",
+    taxprefix="medianas_2",
     queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
@@ -82,9 +82,9 @@ medians2 = dag_utils.IdentityMap(
         'minValid': _params['minValid'],
     })
 
-mosaic1 = dag_utils.OneReduce(medians1, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic1")
+mosaic1 = dag_utils.OneReduce(medians1, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic_1")
 
-mosaic2 = dag_utils.OneReduce(medians2, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic2")
+mosaic2 = dag_utils.OneReduce(medians2, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic_2")
 
 pca = dag_utils.reduceByTile(mosaic1+mosaic2, algorithm="deteccion-cambios-pca-wf", version="1.0", queue=_queues['deteccion-cambios-pca-wf'], dag=dag, taxprefix="pca_")
 
