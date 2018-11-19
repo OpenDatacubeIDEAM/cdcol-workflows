@@ -24,6 +24,9 @@ def get_queue_by_score(score):
     else:
         return 'airflow_xlarge'
 
+def get_tiles(lat={}, lon={}):
+    return (lat[1]-lat[0])*(lon[1]-lon[0])
+
 def assign_queue(input_type={}, time_range={}, lat={}, lon={}, unidades={} ):
 
     score = 1
@@ -34,7 +37,7 @@ def assign_queue(input_type={}, time_range={}, lat={}, lon={}, unidades={} ):
             anhos = 1 + (end_date_value.year - start_date_value.year)
             score *= anhos
         if 'area' in input_type:
-            tiles = (lat[1]-lat[0])*(lon[1]-lon[0])
+            tiles = get_tiles(lat, lon)
             score *= tiles
         if 'unidad' in input_type:
             score *= unidades

@@ -81,12 +81,15 @@ medians2 = dag_utils.IdentityMap(
         'bands': _params['bands'],
         'minValid': _params['minValid'],
     })
+print(queue_utils.get_tiles(_params['lat'],_params['lon']))
+if queue_utils.get_tiles(_params['lat'],_params['lon'])>1:
+    mosaic1 = dag_utils.OneReduce(medians1, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic_1")
+    mosaic2 = dag_utils.OneReduce(medians2, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic_2")
+    results = mosaic1+mosaic2
+else:
+    results = medians1+medians2
 
-mosaic1 = dag_utils.OneReduce(medians1, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic_1")
-
-mosaic2 = dag_utils.OneReduce(medians2, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic_2")
-
-pca = dag_utils.reduceByTile(mosaic1+mosaic2, algorithm="deteccion-cambios-pca-wf", version="1.0", queue=_queues['deteccion-cambios-pca-wf'], dag=dag, taxprefix="pca_")
+pca = dag_utils.reduceByTile(results, algorithm="deteccion-cambios-pca-wf", version="1.0", queue=_queues['deteccion-cambios-pca-wf'], dag=dag, taxprefix="pca_")
 
 
 reduce= CDColReduceOperator(
