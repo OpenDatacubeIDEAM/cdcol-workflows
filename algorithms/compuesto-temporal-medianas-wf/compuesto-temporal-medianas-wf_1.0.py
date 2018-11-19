@@ -9,12 +9,12 @@ for band in bands:
     #np.isnan verifica que valores no son numero o no estan definidos. En este caso, se usa ~ para invertir los valores y saber que valores de datos si estan definidos
     datos=xarr0.data_vars[band].values
     allNan=~np.isnan(datos)
-    if normalized:
-        #Calcula la mediana arimetica sobre el arreglo de datos  ,sobre el eje  , ignorando los valores NaN
-        m=np.nanmean(datos.reshape((datos.shape[0],-1)), axis=1)
-        #Calcula la desviacion estandar sobre el arreglo de datos  , sobre el eje , ignorando los valores NaN
-        st=np.nanstd(datos.reshape((datos.shape[0],-1)), axis=1)
-        datos=np.true_divide((datos-m[:,np.newaxis,np.newaxis]), st[:,np.newaxis,np.newaxis])
+    # if normalized:
+    #     #Calcula la mediana arimetica sobre el arreglo de datos  ,sobre el eje  , ignorando los valores NaN
+    #     m=np.nanmean(datos.reshape((datos.shape[0],-1)), axis=1)
+    #     #Calcula la desviacion estandar sobre el arreglo de datos  , sobre el eje , ignorando los valores NaN
+    #     st=np.nanstd(datos.reshape((datos.shape[0],-1)), axis=1)
+    #     datos=np.true_divide((datos-m[:,np.newaxis,np.newaxis]), st[:,np.newaxis,np.newaxis])
     #Calcula la mediana aritmetica 
     medians[band]=np.nanmedian(datos,0)
     medians[band][np.sum(allNan,0)<minValid]=np.nan

@@ -72,9 +72,9 @@ medians = dag_utils.IdentityMap(
     })
 
 if _params['mosaic']:
-    task_id = 'mosaic'
-    algorithm = 'joiner'
-    queue = _queues['joiner']
+    mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic")
+    if _params['normalized']:
+        normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
 
 
 else:
