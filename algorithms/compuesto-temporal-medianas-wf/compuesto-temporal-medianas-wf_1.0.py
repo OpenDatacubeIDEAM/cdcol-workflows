@@ -16,8 +16,8 @@ for band in bands:
     #     st=np.nanstd(datos.reshape((datos.shape[0],-1)), axis=1)
     #     datos=np.true_divide((datos-m[:,np.newaxis,np.newaxis]), st[:,np.newaxis,np.newaxis])
     #Calcula la mediana aritmetica 
-    medians[band]=np.nanmedian(datos,0)
-    medians[band][np.sum(allNan,0)<minValid]=np.nan
+    medians[band]=np.nanmedian(datos,0).astype(np.int16)
+    medians[band][np.sum(allNan,0)<minValid]=nodata
 #Elimina la variable datos y la asociacion que tiene en el algoritmo
 del datos
 
