@@ -13,7 +13,7 @@ _params = {
     'time_ranges': [("2014-01-01", "2014-12-31"), ("2015-01-01", "2015-12-31")],
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
-    'normalized':True,
+    'normalized':False,
     'products': ["LS7_ETM_LEDAPS"],
     'classes':4
 }
@@ -21,8 +21,8 @@ _params = {
 _queues = {
 
     'mascara-landsat': queue_utils.assign_queue(),
-    'joiner-reduce': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
-    'compuesto-temporal-medianas-wf':queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products']) ),
+    'joiner-reduce': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0], unidades=len(_params['products'])),
+    'compuesto-temporal-medianas-wf':queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0], unidades=len(_params['products']) ),
     'joiner': queue_utils.assign_queue(input_type='multi_area',lat=_params['lat'], lon=_params['lon'] ),
     'deteccion-cambios-pca-wf': queue_utils.assign_queue(input_type='multi_area',lat=_params['lat'], lon=_params['lon'] ),
     'test-reduce': queue_utils.assign_queue(input_type='multi_area',lat=_params['lat'], lon=_params['lon'] ),
