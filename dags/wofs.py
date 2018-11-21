@@ -9,8 +9,8 @@ from datetime import timedelta
 from pprint import pprint
 
 _params = {
-    'lat': (9,10),
-    'lon': (-76,-75),
+    'lat': (9,11),
+    'lon': (-76,-74),
     'time_ranges': ("2013-01-01", "2015-12-31"),
     'products': ["LS8_OLI_LASRC"],
     'mosaic':True,

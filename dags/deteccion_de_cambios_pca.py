@@ -8,7 +8,7 @@ from datetime import timedelta
 from pprint import pprint
 
 _params = {
-    'lat': (9,10),
+    'lat': (9,11),
     'lon': (-76,-75),
     'time_ranges': [("2014-01-01", "2014-12-31"), ("2015-01-01", "2015-12-31")],
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
