@@ -20,7 +20,7 @@ _params = {
 
 _queues = {
 
-    'mascara-landsat': queue_utils.assign_queue(),
+    'mascara-landsat': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges'][0]),
     'joiner-reduce': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0], unidades=len(_params['products'])),
     'compuesto-temporal-medianas-wf':queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0], unidades=len(_params['products']) ),
     'joiner': queue_utils.assign_queue(input_type='multi_area',lat=_params['lat'], lon=_params['lon'] ),
@@ -88,6 +88,7 @@ if queue_utils.get_tiles(_params['lat'],_params['lon'])>1:
     results = mosaic1+mosaic2
 else:
     results = medians1+medians2
+
 
 pca = dag_utils.reduceByTile(results, algorithm="deteccion-cambios-pca-wf", version="1.0", queue=_queues['deteccion-cambios-pca-wf'], dag=dag, taxprefix="pca_")
 

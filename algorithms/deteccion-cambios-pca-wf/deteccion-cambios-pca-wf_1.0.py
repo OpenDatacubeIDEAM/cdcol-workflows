@@ -6,22 +6,25 @@ import numpy as np
 
 medians1 = xarrs[0]
 medians2 = xarrs[1]
+nodata=-9999
 #Preprocesar:
 nmed=None
 nan_mask=None
-for band in medians1:
-    b=medians1[band].ravel()
+for band in bands:
+    b=medians1[band].values.ravel()
+    print "medians 1 {}: {}".format(band,b.shape)
     if nan_mask is None:
         nan_mask=np.isnan(b)
     else:
-        nan_mask=np.logical_or(nan_mask, np.isnan(medians1[band].ravel()))
+        nan_mask=np.logical_or(nan_mask, np.isnan(b))
     b[np.isnan(b)]=np.nanmedian(b)
     if nmed is None:
         sp=medians1[band].shape
         nmed=b
     else:
         nmed=np.vstack((nmed,b))
-    c=medians2[band].ravel()
+    c=medians2[band].values.ravel()
+    print "medians 2 {}: {}".format(band,c.shape)
     nan_mask=np.logical_or(nan_mask, np.isnan(c))
     c[np.isnan(c)]=np.nanmedian(c)
     nmed=np.vstack((nmed,c))
@@ -42,7 +45,7 @@ for coordenada in xarrs[0].coords:
     if(coordenada != 'time'):
         coordenadas.append( ( coordenada, xarrs[0].coords[coordenada]) )
         dimensiones.append(coordenada)
-        xcords[coordenada] = xarr0.coords[coordenada]
+        xcords[coordenada] = xarrs[0].coords[coordenada]
 valores = {"kmeans": xr.DataArray(kmv, dims=dimensiones, coords=coordenadas)}
 i=1
 for x in salida:

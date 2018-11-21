@@ -2,6 +2,7 @@ import xarray as xr
 import numpy as np
 print "Excecuting medianas v2"
 medians={}
+nodata=-9999
 #Se hace un recorrido sobre las bandas
 for band in bands:
     #Los datos se reciben enmascarados
