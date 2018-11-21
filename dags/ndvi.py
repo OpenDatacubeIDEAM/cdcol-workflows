@@ -14,7 +14,7 @@ _params = {
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
     'normalized':True,
-    'products': ["LS8_OLI_LASRC", "LS7_ETM_LEDAPS"],
+    'products': ["LS8_OLI_LASRC"],
 	'mosaic': False
 }
 

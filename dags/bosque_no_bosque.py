@@ -16,7 +16,7 @@ _params = {
 	'ndvi_threshold': 0.7,
 	'vegetation_rate': 0.3,
 	'slice_size': 3,
-	'products': ["LS8_OLI_LASRC", "LS7_ETM_LEDAPS"],
+	'products': ["LS8_OLI_LASRC"],
 	'mosaic': False
 }
 

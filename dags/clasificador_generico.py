@@ -15,7 +15,7 @@ _params = {
     'minValid':1,
     'normalized':True,
     'modelos':'/web_storage/downloads/models/',
-    'products': ["LS8_OLI_LASRC", "LS7_ETM_LEDAPS"],
+    'products': ["LS8_OLI_LASRC"],
 }
 
 _queues = {

@@ -15,7 +15,7 @@ _params = {
     'minValid':1,
     'normalized':True,
     'classes':4,
-    'products': ["LS8_OLI_LASRC", "LS7_ETM_LEDAPS"],
+    'products': ["LS8_OLI_LASRC"],
 }
 
 _queues = {
