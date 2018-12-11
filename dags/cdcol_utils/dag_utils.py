@@ -44,7 +44,7 @@ def queryMapByTileByMonths(lat,lon,time_ranges,queue, dag, algorithm,version,par
                                                 time_ranges=(start.strftime('%d-%m-%Y'), (start + relativedelta(months=months-1, day=end.day)).strftime('%d-%m-%Y')),
                                                 params=params,
                                                 queue=queue,
-                                                dag=dag, task_id="{}{}{}_{}".format(taxprefix, str(LAT), str(LON), now.strftime('%d-%m-%Y'), start.strftime('%d-%m-%Y'),**kwargs)))
+                                                dag=dag, task_id="{}{}{}_{}".format(taxprefix, str(LAT), str(LON), start.strftime('%d-%m-%Y'), (start + relativedelta(months=months-1, day=end.day)).strftime('%d-%m-%Y'),**kwargs)))
                 start += relativedelta(months=months, day=end.day)
     return tasks
 
