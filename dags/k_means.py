@@ -102,6 +102,6 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                             'mascara-landsat': "1.0",
                                             'joiner-reduce': "1.0",
                                             'compuesto-temporal-medianas-wf':"1.0",
-                                        }, 'execID': args.execID},
+                                        }, 'execID': args['execID']},
                                         dag=dag)
 map(lambda b: b >> delete_partial_results, kmeans)
