@@ -25,7 +25,6 @@ _queues = {
     'compuesto-temporal-medianas-wf':queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products']) ),
     'joiner': queue_utils.assign_queue(input_type='multi_area',lat=_params['lat'], lon=_params['lon'] ),
     'k-means-wf': queue_utils.assign_queue(input_type='multi_area',lat=_params['lat'], lon=_params['lon'] ),
-    'test-reduce': queue_utils.assign_queue(input_type='multi_area',lat=_params['lat'], lon=_params['lon'] ),
 }
 
 
@@ -86,13 +85,6 @@ kmeans = dag_utils.IdentityMap(
     params={'classes': _params['classes']}
 )
 
-join = CDColReduceOperator(
-    task_id='print_context',
-    algorithm='test-reduce',
-    version='1.0',
-    queue=_queues['test-reduce'],
-    dag=dag
-)
 
 delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         provide_context=True,
