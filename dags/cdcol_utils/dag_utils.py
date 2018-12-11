@@ -32,10 +32,11 @@ def queryMapByTileByYear(lat,lon,time_ranges,queue, dag, algorithm,version,param
 
 def queryMapByTileByMonths(lat,lon,time_ranges,queue, dag, algorithm,version,params={},months=12,taxprefix="med",  **kwargs):
     tasks = []
-    start = datetime.strptime(time_ranges[0],'%Y-%m-%d')
-    end = datetime.strptime(time_ranges[1],'%Y-%m-%d')
+    
     for LAT in range(*lat):
         for LON in range(*lon):
+            start = datetime.strptime(time_ranges[0],'%Y-%m-%d')
+            end = datetime.strptime(time_ranges[1],'%Y-%m-%d')
             while start <= end:
                 tasks.append(CDColQueryOperator(algorithm=algorithm,
                                                 version=version,
