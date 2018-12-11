@@ -7,15 +7,17 @@ import numpy as np
 nmed=None
 nan_mask=None
 medians1 = xarr0
-for band in medians1:
-    b=medians1[band].ravel()
+for band in medians1.data_vars.keys():
+    if band == "crs":
+        continue
+    b=np.ravel(medians1.data_vars[band].values)
     if nan_mask is None:
         nan_mask=np.isnan(b)
     else:
-        nan_mask=np.logical_or(nan_mask, np.isnan(medians1[band].ravel()))
+        nan_mask=np.logical_or(nan_mask, np.isnan(medians1.data_vars[band].values.ravel()))
     b[np.isnan(b)]=np.nanmedian(b)
     if nmed is None:
-        sp=medians1[band].shape
+        sp=medians1.data_vars[band].values.shape
         nmed=b
     else:
         nmed=np.vstack((nmed,b))
