@@ -101,3 +101,4 @@ def print_xcom(ds, **kwargs):
     upstream_variable_values = task_instance.xcom_pull(task_ids=upstream_task_ids, key='return_value')
     pprint(upstream_variable_values)
     #print(ds)
+

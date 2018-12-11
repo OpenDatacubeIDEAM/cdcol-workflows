@@ -1,8 +1,8 @@
 # coding=utf8
 import airflow
 from airflow.models import DAG
-from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
-from cdcol_utils import dag_utils, queue_utils
+from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator, PythonOperator
+from cdcol_utils import dag_utils, queue_utils, other_utils
 
 from datetime import timedelta
 from pprint import pprint
@@ -93,4 +93,15 @@ join = CDColReduceOperator(
     queue=_queues['test-reduce'],
     dag=dag
 )
-map(lambda b: b >> join, kmeans)
+
+delete_partial_results = PythonOperator(task_id='delete_partial_results',
+                                        provide_context=True,
+                                        python_callable=other_utils.delete_partial_results,
+                                        queue='airflow_small',
+                                        op_kwargs={algorithms:{
+                                            'mascara-landsat': "1.0",
+                                            'joiner-reduce': "1.0",
+                                            'compuesto-temporal-medianas-wf':"1.0",
+                                        }, execID: args.execID},
+                                        dag=dag)
+map(lambda b: b >> delete_partial_results, kmeans)
