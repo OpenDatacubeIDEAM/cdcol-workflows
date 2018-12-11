@@ -71,15 +71,15 @@ medians = dag_utils.IdentityMap(
         'minValid': _params['minValid'],
     })
 
-# if _params['mosaic']:
-#     mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic")
-#     # if _params['normalized']:
-#     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-#     mosaic
-#
-# else:
-task_id = 'print_context'
-algorithm = 'test-reduce'
-queue = _queues['test-reduce']
-join = CDColReduceOperator(task_id=task_id,algorithm=algorithm,version='1.0', queue=queue, dag=dag)
-map(lambda b: b >> join, medians)
+if _params['mosaic']:
+    mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic")
+    # if _params['normalized']:
+    #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
+    mosaic
+
+else:
+    task_id = 'print_context'
+    algorithm = 'test-reduce'
+    queue = _queues['test-reduce']
+    join = CDColReduceOperator(task_id=task_id,algorithm=algorithm,version='1.0', queue=queue, dag=dag)
+    map(lambda b: b >> join, medians)
