@@ -38,7 +38,7 @@ dag = DAG(
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
-wofs_classification = dag_utils.queryMapByTileByYear(
+wofs_classification = dag_utils.queryMapByTileByMonths(
     lat=_params['lat'],
     lon=_params['lon'],
     time_ranges=_params['time_ranges'],
@@ -46,11 +46,12 @@ wofs_classification = dag_utils.queryMapByTileByYear(
     version="1.0",
     product=_params['products'][0],
     queue= _queues['wofs-wf'],
+    months=6,
     dag=dag,
     taxprefix="wofs_"
 )
 
-reducer=dag_utils.reduceByTile(wofs_classification, algorithm="joiner-reduce-wofs",version="1.0",queue=_queues['joiner-reduce-wofs'], dag=dag, taxprefix="joined")
+reducer=dag_utils.reduceByTile(wofs_classification, algorithm="joiner",version="1.0",queue=_queues['joiner-reduce-wofs'], dag=dag, taxprefix="joined")
 
 time_series=dag_utils.IdentityMap(
     reducer,

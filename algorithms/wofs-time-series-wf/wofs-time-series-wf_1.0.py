@@ -20,7 +20,7 @@ def perform_timeseries_analysis(dataset_in, no_data=-9999):
     key = "wofs"
 
     data = data_vars[key]
-
+    data.values[np.isnan(data.values)] = no_data
     # shape = data.shape[1:]
 
     data_dup = data.copy(deep=True)

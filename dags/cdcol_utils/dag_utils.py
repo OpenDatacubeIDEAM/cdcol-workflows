@@ -6,6 +6,7 @@ from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColRe
 
 
 from datetime import timedelta, datetime
+from dateutil.relativedelta import relativedelta
 from pprint import pprint
 
 def queryMapByTile(lat,lon,time_ranges, queue, dag,  algorithm,version,params={},taxprefix="med",**kwargs):
@@ -28,6 +29,25 @@ def queryMapByTileByYear(lat,lon,time_ranges,queue, dag, algorithm,version,param
         params=params,
         queue=queue,
         dag=dag, task_id="{}{}{}_{}".format(taxprefix, str(LAT), str(LON), "01-01-"+str(T)+"_31-12-"+str(T)), **kwargs) for LAT in range(*lat) for LON in range(*lon) for T in xrange(int(time_ranges[0].split('-')[0]), (int(time_ranges[1].split('-')[0]))+1) ]
+
+def queryMapByTileByMonths(lat,lon,time_ranges,queue, dag, algorithm,version,params={},months=12,taxprefix="med",  **kwargs):
+    tasks = []
+    start = datetime.strptime(time_ranges[0],'%d-%m-%Y')
+    end = datetime.strptime(time_ranges[1],'%d-%m-%Y')
+    for LAT in range(*lat):
+        for LON in range(*lon):
+            while start <= end:
+                tasks.append(CDColQueryOperator(algorithm=algorithm,
+                                                version=version,
+                                                lat=(LAT, LAT + 1),
+                                                lon=(LON, LON + 1),
+                                                time_ranges=(start.strftime('%d-%m-%Y'), (start + relativedelta(months=months-1, day=end.day)).strftime('%d-%m-%Y')),
+                                                params=params,
+                                                queue=queue,
+                                                dag=dag, task_id="{}{}{}_{}".format(taxprefix, str(LAT), str(LON), now.strftime('%d-%m-%Y'), start.strftime('%d-%m-%Y'),**kwargs)))
+                start += relativedelta(months=months, day=end.day)
+    return tasks
+
 
 
 def IdentityMap(upstream,algorithm,version, queue, dag, taxprefix,params={}):
