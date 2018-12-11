@@ -22,7 +22,7 @@ for band in medians1.data_vars.keys():
     else:
         nmed=np.vstack((nmed,b))
 del medians1
-
+nodata=-9999
 #PCA
 r_PCA=PCA(nmed.T)
 salida= r_PCA.Y.T.reshape((r_PCA.Y.T.shape[0],)+sp)
