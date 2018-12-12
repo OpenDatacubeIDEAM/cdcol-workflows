@@ -1,8 +1,7 @@
 import airflow
 from airflow.models import DAG
-from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
-from cdcol_utils import dag_utils
-from cdcol_utils import queue_utils
+from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator, PythonOperator
+from cdcol_utils import dag_utils, other_utils, queue_utils
 
 
 from datetime import timedelta
@@ -22,7 +21,6 @@ _queues = {
     'joiner-reduce-wofs': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
     'wofs-time-series-wf': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
     'mosaic': queue_utils.assign_queue(input_type='multi_temporal_unidad_area', time_range=_params['time_ranges'], lat=_params['lat'], lon=_params['lon'], unidades=len(_params['products'])),
-    'test-reduce': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
 }
 
 
@@ -62,15 +60,23 @@ time_series=dag_utils.IdentityMap(
         dag=dag
 )
 
+delete_partial_results = PythonOperator(task_id='delete_partial_results',
+                                            provide_context=True,
+                                            python_callable=other_utils.delete_partial_results,
+                                            queue='airflow_small',
+                                            op_kwargs={'algorithms': {
+                                                'wofs-wf': "1.0",
+                                                'joiner-reduce-wofs': "1.0",
+                                            }, 'execID': args['execID']},
+                                            dag=dag)
+
 if _params['mosaic']:
-    queue = _queues['mosaic']
-    task_id = 'mosaic'
-    algorithm = 'joiner'
+    mosaic = dag_utils.OneReduce(time_series, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic")
+    # if _params['normalized']:
+    #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
+
+    map(lambda b: b >> delete_partial_results, mosaic)
 
 else:
-    queue = _queues['print_context']
-    task_id = 'print_context'
-    algorithm = 'test-reduce'
 
-join = CDColReduceOperator(task_id=task_id,algorithm=algorithm,version='1.0',queue=queue,dag=dag)
-map(lambda b: b >> join, time_series)
+    map(lambda b: b >> delete_partial_results, time_series)

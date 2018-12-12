@@ -1,8 +1,8 @@
 #coding=utf8
 import airflow
 from airflow.models import DAG
-from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
-from cdcol_utils import dag_utils, queue_utils
+from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator, PythonOperator
+from cdcol_utils import dag_utils, queue_utils, other_utils
 from datetime import timedelta
 from pprint import pprint
 
@@ -93,21 +93,21 @@ bosque=dag_utils.IdentityMap(
 	queue=_queues['bosque-no-bosque-wf'], dag=dag,  taxprefix="bosque",
 )
 
+delete_partial_results = PythonOperator(task_id='delete_partial_results',
+                                            provide_context=True,
+                                            python_callable=other_utils.delete_partial_results,
+                                            queue='airflow_small',
+                                            op_kwargs={'algorithms': {
+                                                'mascara-landsat': "1.0",
+                                                'joiner-reduce': "1.0",
+												 'compuesto-temporal-medianas-wf':"1.0",
+												 'ndvi-wf':"1.0",
+                                            }, 'execID': args['execID']},
+                                            dag=dag)
 
 if _params['mosaic']:
-	task_id = 'mosaic'
-	algorithm = 'joiner'
-	queue = _queues['joiner']
+	mosaic = dag_utils.OneReduce(bosque, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag,taxprefix="mosaic")
+	map(lambda b: b >> delete_partial_results, mosaic)
 
 else:
-	task_id = 'print_context'
-	algorithm = 'test-reduce'
-	queue = _queues['test-reduce']
-
-join = CDColReduceOperator(
-	task_id=task_id,
-	algorithm=algorithm,
-	version='1.0',
-	queue=queue, dag=dag
-)
-map(lambda b: b >> join, bosque)
+	map(lambda b: b >> delete_partial_results, bosque)
