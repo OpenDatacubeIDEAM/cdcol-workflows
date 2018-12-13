@@ -95,21 +95,22 @@ ndvi_analysis=dag_utils.IdentityMap(medians_analysis, algorithm="ndvi-wf", versi
 
 ndvi_anomaly=dag_utils.reduceByTile(ndvi_analysis+ndvi_baseline, algorithm="ndvi-anomaly", version="1.0", queue="airflow_medium", params={'ndvi_baseline_threshold_range' : (0.60, 0.90)  },dag=dag, taxprefix="ndvi_anomaly")
 
+ndvi_anomaly
 
-delete_partial_results = PythonOperator(task_id='delete_partial_results',
-                                            provide_context=True,
-                                            python_callable=other_utils.delete_partial_results,
-                                            queue='airflow_small',
-                                            op_kwargs={'algorithms': {
-                                                'mascara-landsat': "1.0",
-                                                'ndvi-wf': "1.0",
-												 'compuesto-temporal-medianas-wf':"1.0",
-                                            }, 'execID': args['execID']},
-                                            dag=dag)
-
-if _params['mosaic']:
-	mosaic = dag_utils.OneReduce(ndvi_anomaly, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag,taxprefix="mosaic")
-	map(lambda b: b >> delete_partial_results, mosaic)
-
-else:
-	map(lambda b: b >> delete_partial_results, ndvi_anomaly)
+# delete_partial_results = PythonOperator(task_id='delete_partial_results',
+#                                             provide_context=True,
+#                                             python_callable=other_utils.delete_partial_results,
+#                                             queue='airflow_small',
+#                                             op_kwargs={'algorithms': {
+#                                                 'mascara-landsat': "1.0",
+#                                                 'ndvi-wf': "1.0",
+# 												 'compuesto-temporal-medianas-wf':"1.0",
+#                                             }, 'execID': args['execID']},
+#                                             dag=dag)
+#
+# if _params['mosaic']:
+# 	mosaic = dag_utils.OneReduce(ndvi_anomaly, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag,taxprefix="mosaic")
+# 	map(lambda b: b >> delete_partial_results, mosaic)
+#
+# else:
+# 	map(lambda b: b >> delete_partial_results, ndvi_anomaly)
