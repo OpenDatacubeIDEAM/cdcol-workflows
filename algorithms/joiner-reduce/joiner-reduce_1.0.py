@@ -3,6 +3,7 @@
 #parámetros: xarrs (generado por el operador reducer), bands (opcional, pero debe existir si en algún dataset hay bandas adicionales)
 import xarray as xr
 output=None
+xarrs=xarrs.values
 try: 
     bands
 except NameError:

@@ -19,6 +19,7 @@ import glob, os,sys
 # output.to_netcdf('mosaico_xarr_{}'.format(postfix))
 
 output=None
+xarrs=xarrs.values
 for _xarr in xarrs:
     if (output is None):
         output = _xarr

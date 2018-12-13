@@ -44,14 +44,14 @@ class CDColReduceOperator(BaseOperator):
         i=0
         _files=[ x for x in self.str_files if "{}.nc".format(self.output_type) in x and (self.lat is None or "{}_{}".format(self.lat[0],self.lon[0]) in x) and self.year is None or "_{}_".format(self.year)]
         kwargs=self.alg_kwargs
-        xarrs=[]
+        xarrs={}
         for _f in _files:
             
             _xarr = common.readNetCDF(_f)
             if len(_xarr.data_vars) == 0:
                 open(folder+"{}_{}_no_data.lock".format(self.lat[0],self.lon[0]), "w+").close()
                 return []
-            xarrs.append(_xarr)
+            xarrs[os.path.basename(_f)]=_xarr
         kwargs["xarrs"]=xarrs
         kwargs["product"]=self.product
         exec(open(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py").read(),kwargs)
