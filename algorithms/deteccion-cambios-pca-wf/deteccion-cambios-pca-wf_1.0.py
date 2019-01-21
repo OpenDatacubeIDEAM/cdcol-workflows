@@ -4,8 +4,8 @@ from scipy.cluster.vq import kmeans2,vq
 import xarray as xr
 import numpy as np
 
-medians1 = xarrs[0]
-medians2 = xarrs[1]
+medians1 = xarrs.values()[0]
+medians2 = xarrs.values()[1]
 nodata=-9999
 #Preprocesar:
 nmed=None
@@ -41,16 +41,16 @@ kmv[nan_mask.reshape(sp)]=nodata
 coordenadas = []
 dimensiones =[]
 xcords = {}
-for coordenada in xarrs[0].coords:
+for coordenada in xarrs.values()[0].coords:
     if(coordenada != 'time'):
-        coordenadas.append( ( coordenada, xarrs[0].coords[coordenada]) )
+        coordenadas.append( ( coordenada, xarrs.values()[0].coords[coordenada]) )
         dimensiones.append(coordenada)
-        xcords[coordenada] = xarrs[0].coords[coordenada]
+        xcords[coordenada] = xarrs.values()[0].coords[coordenada]
 valores = {"kmeans": xr.DataArray(kmv, dims=dimensiones, coords=coordenadas)}
 i=1
 for x in salida:
     valores["pc"+str(i)]=xr.DataArray(x, dims=dimensiones, coords=coordenadas)
     i+=1
-output = xr.Dataset(valores, attrs={'crs': xarrs[0].crs})
+output = xr.Dataset(valores, attrs={'crs': xarrs.values()[0].crs})
 for coordenada in output.coords:
-    output.coords[coordenada].attrs["units"] = xarrs[0].coords[coordenada].units
+    output.coords[coordenada].attrs["units"] = xarrs.values()[0].coords[coordenada].units

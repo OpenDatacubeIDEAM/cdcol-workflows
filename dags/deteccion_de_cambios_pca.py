@@ -90,7 +90,7 @@ else:
     results = medians1+medians2
 
 
-pca = dag_utils.reduceByTile(results, algorithm="deteccion-cambios-pca-wf", version="1.0", queue=_queues['deteccion-cambios-pca-wf'], dag=dag, taxprefix="pca_")
+pca = dag_utils.reduceByTile(results, algorithm="deteccion-cambios-pca-wf", version="1.0", queue=_queues['deteccion-cambios-pca-wf'], dag=dag, params={'bands':_params['bands']}, taxprefix="pca_")
 
 
 delete_partial_results = PythonOperator(task_id='delete_partial_results',

@@ -6,22 +6,24 @@ from sklearn.externals import joblib
 
 # In[21]:
 
-medians1=xarr0
 # Preprocesar:
-nmed = None
-nan_mask = None
-for band in bands:
-    b = medians1[band].ravel()
+nmed=None
+nan_mask=None
+medians1 = xarr0
+for band in medians1.data_vars.keys():
+    if band == "crs":
+        continue
+    b=np.ravel(medians1.data_vars[band].values)
     if nan_mask is None:
-        nan_mask = np.isnan(b)
+        nan_mask=np.isnan(b)
     else:
-        nan_mask = np.logical_or(nan_mask, np.isnan(medians1[band].ravel()))
-    b[np.isnan(b)] = np.nanmedian(b)
+        nan_mask=np.logical_or(nan_mask, np.isnan(medians1.data_vars[band].values.ravel()))
+    b[np.isnan(b)]=np.nanmedian(b)
     if nmed is None:
-        sp = medians1[band].shape
-        nmed = b
+        sp=medians1.data_vars[band].values.shape
+        nmed=b
     else:
-        nmed = np.vstack((nmed, b))
+        nmed=np.vstack((nmed,b))
 
 # In[12]:
 
