@@ -32,7 +32,7 @@ for x in xarr0.coords:
         xdims.append(x)
         xcords[x]=xarr0.coords[x]
 variables ={k: xr.DataArray(v, dims=xdims,coords=ncoords)
-             for k, v in medians.items()}
+            for k, v in medians.items()}
 #Genera el dataset (netcdf) con las bandas con el sistema de referencia de coordenadas
 output=xr.Dataset(variables, attrs={'crs':xarr0.crs})
 
