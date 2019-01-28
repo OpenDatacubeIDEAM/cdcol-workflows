@@ -54,7 +54,7 @@ def saveNC(output,filename, history):
 def readNetCDF(file):
     start = time.time()
     try:
-        _xarr=xr.open_dataset(file)
+        _xarr=xr.open_dataset(file, mask_and_scale=False)
     except Exception as e:
         logging.info('CARGA NC EXCEPTION:' + str(e)) 
     # _xarr=xr.open_dataset(file)
