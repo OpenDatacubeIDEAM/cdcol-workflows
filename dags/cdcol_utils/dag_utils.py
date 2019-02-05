@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # coding=utf8
 import airflow
 from airflow.models import DAG
@@ -8,6 +9,7 @@ from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColRe
 from datetime import timedelta, datetime
 from dateutil.relativedelta import relativedelta
 from pprint import pprint
+from string import maketrans
 
 def queryMapByTile(lat,lon,time_ranges, queue, dag,  algorithm,version,params={},taxprefix="med",**kwargs):
     return [CDColQueryOperator(
@@ -80,7 +82,7 @@ def reduceByTile(upstream, algorithm,version, queue, dag,  taxprefix, params={})
         key="{}_{}".format(prev.lat,prev.lon)
         if key not in reducers:
             reducers[key]=CDColReduceOperator(
-                task_id=taxprefix+key.translate(None,"() ").replace(",","-"),
+                task_id=taxprefix+key.translate(maketrans(None,"() ")).replace(",","-"),
                 algorithm=algorithm,
                 version=version,
                 params=params,
