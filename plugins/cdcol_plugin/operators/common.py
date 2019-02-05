@@ -2,7 +2,7 @@
 import datacube
 import numpy as np
 from datacube.drivers.netcdf import writer as netcdf_writer
-from datacube.model import CRS
+from datacube.utils.geometry import CRS
 import os
 import re
 import xarray as xr
