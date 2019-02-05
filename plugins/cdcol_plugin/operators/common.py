@@ -1,8 +1,8 @@
 # coding=utf8
 import datacube
 import numpy as np
-from datacube.storage import netcdf_writer
-from datacube.model import Variable, CRS
+from datacube.drivers.netcdf import writer as netcdf_writer
+from datacube.model import CRS
 import os
 import re
 import xarray as xr
@@ -44,7 +44,7 @@ def saveNC(output,filename, history):
         if band in coords.keys() or band == 'crs':
             continue
         output.data_vars[band].values[np.isnan(output.data_vars[band].values)]=nodata
-        var= netcdf_writer.create_variable(nco, band, Variable(output.data_vars[band].dtype, nodata, cnames, None) ,set_crs=True)
+        var= netcdf_writer.create_variable(nco, band, netcdf_writer.Variable(output.data_vars[band].dtype, nodata, cnames, None) ,set_crs=True)
         var[:] = netcdf_writer.netcdfy_data(output.data_vars[band].values)
     nco.close()
 
