@@ -1,4 +1,3 @@
-
 import xarray as xr
 import numpy as np
 print("Indice de vegetacion de diferencia normalizada")

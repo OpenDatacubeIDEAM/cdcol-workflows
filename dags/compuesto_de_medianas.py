@@ -1,5 +1,4 @@
-#!/usr/bin/python3
-# coding=utf8
+
 import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
@@ -18,9 +17,6 @@ _params = {
     'normalized': True,
     'products': ["LS8_OLI_LASRC"],
     'mosaic': True
-}
-
-_tasks = {
 }
 
 _queues = {
