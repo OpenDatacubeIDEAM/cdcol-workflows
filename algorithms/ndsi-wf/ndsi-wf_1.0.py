@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# coding=utf8
+#coding=utf8
 import xarray as xr
 import numpy as np
 print("Indice de nieve de diferencia normalizada")
