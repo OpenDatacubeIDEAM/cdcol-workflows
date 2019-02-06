@@ -1,6 +1,3 @@
-#!/usr/bin/python3
-# coding=utf8
-
 import numpy as np
 print ("Masking " + product)
 nodata=-9999
