@@ -30,12 +30,12 @@ _queues = {
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID':"wofs-wf",
+    'execID':"wofs",
     'product':_params['products'][0]
 }
 
 dag = DAG(
-    dag_id='wofs-wf', default_args=args,
+    dag_id=args["execID"], default_args=args,
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
@@ -74,12 +74,10 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                             dag=dag)
 
 if _params['mosaic']:
-    mosaic = dag_utils.OneReduce(time_series, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic")
+    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
     # if _params['normalized']:
     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-
-    map(lambda b: b >> delete_partial_results, mosaic)
+    time_series >> mosaic >> delete_partial_results
 
 else:
-
-    map(lambda b: b >> delete_partial_results, time_series)
+    time_series >> delete_partial_results

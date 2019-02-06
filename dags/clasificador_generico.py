@@ -33,12 +33,12 @@ _queues = {
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID': "clasificador-generico",
+    'execID': "clasificador_generico",
     'product': "LS8_OLI_LASRC"
 }
 
 dag = DAG(
-    dag_id='clasificador-generico', default_args=args,
+    dag_id=args["execID"], default_args=args,
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
@@ -78,7 +78,7 @@ medians = dag_utils.IdentityMap(
     })
 
 
-mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic")
+mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
 
 generic_classification = dag_utils.IdentityMap(
     mosaic,
@@ -104,4 +104,5 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                             'compuesto-temporal-medianas-wf':"1.0",
                                         }, 'execID': args['execID']},
                                         dag=dag)
-map(lambda b: b >> delete_partial_results, generic_classification)
+
+mosaic >> generic_classification >> delete_partial_results

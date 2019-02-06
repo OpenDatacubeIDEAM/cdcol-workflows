@@ -20,6 +20,9 @@ _params = {
     'mosaic': True
 }
 
+_tasks = {
+}
+
 _queues = {
 
     'mascara-landsat': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),

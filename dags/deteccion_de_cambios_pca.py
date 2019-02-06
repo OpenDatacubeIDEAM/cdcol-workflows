@@ -36,12 +36,12 @@ _queues = {
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID': "deteccionDeCambiosPCA",
+    'execID': "deteccion_de_cambios_PCA",
     'product': _params['products'][0]
 }
 
 dag = DAG(
-    dag_id='deteccion_cambios_PCA', default_args=args,
+    dag_id=args["execID"], default_args=args,
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 

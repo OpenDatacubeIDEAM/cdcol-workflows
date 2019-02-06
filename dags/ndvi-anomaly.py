@@ -33,12 +33,12 @@ _queues = {
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID': "ndvi-anomaly",
+    'execID': "ndvi_anomaly",
     'product': "LS8_OLI_LASRC"
 }
 
 dag = DAG(
-    dag_id='ndvi-anomaly', default_args=args,
+    dag_id=args["execID"], default_args=args,
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 

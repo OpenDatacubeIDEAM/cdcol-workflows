@@ -22,6 +22,7 @@ _params = {
 	'mosaic': False
 }
 
+
 _queues = {
 
     'mascara-landsat': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),
@@ -36,11 +37,11 @@ _queues = {
 args={
 	'owner':'cubo',
 	'start_date':airflow.utils.dates.days_ago(2),
-	'execID':"bosqueNoBosque",
+	'execID':"bosque_no_bosque",
 	'product':"LS8_OLI_LASRC"
 }
 dag=DAG(
-	dag_id='bosque_no_bosque', default_args=args,
+	dag_id=args["execID"], default_args=args,
 	schedule_interval=None,
 	dagrun_timeout=timedelta(minutes=20)
 )
@@ -108,8 +109,10 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                             dag=dag)
 
 if _params['mosaic']:
-	mosaic = dag_utils.OneReduce(bosque, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag,taxprefix="mosaic")
-	map(lambda b: b >> delete_partial_results, mosaic)
+    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
+    # if _params['normalized']:
+    #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
+    bosque >> mosaic >> delete_partial_results
 
 else:
-	map(lambda b: b >> delete_partial_results, bosque)
+    bosque >> delete_partial_results
