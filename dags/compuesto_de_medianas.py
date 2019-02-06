@@ -71,15 +71,18 @@ medians = dag_utils.IdentityMap(
         'bands': _params['bands'],
         'minValid': _params['minValid'],
     })
-# delete_partial_results = PythonOperator(task_id='delete_partial_results',
-#                                             provide_context=True,
-#                                             python_callable=other_utils.delete_partial_results,
-#                                             queue='airflow_small',
-#                                             op_kwargs={'algorithms': {
-#                                                 'mascara-landsat': "1.0",
-#                                                 'joiner-reduce': "1.0",
-#                                             }, 'execID': args['execID']},
-#                                             dag=dag)
+delete_partial_results = PythonOperator(task_id='delete_partial_results',
+                                            provide_context=True,
+                                            python_callable=other_utils.delete_partial_results,
+                                            queue='airflow_small',
+                                            op_kwargs={'algorithms': {
+                                                'mascara-landsat': "1.0",
+                                                'joiner-reduce': "1.0",
+                                            }, 'execID': args['execID']},
+                                            dag=dag)
+
+medians >> delete_partial_results
+
 #
 # if _params['mosaic']:
 #     mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic")
