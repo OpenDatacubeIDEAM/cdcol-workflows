@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+# coding=utf8
 from cdcol_plugin.operators import common
 import os
 import shutil

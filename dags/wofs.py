@@ -1,6 +1,9 @@
+#!/usr/bin/python3
+# coding=utf8
 import airflow
 from airflow.models import DAG
-from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator, PythonOperator
+from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
+from airflow.operators.python_operator import PythonOperator
 from cdcol_utils import dag_utils, other_utils, queue_utils
 
 

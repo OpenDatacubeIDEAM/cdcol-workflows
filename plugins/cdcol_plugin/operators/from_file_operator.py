@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # coding=utf8
 import os
 from airflow.models import BaseOperator
