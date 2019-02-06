@@ -6,7 +6,7 @@ print ("Masking " + product)
 nodata=-9999
 
 def calculate_mask(valid_values):
-    cloud_mask = np.isin(nbar["pixel_qa"].values, validValues)
+    cloud_mask = np.isin(xarr0["pixel_qa"].values, validValues)
     for band in bands:
         xarr0[band].values = np.where(np.logical_and(xarr0.data_vars[band] != nodata, cloud_mask),xarr0.data_vars[band], nodata).astype(np.int16)
     output = xarr0
