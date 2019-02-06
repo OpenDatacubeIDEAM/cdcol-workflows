@@ -26,7 +26,7 @@ nodata=-9999
 def saveNC(output,filename, history):
     start = time.time()
     nco=netcdf_writer.create_netcdf(filename)
-    nco.history = (history.decode('utf-8').encode('ascii','replace'))
+    nco.history = (history.encode('ascii','replace'))
 
     coords=output.coords
     cnames=()
