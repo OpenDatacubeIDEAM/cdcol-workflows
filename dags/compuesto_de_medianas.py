@@ -80,17 +80,11 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                                 'joiner-reduce': "1.0",
                                             }, 'execID': args['execID']},
                                             dag=dag)
+if _params['mosaic']:
+    mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic")
+    # if _params['normalized']:
+    #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
+    mosaic >> delete_partial_results
 
-medians >> delete_partial_results
-
-#
-# if _params['mosaic']:
-#     mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic")
-#     # if _params['normalized']:
-#     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-#
-#     map(lambda b: b >> delete_partial_results, mosaic)
-#
-# else:
-#
-#     map(lambda b: b >> delete_partial_results, medians)
+else:
+    medians >> delete_partial_results
