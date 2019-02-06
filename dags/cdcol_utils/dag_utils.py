@@ -5,7 +5,6 @@ from airflow.models import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
 
-
 from datetime import timedelta, datetime
 from dateutil.relativedelta import relativedelta
 from pprint import pprint
@@ -51,8 +50,6 @@ def queryMapByTileByMonths(lat,lon,time_ranges,queue, dag, algorithm,version,par
 
     return tasks
 
-
-
 def IdentityMap(upstream,algorithm,version, queue, dag, taxprefix,params={}):
     i=1
     tasks=[]
@@ -91,8 +88,6 @@ def reduceByTile(upstream, algorithm,version, queue, dag,  taxprefix, params={})
                 dag=dag)
         prev>>reducers[key]
     return reducers.values()
-
-
 
 def print_xcom(ds, **kwargs):
     #pprint(kwargs)
