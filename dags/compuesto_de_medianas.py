@@ -32,12 +32,12 @@ _queues = {
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID': "compuestoDeMedianas",
+    'execID': "compuesto_de_medianas",
     'product': "LS8_OLI_LASRC"
 }
 
 dag = DAG(
-    dag_id='compuesto_de_medianas', default_args=args,
+    dag_id=args['execID'], default_args=args,
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
@@ -71,23 +71,23 @@ medians = dag_utils.IdentityMap(
         'bands': _params['bands'],
         'minValid': _params['minValid'],
     })
-delete_partial_results = PythonOperator(task_id='delete_partial_results',
-                                            provide_context=True,
-                                            python_callable=other_utils.delete_partial_results,
-                                            queue='airflow_small',
-                                            op_kwargs={'algorithms': {
-                                                'mascara-landsat': "1.0",
-                                                'joiner-reduce': "1.0",
-                                            }, 'execID': args['execID']},
-                                            dag=dag)
-
-if _params['mosaic']:
-    mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic")
-    # if _params['normalized']:
-    #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-
-    map(lambda b: b >> delete_partial_results, mosaic)
-
-else:
-
-    map(lambda b: b >> delete_partial_results, medians)
+# delete_partial_results = PythonOperator(task_id='delete_partial_results',
+#                                             provide_context=True,
+#                                             python_callable=other_utils.delete_partial_results,
+#                                             queue='airflow_small',
+#                                             op_kwargs={'algorithms': {
+#                                                 'mascara-landsat': "1.0",
+#                                                 'joiner-reduce': "1.0",
+#                                             }, 'execID': args['execID']},
+#                                             dag=dag)
+#
+# if _params['mosaic']:
+#     mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic")
+#     # if _params['normalized']:
+#     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
+#
+#     map(lambda b: b >> delete_partial_results, mosaic)
+#
+# else:
+#
+#     map(lambda b: b >> delete_partial_results, medians)

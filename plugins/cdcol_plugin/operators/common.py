@@ -56,12 +56,12 @@ def readNetCDF(file):
     start = time.time()
     try:
         _xarr=xr.open_dataset(file, mask_and_scale=False)
+        end = time.time()
+        logging.info('TIEMPO CARGA NC:' + str((end - start)))
+        return _xarr
     except Exception as e:
-        logging.info('CARGA NC EXCEPTION:' + str(e)) 
-    # _xarr=xr.open_dataset(file)
-    end = time.time()
-    logging.info('TIEMPO CARGA NC:' + str((end - start)))
-    return _xarr
+        logging.info('ERROR CARGA NC:' + str(e))
+
 
 def getUpstreamVariable(task, context,key='return_value'):
     start = time.time()
