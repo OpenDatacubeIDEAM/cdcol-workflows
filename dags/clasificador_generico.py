@@ -80,19 +80,10 @@ medians = dag_utils.IdentityMap(
 
 mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
 
-generic_classification = dag_utils.IdentityMap(
-    mosaic,
-    algorithm="clasificador-generico-wf",
-    version="1.0",
-    taxprefix="clasificador_generico_",
-    queue=_queues['clasificador-generico-wf'],
-    dag=dag,
-    params={
+generic_classification = CDColFromFileOperator(task_id="clasificador_generico",  algorithm="clasificador-generico-wf", version="1.0", queue=_queues['clasificador-generico-wf'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params={
         'bands': _params['bands'],
         'modelos': _params['modelos']
-    }
-)
-
+    })
 
 delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         provide_context=True,
