@@ -77,15 +77,7 @@ medians = dag_utils.IdentityMap(
 
 mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
 
-kmeans = dag_utils.IdentityMap(
-    mosaic,
-    algorithm="k-means-wf",
-    version="1.0",
-    taxprefix="kmeans_",
-    queue=_queues['k-means-wf'],
-    dag=dag,
-    params={'classes': _params['classes']}
-)
+kmeans = CDColFromFileOperator(task_id="kmeans_", algorithm="k-means-wf", version="1.0", queue=_queues['k-means-wf'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params={'classes': _params['classes']})
 
 
 delete_partial_results = PythonOperator(task_id='delete_partial_results',
