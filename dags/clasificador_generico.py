@@ -105,4 +105,4 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         }, 'execID': args['execID']},
                                         dag=dag)
 
-mosaic >> generic_classification >> delete_partial_results
+medians >> mosaic >> generic_classification >> delete_partial_results

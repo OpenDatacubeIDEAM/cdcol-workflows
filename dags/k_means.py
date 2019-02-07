@@ -75,7 +75,7 @@ medians = dag_utils.IdentityMap(
     })
 
 
-mosaic = dag_utils.OneReduce(medians, algorithm="joiner", version="1.0",  queue=_queues['joiner'], dag=dag, taxprefix="mosaic")
+mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
 
 kmeans = dag_utils.IdentityMap(
     mosaic,
@@ -98,4 +98,4 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                             'compuesto-temporal-medianas-wf':"1.0",
                                         }, 'execID': args['execID']},
                                         dag=dag)
-map(lambda b: b >> delete_partial_results, kmeans)
+medians >> mosaic >> kmeans >> delete_partial_results
