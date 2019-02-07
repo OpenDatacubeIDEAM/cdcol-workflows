@@ -1,11 +1,10 @@
-
 import os
 from airflow.models import BaseOperator
 from airflow import utils as airflow_utils
 from cdcol_plugin.operators import common
 import datacube
 import re
-
+import posixpath
 import time
 import logging
 
@@ -68,7 +67,7 @@ class CDColQueryOperator(BaseOperator):
         logging.info('TIEMPO CONSULTA:' + str((end - start)))
         kwargs["product"]=self.product
         print(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py")
-        path = os.fspath(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py")
+        path = posixpath.join(common.ALGORITHMS_FOLDER,self.algorithm,self.algorithm+"_"+str(self.version)+".py")
         exec(open(path).read(),kwargs)
         fns=[]
 
