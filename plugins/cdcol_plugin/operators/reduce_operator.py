@@ -55,7 +55,7 @@ class CDColReduceOperator(BaseOperator):
             xarrs[os.path.basename(_f)]=_xarr
         kwargs["xarrs"]=xarrs
         kwargs["product"]=self.product
-        exec(open(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py").read(),kwargs)
+        exec(open(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py", encoding='utf-8').read(),kwargs)
         fns=[]
 
         history = u'Creado con CDCOL con el algoritmo {} y  ver. {}'.format(self.algorithm,str(self.version))

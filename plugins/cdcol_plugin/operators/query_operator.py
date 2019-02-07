@@ -68,7 +68,7 @@ class CDColQueryOperator(BaseOperator):
         kwargs["product"]=self.product
         print(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py")
         path = posixpath.join(common.ALGORITHMS_FOLDER,self.algorithm,self.algorithm+"_"+str(self.version)+".py")
-        exec(open(path).read(),kwargs)
+        exec(open(path, encoding='utf-8').read(),kwargs)
         fns=[]
 
         history = u'Creado con CDCOL con el algoritmo {} y  ver. {}'.format(self.algorithm,str(self.version))
