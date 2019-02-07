@@ -68,7 +68,8 @@ class CDColQueryOperator(BaseOperator):
         logging.info('TIEMPO CONSULTA:' + str((end - start)))
         kwargs["product"]=self.product
         print(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py")
-        exec(open(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py").read(),kwargs)
+        path = os.fspath(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py")
+        exec(open(path).read(),kwargs)
         fns=[]
 
         history = u'Creado con CDCOL con el algoritmo {} y  ver. {}'.format(self.algorithm,str(self.version))
