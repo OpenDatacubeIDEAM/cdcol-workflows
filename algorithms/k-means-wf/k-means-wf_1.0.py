@@ -1,5 +1,4 @@
 from matplotlib.mlab import PCA
-from sklearn.preprocessing import normalize
 from scipy.cluster.vq import kmeans2,vq
 import xarray as xr
 import numpy as np
