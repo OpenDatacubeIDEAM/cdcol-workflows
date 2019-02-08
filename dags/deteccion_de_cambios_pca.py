@@ -105,4 +105,4 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                             'compuesto-temporal-medianas-wf':"1.0",
                                         }, 'execID': args['execID']},
                                         dag=dag)
-map(lambda b: b >> delete_partial_results, pca)
+pca >> delete_partial_results
