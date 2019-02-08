@@ -1,5 +1,4 @@
 from matplotlib.mlab import PCA
-from sklearn.preprocessing import normalize
 from scipy.cluster.vq import kmeans2,vq
 import xarray as xr
 import numpy as np
@@ -12,7 +11,6 @@ nmed=None
 nan_mask=None
 for band in bands:
     b=medians1[band].values.ravel()
-    print "medians 1 {}: {}".format(band,b.shape)
     if nan_mask is None:
         nan_mask=np.isnan(b)
     else:
@@ -24,7 +22,6 @@ for band in bands:
     else:
         nmed=np.vstack((nmed,b))
     c=medians2[band].values.ravel()
-    print "medians 2 {}: {}".format(band,c.shape)
     nan_mask=np.logical_or(nan_mask, np.isnan(c))
     c[np.isnan(c)]=np.nanmedian(c)
     nmed=np.vstack((nmed,c))
