@@ -3,8 +3,9 @@ from scipy.cluster.vq import kmeans2,vq
 import xarray as xr
 import numpy as np
 
-medians1 = xarrs.values()[0]
-medians2 = xarrs.values()[1]
+values = list(xarrs.values())
+medians1 = values[0]
+medians2 = values[1]
 nodata=-9999
 #Preprocesar:
 nmed=None
