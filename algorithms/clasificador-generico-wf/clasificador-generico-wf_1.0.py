@@ -3,6 +3,7 @@
 import xarray as xr
 import numpy as np
 from sklearn.externals import joblib
+import warnings
 
 # In[21]:
 
@@ -37,7 +38,9 @@ for file in os.listdir(modelos):
 if model is None:
     raise "Debería haber un modelo en la carpeta " + modelos
 
-classifier = joblib.load(os.path.join(modelos, model))
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", category=UserWarning)
+    classifier = joblib.load(os.path.join(modelos, model))
 result = classifier.predict(nmed.T)
 result = result.reshape(sp)
 
