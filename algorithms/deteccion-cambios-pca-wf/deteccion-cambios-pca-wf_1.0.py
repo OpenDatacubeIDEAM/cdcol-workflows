@@ -39,16 +39,16 @@ kmv[nan_mask.reshape(sp)]=nodata
 coordenadas = []
 dimensiones =[]
 xcords = {}
-for coordenada in xarrs.values()[0].coords:
+for coordenada in values[0].coords:
     if(coordenada != 'time'):
-        coordenadas.append( ( coordenada, xarrs.values()[0].coords[coordenada]) )
+        coordenadas.append( ( coordenada, values[0].coords[coordenada]) )
         dimensiones.append(coordenada)
-        xcords[coordenada] = xarrs.values()[0].coords[coordenada]
+        xcords[coordenada] = values[0].coords[coordenada]
 valores = {"kmeans": xr.DataArray(kmv, dims=dimensiones, coords=coordenadas)}
 i=1
 for x in salida:
     valores["pc"+str(i)]=xr.DataArray(x, dims=dimensiones, coords=coordenadas)
     i+=1
-output = xr.Dataset(valores, attrs={'crs': xarrs.values()[0].crs})
+output = xr.Dataset(valores, attrs={'crs': values[0].crs})
 for coordenada in output.coords:
-    output.coords[coordenada].attrs["units"] = xarrs.values()[0].coords[coordenada].units
+    output.coords[coordenada].attrs["units"] = values[0].coords[coordenada].units
