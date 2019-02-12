@@ -17,4 +17,5 @@ for _xarr in xarrs:
     else: 
         output=xr.concat([output,_xarr.copy(deep=True)],'time')
 output['crs'] = xarrs[0].crs
+output=output.transpose(*xarrs[0].coords.keys())
 print(output.coords['time'])
