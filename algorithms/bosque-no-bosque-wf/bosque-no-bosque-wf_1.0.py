@@ -7,8 +7,8 @@ period_nvdi=xarr0["ndvi"].values
 height = period_nvdi.shape[0]
 width = period_nvdi.shape[1]
 bosque_nobosque=np.full(period_nvdi.shape, -1)
-for y1 in xrange(0, height, slice_size):
-    for x1 in xrange(0, width, slice_size):
+for y1 in range(0, height, slice_size):
+    for x1 in range(0, width, slice_size):
         x2 = x1 + slice_size
         y2 = y1 + slice_size
         if(x2 > width):
@@ -28,13 +28,12 @@ for y1 in xrange(0, height, slice_size):
 ncoords=[]
 xdims =[]
 xcords={}
-nbar=xarr0
-for x in nbar.coords:
+for x in xarr0.coords:
     if(x!='time'):
-        ncoords.append( ( x, nbar.coords[x]) )
+        ncoords.append( ( x, xarr0.coords[x]) )
         xdims.append(x)
-        xcords[x]=nbar.coords[x]
+        xcords[x]=xarr0.coords[x]
 variables ={"bosque_nobosque": xr.DataArray(bosque_nobosque.astype(np.int16), dims=xdims,coords=ncoords)}
-output=xr.Dataset(variables, attrs={'crs':nbar.crs})
+output=xr.Dataset(variables, attrs={'crs':xarr0.crs})
 for x in output.coords:
-    output.coords[x].attrs["units"]=nbar.coords[x].units
+    output.coords[x].attrs["units"]=xarr0.coords[x].units
