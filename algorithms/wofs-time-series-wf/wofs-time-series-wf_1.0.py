@@ -1,8 +1,8 @@
 import xarray as xr
 import numpy as np
-import gc
 import collections
 
+print("Ejecutando calculo de series de tiempo en WOFS")
 
 def perform_timeseries_analysis(dataset_in, no_data=-9999):
     """
@@ -51,7 +51,7 @@ def perform_timeseries_analysis(dataset_in, no_data=-9999):
 
     clean_data_sum = clean_data.sum('time')
 
-    processed_data_normalized = np.true_divide(processed_data_sum, clean_data_sum)
+    processed_data_normalized = processed_data_sum/clean_data_sum
     if hasattr(data, "latitude"):
         dataset_out = xr.Dataset(collections.OrderedDict(
             [('normalized_data', (['latitude', 'longitude'], processed_data_normalized.astype(np.float32))),
@@ -70,7 +70,6 @@ def perform_timeseries_analysis(dataset_in, no_data=-9999):
 
 crs_org = xarr0.crs
 time_series = perform_timeseries_analysis(xarr0)
-print "Serie de tiempo"
 outputs={}
 outputs["time_series"]=time_series
 outputs["time_series"].attrs["crs"]=crs_org
