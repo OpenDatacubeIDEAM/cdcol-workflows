@@ -11,7 +11,7 @@ from pprint import pprint
 
 _params = {
     'lat': (4,6),
-	'lon': (-74,-72),
+	'lon': (-71,-69),
 	'time_ranges': ("2017-01-01", "2017-12-31"),
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid':1,
@@ -82,7 +82,7 @@ mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0"
 
 generic_classification = CDColFromFileOperator(task_id="clasificador_generico",  algorithm="clasificador-generico-wf", version="1.0", queue=_queues['clasificador-generico-wf'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params={
         'bands': _params['bands'],
-        'modelos': _params['modelos']
+        'modelos': _params['modelos']+args["execID"]
     })
 
 delete_partial_results = PythonOperator(task_id='delete_partial_results',
