@@ -6,7 +6,7 @@ import numpy as np
 import gc
 import collections
 
-
+print("Ejecutando clasificacion de WOFS")
 def wofs_classify(dataset_in, clean_mask=None, no_data=-9999, enforce_float64=False):
     """
     Description:
@@ -293,7 +293,6 @@ def get_spatial_ref(crs):
 crs_org=xarr0.crs
 output = wofs_classify(xarr0)
 output.attrs["crs"]=crs_org
-print "clasifica"
 
 
 
