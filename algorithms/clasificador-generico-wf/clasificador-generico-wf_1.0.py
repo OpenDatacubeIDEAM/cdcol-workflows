@@ -31,11 +31,9 @@ import os
 
 model = None
 for file in os.listdir(modelos):
-    print file
     if file.endswith(".pkl"):
         model = file
         break
-print model
 if model is None:
     raise "Debería haber un modelo en la carpeta " + modelos
 
