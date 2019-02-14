@@ -7,7 +7,7 @@ medians = {}
 for band in bands:
     datos = xarr0.data_vars[band]
     allNan = ~np.isnan(datos)
-    medians[band] = np.nanmedian(datos, 0)
+    medians[band] = np.nanmedian(datos, 0).astype(np.int16)
     medians[band][np.sum(allNan, 0) < minValid] = np.nan
 del datos
 
