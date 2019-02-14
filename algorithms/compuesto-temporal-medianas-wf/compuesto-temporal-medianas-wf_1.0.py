@@ -3,12 +3,13 @@
 import xarray as xr
 import numpy as np
 print ("Compuesto temporal de medianas para " + product)
+nodata=-9999
 medians = {}
 for band in bands:
     datos = xarr0.data_vars[band]
     allNan = ~np.isnan(datos)
     medians[band] = np.nanmedian(datos, 0).astype(np.int16)
-    medians[band][np.sum(allNan, 0) < minValid] = np.nan
+    medians[band][np.sum(allNan, 0) < minValid] = nodata
 del datos
 
 
