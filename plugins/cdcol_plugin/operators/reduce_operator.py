@@ -11,7 +11,7 @@ from airflow.utils.trigger_rule import TriggerRule
 #Each reduce task of the reducer is a CDColReduceOperator
 class CDColReduceOperator(BaseOperator):
     @airflow_utils.apply_defaults
-    def __init__(self, execID, algorithm,version, product, params={}, str_files=None, output_type="output", lat=None, lon=None,year=None, trigger_rule=TriggerRule.NONE_FAILED, *args,**kwargs):
+    def __init__(self, execID, algorithm,version, product, params={}, str_files=None, output_type="output", lat=None, lon=None,year=None, *args,**kwargs):
         """
             algorithm: algorithm to execute over the query results
             version: algorithm version

@@ -4,6 +4,7 @@ from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
 from airflow.operators.python_operator import PythonOperator
 from cdcol_utils import dag_utils, queue_utils, other_utils
+from airflow.utils.trigger_rule import TriggerRule
 
 from datetime import timedelta
 from pprint import pprint
@@ -87,7 +88,7 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         dag=dag)
 
 if _params['mosaic']:
-    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
+    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'],  trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
     # if _params['normalized']:
     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
     medians >> mosaic >> delete_partial_results
