@@ -91,7 +91,7 @@ if _params['mosaic']:
     mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'],  trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
     # if _params['normalized']:
     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-    medians >> [mosaic,delete_partial_results]
+    medians >> mosaic >> delete_partial_results
 
 else:
     medians >> delete_partial_results
