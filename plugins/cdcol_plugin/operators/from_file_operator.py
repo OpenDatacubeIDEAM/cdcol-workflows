@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # coding=utf8
-import os
+import os, errno
 from airflow.models import BaseOperator
 from airflow import utils as airflow_utils
 from cdcol_plugin.operators import common
