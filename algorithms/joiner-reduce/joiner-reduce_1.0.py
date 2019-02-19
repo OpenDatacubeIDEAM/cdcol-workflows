@@ -4,13 +4,13 @@
 import xarray as xr
 output=None
 xarrs=list(xarrs.values())
-# try:
-#     bands
-# except NameError:
-#     bands=xarrs[0].keys()
-# for _xarr in xarrs:
-#     _undesired=list(set(_xarr.keys())-set(bands+['latitude','longitude','time']))
-#     _xarr=_xarr.drop(_undesired)
+try:
+    bands
+except NameError:
+    bands=xarrs[0].keys()
+for _xarr in xarrs:
+    _undesired=list(set(_xarr.keys())-set(bands+['latitude','longitude','time']))
+    _xarr=_xarr.drop(_undesired)
 #     if output is None:
 #         output = _xarr
 #     else:
