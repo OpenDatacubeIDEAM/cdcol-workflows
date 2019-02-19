@@ -18,5 +18,5 @@ xarrs=list(xarrs.values())
 
 # output['crs'] = xarrs[0].crs
 # output=output.transpose(*xarrs[0].coords.keys())
-output=xr.merge(xarrs, compat='no_conflics',join='inner')
+output=xr.merge(xarrs, compat='no_conflicts',join='inner')
 print(output.coords['time'])
