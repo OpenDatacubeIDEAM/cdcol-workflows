@@ -10,4 +10,3 @@ for _xarr in xarrs:
     else:
         output=output.combine_first(_xarr)
 
-output.astype(np.int32)
