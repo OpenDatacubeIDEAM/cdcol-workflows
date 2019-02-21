@@ -7,4 +7,4 @@ from cdcol_plugin.operators.reduce_operator import CDColReduceOperator
  
 class CDColPlugin(AirflowPlugin):
     name = 'cdcol_plugin'
-    operators=[CDColQueryOperator,CDColFromFileOperator,CDColReduceOperator]
+    operators=[CDColQueryOperator,CDColFromFileOperator,CDColReduceOperator,CDColBashOperator]

@@ -39,3 +39,4 @@ class CDColBashOperator(BaseOperator):
         bash_script_path=common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".sh"
         out = check_ouput([bash_script_path, folder]+_files)
         print(out.encode('ascii'))
+        return "smething"
