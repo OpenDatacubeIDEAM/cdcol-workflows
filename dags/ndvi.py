@@ -2,7 +2,7 @@
 # coding=utf8
 import airflow
 from airflow.models import DAG
-from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
+from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator, CDColBashOperator
 from airflow.operators.python_operator import PythonOperator
 from cdcol_utils import dag_utils, queue_utils, other_utils
 from airflow.utils.trigger_rule import TriggerRule
@@ -17,7 +17,8 @@ _params = {
     'minValid': 1,
     'normalized': True,
     'products': ["LS8_OLI_LASRC"],
-    'mosaic': False
+    'mosaic': False,
+    'generate_geotiff': True
 }
 
 _queues = {
@@ -101,11 +102,15 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         }, 'execID': args['execID']},
                                         dag=dag)
 
+workflow = ndvi
 if _params['mosaic']:
     mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
     # if _params['normalized']:
     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-    ndvi >> mosaic >> delete_partial_results
+    workflow = workflow >> mosaic
 
-else:
-    ndvi >> delete_partial_results
+if _params['generate_geotiff']:
+    generate_geotiff = CDColBashOperator(task_id="generate_geotiff", algorithm="generate_geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
+    workflow = workflow >> generate_geotiff
+
+    workflow>>delete_partial_results
