@@ -37,6 +37,6 @@ class CDColBashOperator(BaseOperator):
             raise AirflowSkipException("ERROR: No hay archivos para procesar del anterior paso")
         _files = [x for x in self.str_files if self.output_type in x]
         bash_script_path=common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".sh"
-        out = check_ouput([bash_script_path, folder]+_files)
+        out = check_output([bash_script_path, folder]+_files)
         print(out.encode('ascii'))
-        return "smething"
+        return "something"
