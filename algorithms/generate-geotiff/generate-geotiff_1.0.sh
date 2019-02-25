@@ -44,7 +44,6 @@ else
 		for i in $(seq 1 $nb)
 		do
 		echo "Escribiendo el thumbnail para el archivo $FILE banda $i"
-
 		gdal_translate -a_srs EPSG:4326 -stats $FILE $FOLDER/${BN}.$i.tiff
 		done
 	fi
@@ -54,6 +53,7 @@ GEOTIFF_FILES=$(ls ${FILE%.*}.*.tiff | sed -e 's/\(^.*\.\([0-9]*\)\.tiff\)/\2_\1
 if [ $WITH_BANDS_NAME = false ]
 then
 	gdal_merge.py -separate -o ${FILE%.*}.tiff $GEOTIFF_FILES
+	$SALIDA= "${SALIDA}${FOLDER}/${BN}.tiff"
 else
 	VRT_FILE=$FOLDER/geotiff.vrt
 	gdalbuildvrt -separate $VRT_FILE $GEOTIFF_FILES
