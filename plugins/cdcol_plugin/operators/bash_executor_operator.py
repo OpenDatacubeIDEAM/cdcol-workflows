@@ -43,8 +43,13 @@ class CDColBashOperator(BaseOperator):
             stdout = stdout.decode('ascii')
             stderr = stderr.decode('ascii')
             #out = check_output([bash_script_path, folder]+_files)
-            print(stdout)
-            print(stderr)
+            if stdout:
+                print(stdout)
+                return _files
+            else:
+                print(stderr)
+                return []
+
         except CalledProcessError as cpe:
             print('Error generating geotiff ' )
-        return "something"
+
