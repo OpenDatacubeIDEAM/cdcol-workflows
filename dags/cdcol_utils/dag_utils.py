@@ -62,12 +62,12 @@ def IdentityMap(upstream,algorithm,version, queue, dag, taxprefix,params={}):
 
     return tasks
 
-def BashMap(upstream,algorithm,version, queue, dag, taxprefix,params={}):
+def BashMap(upstream,algorithm,version, queue, dag, task_id ,params={}):
     i = 1
     tasks = []
     trans = str.maketrans({"(": None, ")": None, " ": None, ",": "-"})
     for prev in upstream:
-        _t = CDColBashOperator(algorithm=algorithm, version=version, queue=queue, dag=dag, lat=prev.lat, lon=prev.lon, task_id=("{}_{}_{}".format(taxprefix,prev.lat,prev.lon)).translate(trans), params=params)
+        _t = CDColBashOperator(algorithm=algorithm, version=version, queue=queue, dag=dag, lat=prev.lat, lon=prev.lon, task_id=("{}_{}_{}".format(task_id,prev.lat,prev.lon)).translate(trans), params=params)
         i += 1
         prev >> _t
         tasks.append(_t)

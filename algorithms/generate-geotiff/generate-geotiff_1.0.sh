@@ -15,6 +15,10 @@ FOLDER="$1"
 WITH_BANDS_NAME=false
 METADATA_SCRIPT=bands_metadata.py
 
+echo "Esta es la ruta $FOLDER"
+echo "Este es el archivo $FILE"
+
+
 if `gdalinfo $FILE |grep -q "SUBDATASET.*"`
 then
 	for ds in `gdalinfo $FILE | grep -E "NETCDF.*"`

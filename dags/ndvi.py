@@ -55,7 +55,7 @@ masked0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                        'bands': _params['bands'],
                                        'minValid': _params['minValid']
                                    }, queue=_queues['mascara-landsat'], dag=dag,
-                                   taxprefix="masked_{}_".format(_params['products'][0])
+                                   taxprefix="masked_{}".format(_params['products'][0])
 
                                    )
 if len(_params['products']) > 1:
@@ -68,7 +68,7 @@ if len(_params['products']) > 1:
                                            'bands': _params['bands'],
                                            'minValid': _params['minValid']
                                        }, queue=_queues['mascara-landsat'], dag=dag,
-                                       taxprefix="masked_{}_".format(_params['products'][1]))
+                                       taxprefix="masked_{}".format(_params['products'][1]))
     full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0",
                                         queue=_queues['joiner-reduce'], dag=dag, taxprefix="joined",
                                         params={'bands': _params['bands']})
@@ -79,7 +79,7 @@ medians = dag_utils.IdentityMap(
     full_query,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
-    taxprefix="medianas_",
+    taxprefix="medianas",
     queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
