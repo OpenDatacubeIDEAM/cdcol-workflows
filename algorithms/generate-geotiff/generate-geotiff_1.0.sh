@@ -18,9 +18,8 @@ FILE="$4"
 BN="${TASK_ID}_${ALGORITHM}"
 WITH_BANDS_NAME=false
 METADATA_SCRIPT=bands_metadata.py
+SALIDA="OUTPUT:"
 
-echo "Esta es la ruta $FOLDER"
-echo "Este es el archivo $FILE"
 
 
 if `gdalinfo $FILE |grep -q "SUBDATASET.*"`
@@ -40,6 +39,7 @@ else
 	then
 		echo "Escribiendo el thumbnail para el archivo $FILE"
 		gdal_translate -a_srs EPSG:4326 -stats $FILE $FOLDER/${BN}.tiff
+		$SALIDA= "${SALIDA}${FOLDER}/${BN}.tiff"
 	else
 		for i in $(seq 1 $nb)
 		do
@@ -62,3 +62,4 @@ else
 	rm $VRT_FILE
 fi
 rm ${FILE%.*}.*.tiff
+echo $SALIDA
