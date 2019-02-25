@@ -117,4 +117,4 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
 
 mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
 workflow=[mosaic, delete_partial_results]
-ndvi>>workflow
+ndvi.set_downstream(workflow)
