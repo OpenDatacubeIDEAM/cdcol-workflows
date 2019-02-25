@@ -53,7 +53,7 @@ def queryMapByTileByMonths(lat,lon,time_ranges,queue, dag, algorithm,version,par
 def IdentityMap(upstream,algorithm,version, queue, dag, taxprefix,params={}):
     i=1
     tasks=[]
-    trans = str.maketrans({"(": None, ")": None, " ": None, ",": "-"})
+    trans = str.maketrans({"(": None, ")": None, " ": None, ",": "_"})
     for prev in upstream:
         _t=CDColFromFileOperator(algorithm=algorithm,version=version,queue=queue, dag=dag,  lat=prev.lat, lon=prev.lon, task_id=("{}_{}_{}".format(taxprefix,prev.lat,prev.lon)).translate(trans),params=params)
         i+=1
@@ -65,7 +65,7 @@ def IdentityMap(upstream,algorithm,version, queue, dag, taxprefix,params={}):
 def BashMap(upstream,algorithm,version, queue, dag, task_id ,params={}):
     i = 1
     tasks = []
-    trans = str.maketrans({"(": None, ")": None, " ": None, ",": "-"})
+    trans = str.maketrans({"(": None, ")": None, " ": None, ",": "_"})
     for prev in upstream:
         _t = CDColBashOperator(algorithm=algorithm, version=version, queue=queue, dag=dag, lat=prev.lat, lon=prev.lon, task_id=("{}_{}_{}".format(task_id,prev.lat,prev.lon)).translate(trans), params=params)
         i += 1
@@ -87,11 +87,12 @@ def OneReduce(upstream, algorithm,version, queue, dag,  taxprefix, params={}):
     
 def reduceByTile(upstream, algorithm,version, queue, dag,  taxprefix, params={}):
     reducers={}
+    trans = str.maketrans({"(": None, ")": None, " ": None, ",": "_"})
     for prev in upstream:
         key="{}_{}".format(prev.lat,prev.lon)
         if key not in reducers:
             reducers[key]=CDColReduceOperator(
-                task_id=taxprefix+key.translate(str.maketrans({"(":None,")":None," ":None})).replace(",","-"),
+                task_id=taxprefix+key.translate(trans),
                 algorithm=algorithm,
                 version=version,
                 params=params,
