@@ -110,7 +110,7 @@ if _params['mosaic']:
     workflow = workflow >> mosaic
 
 if _params['generate_geotiff']:
-    generate_geotiff = CDColBashOperator(task_id="generate_geotiff", algorithm="generate_geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
+    generate_geotiff = CDColBashOperator(task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
     workflow = workflow >> generate_geotiff
 
     workflow>>delete_partial_results
