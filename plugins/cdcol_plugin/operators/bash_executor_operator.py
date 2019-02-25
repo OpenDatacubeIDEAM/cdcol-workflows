@@ -38,7 +38,7 @@ class CDColBashOperator(BaseOperator):
         _files = [x for x in self.str_files if self.output_type in x]
         bash_script_path=common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".sh"
         try:
-            p = Popen([bash_script_path, folder]+_files, stdout=PIPE, stderr=PIPE)
+            p = Popen([bash_script_path, self.task_id, self.algorithm, folder]+_files, stdout=PIPE, stderr=PIPE)
             stdout, stderr = p.communicate()
             stdout = stdout.decode('ascii')
             stderr = stderr.decode('ascii')

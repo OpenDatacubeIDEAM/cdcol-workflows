@@ -9,9 +9,13 @@ export GDAL_DATA="${GDAL_DATA:-/usr/share/gdal/1.11}"
 #TODO acomodar para que corra
 PYTHON=python
 
-FILE="$2"
-BN=`basename $FILE`
-FOLDER="$1"
+
+
+TASK_ID="$1"
+ALGORITHM="$2"
+FOLDER="$3"
+FILE="$4"
+BN="${TASK_ID}_${ALGORITHM}"
 WITH_BANDS_NAME=false
 METADATA_SCRIPT=bands_metadata.py
 
@@ -25,7 +29,7 @@ then
 	do
 	band_number=$(echo $ds | sed -e 's/^[^0-9]*\([0-9]*\).*/\1/')
 	echo "Escribiendo el archivo $FILE y la banda ${ds##*\:} ($band_number)"
-	gdal_translate -a_srs EPSG:4326 -stats ${ds#*\=} $FOLDER/${BN%.nc}.${ds##*\:}.$band_number.tiff
+	gdal_translate -a_srs EPSG:4326 -stats ${ds#*\=} $FOLDER/${BN}.${ds##*\:}.$band_number.tiff
 	done
 	WITH_BANDS_NAME=true
 else
@@ -35,13 +39,13 @@ else
 	if [[ $nb -le 1 ]]
 	then
 		echo "Escribiendo el thumbnail para el archivo $FILE"
-		gdal_translate -a_srs EPSG:4326 -stats $FILE $FOLDER/${BN%.nc}.tiff
+		gdal_translate -a_srs EPSG:4326 -stats $FILE $FOLDER/${BN}.tiff
 	else
 		for i in $(seq 1 $nb)
 		do
 		echo "Escribiendo el thumbnail para el archivo $FILE banda $i"
 
-		gdal_translate -a_srs EPSG:4326 -stats $FILE $FOLDER/${BN%.nc}.$i.tiff
+		gdal_translate -a_srs EPSG:4326 -stats $FILE $FOLDER/${BN}.$i.tiff
 		done
 	fi
 fi
