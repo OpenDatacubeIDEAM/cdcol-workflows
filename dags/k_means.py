@@ -90,7 +90,7 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                             'compuesto-temporal-medianas-wf':"1.0",
                                         }, 'execID': args['execID']},
                                         dag=dag)
-workflow= medians >> mosaic >> kmeans
+workflow= [medians >> mosaic >> kmeans]
 if _params['generate-geotiff']:
     workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
 

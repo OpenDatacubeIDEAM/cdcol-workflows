@@ -99,7 +99,7 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         dag=dag)
 
 
-workflow= medians >> mosaic >> generic_classification
+workflow= [medians >> mosaic >> generic_classification]
 if _params['generate-geotiff']:
     workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
 
