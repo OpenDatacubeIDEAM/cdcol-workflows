@@ -5,7 +5,7 @@ from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
 from airflow.operators.python_operator import PythonOperator
 from cdcol_utils import dag_utils, queue_utils, other_utils
-
+from airflow.utils.trigger_rule import TriggerRule
 from datetime import timedelta
 from pprint import pprint
 

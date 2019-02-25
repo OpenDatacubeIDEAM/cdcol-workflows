@@ -7,6 +7,7 @@ from airflow.operators.python_operator import PythonOperator
 from cdcol_utils import dag_utils, queue_utils, other_utils
 from datetime import timedelta
 from pprint import pprint
+from airflow.utils.trigger_rule import TriggerRule
 
 _params = {
 	'lat': (4,6),

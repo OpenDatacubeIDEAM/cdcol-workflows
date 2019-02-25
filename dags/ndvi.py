@@ -4,6 +4,7 @@ import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator, CDColBashOperator
 from airflow.operators.python_operator import PythonOperator
+from airflow.utils.trigger_rule import TriggerRule
 from cdcol_utils import dag_utils, queue_utils, other_utils
 from airflow.utils.trigger_rule import TriggerRule
 from datetime import timedelta
@@ -87,7 +88,7 @@ medians = dag_utils.IdentityMap(
         'minValid': _params['minValid'],
     })
 
-ndvi = dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", queue=_queues['ndvi-wf'], dag=dag,
+ndvi = dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", queue=_queues['ndvi-wf'],  dag=dag,
                              task_id="ndvi")
 
 delete_partial_results = PythonOperator(task_id='delete_partial_results',

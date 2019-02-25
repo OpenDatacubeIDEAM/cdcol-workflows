@@ -5,7 +5,7 @@ from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
 from airflow.operators.python_operator import PythonOperator
 from cdcol_utils import dag_utils, queue_utils, other_utils
-
+from airflow.utils.trigger_rule import TriggerRule
 from datetime import timedelta
 from pprint import pprint
 
@@ -65,7 +65,7 @@ medians = dag_utils.IdentityMap(
     full_query,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
-    taxprefix="medianas",
+    task_id="medianas",
     queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
@@ -75,7 +75,7 @@ medians = dag_utils.IdentityMap(
     })
 
 
-mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
+mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
 
 kmeans = CDColFromFileOperator(task_id="kmeans", algorithm="k-means-wf", version="1.0", queue=_queues['k-means-wf'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params={'classes': _params['classes']})
 

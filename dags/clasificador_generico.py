@@ -5,6 +5,7 @@ from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
 from airflow.operators.python_operator import PythonOperator
 from cdcol_utils import dag_utils, queue_utils, other_utils
+from airflow.utils.trigger_rule import TriggerRule
 
 from datetime import timedelta
 from pprint import pprint
@@ -79,14 +80,12 @@ medians = dag_utils.IdentityMap(
     })
 
 
-mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
+mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
 
 generic_classification = CDColFromFileOperator(task_id="clasificador_generico",  algorithm="clasificador-generico-wf", version="1.0", queue=_queues['clasificador-generico-wf'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params={
         'bands': _params['bands'],
         'modelos': _params['modelos']+args["execID"]
     })
-
-generate_geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
 
 delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         provide_context=True,
