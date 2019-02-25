@@ -45,7 +45,7 @@ class CDColBashOperator(BaseOperator):
             #out = check_output([bash_script_path, folder]+_files)
             if stdout:
                 print(stdout)
-                return (stdout.splitlines()[-1:]).split(':')[-1:]
+                return stdout.splitlines()[-1:]
             else:
                 print(stderr)
                 return []
