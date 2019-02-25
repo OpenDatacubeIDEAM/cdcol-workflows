@@ -102,14 +102,19 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         }, 'execID': args['execID']},
                                         dag=dag)
 
-workflow = ndvi
-if _params['mosaic']:
-    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
-    # if _params['normalized']:
-    #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-    workflow = workflow >> mosaic
+# workflow = ndvi
+# if _params['mosaic']:
+#     mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+#     # if _params['normalized']:
+#     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
+#     workflow = workflow >> mosaic
+#
+# if _params['generate-geotiff']:
+#     workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
+#
+#
+# workflow>>delete_partial_results
 
-if _params['generate-geotiff']:
-    workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
-
-    workflow>>delete_partial_results
+mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+workflow=[mosaic, delete_partial_results]
+ndvi>>workflow
