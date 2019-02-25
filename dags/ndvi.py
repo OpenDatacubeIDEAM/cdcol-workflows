@@ -18,7 +18,7 @@ _params = {
     'normalized': True,
     'products': ["LS8_OLI_LASRC"],
     'mosaic': False,
-    'generate_geotiff': True
+    'generate-geotiff': True
 }
 
 _queues = {
@@ -109,7 +109,7 @@ if _params['mosaic']:
     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
     workflow = workflow >> mosaic
 
-if _params['generate_geotiff']:
+if _params['generate-geotiff']:
     generate_geotiff = CDColBashOperator(task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
     workflow = workflow >> generate_geotiff
 
