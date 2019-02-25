@@ -93,7 +93,7 @@ if _params['mosaic']:
     mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
     # if _params['normalized']:
     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-    workflow = [workflow >> mosaic, delete_partial_results]
+    workflow = [workflow >> mosaic, workflow >> mosaic ]
 
 
 if _params['generate-geotiff']:
