@@ -18,6 +18,7 @@ _params = {
     'normalized':True,
     'classes':4,
     'products': ["LS8_OLI_LASRC"],
+    'generate-geotiff': True
 }
 
 _queues = {
@@ -47,17 +48,16 @@ masked0=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 	algorithm="mascara-landsat", version="1.0",
         product=_params['products'][0],
         params={'bands':_params['bands']},
-        queue=_queues['mascara-landsat'], dag=dag, taxprefix="masked_{}_".format(_params['products'][0])
+        queue=_queues['mascara-landsat'], dag=dag, task_id="masked_"+_params['products'][0])
 
-)
 if len(_params['products']) > 1:
 	masked1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 									   time_ranges=_params['time_ranges'],
 									   algorithm="mascara-landsat", version="1.0",
 									   product=_params['products'][1],
 									   params={'bands': _params['bands']},
-                                      queue=_queues['mascara-landsat'],dag=dag, taxprefix="masked_{}_".format(_params['products'][1]))
-	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue=_queues['joiner-reduce'],dag=dag,taxprefix="joined" , params={'bands': _params['bands']})
+                                      queue=_queues['mascara-landsat'],dag=dag, task_id="masked_"+_params['products'][1])
+	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue=_queues['joiner-reduce'],dag=dag, task_id="joined" , params={'bands': _params['bands']})
 else:
 	full_query = masked0
 
@@ -65,7 +65,7 @@ medians = dag_utils.IdentityMap(
     full_query,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
-    taxprefix="medianas_",
+    taxprefix="medianas",
     queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
@@ -77,7 +77,7 @@ medians = dag_utils.IdentityMap(
 
 mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
 
-kmeans = CDColFromFileOperator(task_id="kmeans_", algorithm="k-means-wf", version="1.0", queue=_queues['k-means-wf'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params={'classes': _params['classes']})
+kmeans = CDColFromFileOperator(task_id="kmeans", algorithm="k-means-wf", version="1.0", queue=_queues['k-means-wf'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params={'classes': _params['classes']})
 
 
 delete_partial_results = PythonOperator(task_id='delete_partial_results',
@@ -90,4 +90,8 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                             'compuesto-temporal-medianas-wf':"1.0",
                                         }, 'execID': args['execID']},
                                         dag=dag)
-medians >> mosaic >> kmeans >> delete_partial_results
+workflow= medians >> mosaic >> kmeans
+if _params['generate-geotiff']:
+    workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
+
+workflow >> delete_partial_results

@@ -16,6 +16,7 @@ _params = {
     'time_ranges': ("2013-01-01", "2015-12-31"),
     'products': ["LS8_OLI_LASRC"],
     'mosaic':True,
+    'generate-geotiff': True
 }
 
 _queues = {
@@ -49,16 +50,16 @@ wofs_classification = dag_utils.queryMapByTileByMonths(
     queue= _queues['wofs-wf'],
     months=6,
     dag=dag,
-    taxprefix="wofs_"
+    task_id="wofs"
 )
 
-reducer=dag_utils.reduceByTile(wofs_classification, algorithm="joiner",version="1.0",queue=_queues['joiner-reduce-wofs'], dag=dag, taxprefix="joined")
+reducer=dag_utils.reduceByTile(wofs_classification, algorithm="joiner",version="1.0",queue=_queues['joiner-reduce-wofs'], dag=dag, task_id="joined")
 
 time_series=dag_utils.IdentityMap(
     reducer,
         algorithm="wofs-time-series-wf",
         version="1.0",
-        taxprefix="wofs_time_series_",
+        task_id="wofs_time_series",
         queue=_queues['wofs-time-series-wf'],
         dag=dag
 )
@@ -73,11 +74,15 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                             }, 'execID': args['execID']},
                                             dag=dag)
 
+workflow = time_series
+
 if _params['mosaic']:
-    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
+    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
     # if _params['normalized']:
     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-    time_series >> mosaic >> delete_partial_results
+    workflow = workflow >> mosaic
 
-else:
-    time_series >> delete_partial_results
+if _params['generate-geotiff']:
+    workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
+
+    workflow>>delete_partial_results

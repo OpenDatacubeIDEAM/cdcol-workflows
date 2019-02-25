@@ -18,6 +18,7 @@ _params = {
     'normalized':True,
     'modelos':'/web_storage/downloads/models/',
     'products': ["LS8_OLI_LASRC"],
+    'generate-geotiff': True
 }
 
 _queues = {
@@ -47,7 +48,7 @@ masked0=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 	algorithm="mascara-landsat", version="1.0",
         product=_params['products'][0],
         params={'bands':_params['bands']},
-        queue=_queues['mascara-landsat'], dag=dag,  taxprefix="masked_{}_".format(_params['products'][0])
+        queue=_queues['mascara-landsat'], dag=dag,  task_id="masked_"+_params['products'][0]
 
 )
 if len(_params['products']) > 1:
@@ -56,10 +57,10 @@ if len(_params['products']) > 1:
 									   algorithm="mascara-landsat", version="1.0",
 									   product=_params['products'][1],
 									   params={'bands': _params['bands']},
-                                       queue=_queues['mascara-landsat'], dag=dag, taxprefix="masked_{}_".format(_params['products'][1])
+                                       queue=_queues['mascara-landsat'], dag=dag, task_id="masked_{}"+_params['products'][1]
 
 									   )
-	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue=_queues['joiner-reduce'], dag=dag, taxprefix="joined", params={'bands': _params['bands']})
+	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue=_queues['joiner-reduce'], dag=dag, task_id="joined", params={'bands': _params['bands']})
 else:
 	full_query = masked0
 
@@ -68,7 +69,7 @@ medians = dag_utils.IdentityMap(
     full_query,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
-    taxprefix="medianas_",
+    task_id="medianas",
     queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
@@ -85,6 +86,8 @@ generic_classification = CDColFromFileOperator(task_id="clasificador_generico", 
         'modelos': _params['modelos']+args["execID"]
     })
 
+generate_geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
+
 delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         provide_context=True,
                                         python_callable=other_utils.delete_partial_results,
@@ -96,4 +99,9 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         }, 'execID': args['execID']},
                                         dag=dag)
 
-medians >> mosaic >> generic_classification >> delete_partial_results
+
+workflow= medians >> mosaic >> generic_classification
+if _params['generate-geotiff']:
+    workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
+
+workflow >> delete_partial_results

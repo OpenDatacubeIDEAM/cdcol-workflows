@@ -50,7 +50,7 @@ consulta_baseline=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'
                 'normalized':_params['normalized'],
                 'bands':_params['bands'],
                 'minValid': _params['minValid']
-        },queue=_queues['mascara-landsat'],dag=dag, taxprefix="consulta_baseline_{}_".format(_params['products'][0])
+        },queue=_queues['mascara-landsat'],dag=dag, task_id="consulta_baseline_"+_params['products'][0]
 
 )
 consulta_analysis=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
@@ -61,7 +61,7 @@ consulta_analysis=dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'
                 'normalized':_params['normalized'],
                 'bands':_params['bands'],
                 'minValid': _params['minValid']
-        },queue=_queues['mascara-landsat'],dag=dag, taxprefix="consulta_analysis_{}_".format(_params['products'][0])
+        },queue=_queues['mascara-landsat'],dag=dag, task_id="consulta_analysis_{}_".format(_params['products'][0])
 
 )
 
@@ -70,7 +70,7 @@ medians_baseline = dag_utils.IdentityMap(
     consulta_baseline,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
-    taxprefix="medianas_baseline_",
+    task_id="medianas_baseline_",
     queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
@@ -83,7 +83,7 @@ medians_analysis = dag_utils.IdentityMap(
     consulta_analysis,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
-    taxprefix="medianas_analysis_",
+    task_id="medianas_analysis_",
     queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
@@ -92,10 +92,10 @@ medians_analysis = dag_utils.IdentityMap(
         'minValid': _params['minValid'],
     })
 
-ndvi_baseline=dag_utils.IdentityMap(medians_baseline, algorithm="ndvi-wf", version="1.0", queue=_queues['ndvi-wf'], dag=dag, taxprefix="ndvi_baseline")
-ndvi_analysis=dag_utils.IdentityMap(medians_analysis, algorithm="ndvi-wf", version="1.0", queue=_queues['ndvi-wf'], dag=dag, taxprefix="ndvi_analysis")
+ndvi_baseline=dag_utils.IdentityMap(medians_baseline, algorithm="ndvi-wf", version="1.0", queue=_queues['ndvi-wf'], dag=dag, task_id="ndvi_baseline")
+ndvi_analysis=dag_utils.IdentityMap(medians_analysis, algorithm="ndvi-wf", version="1.0", queue=_queues['ndvi-wf'], dag=dag, task_id="ndvi_analysis")
 
-ndvi_anomaly=dag_utils.reduceByTile(ndvi_analysis+ndvi_baseline, algorithm="ndvi-anomaly", version="1.0", queue="airflow_medium", params={'ndvi_baseline_threshold_range' : (0.60, 0.90)  },dag=dag, taxprefix="ndvi_anomaly")
+ndvi_anomaly=dag_utils.reduceByTile(ndvi_analysis+ndvi_baseline, algorithm="ndvi-anomaly", version="1.0", queue="airflow_medium", params={'ndvi_baseline_threshold_range' : (0.60, 0.90)  },dag=dag, task_id="ndvi_anomaly")
 
 ndvi_anomaly
 
@@ -111,7 +111,7 @@ ndvi_anomaly
 #                                             dag=dag)
 #
 # if _params['mosaic']:
-# 	mosaic = dag_utils.OneReduce(ndvi_anomaly, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag,taxprefix="mosaic")
+# 	mosaic = dag_utils.OneReduce(ndvi_anomaly, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag,task_id="mosaic")
 # 	map(lambda b: b >> delete_partial_results, mosaic)
 #
 # else:

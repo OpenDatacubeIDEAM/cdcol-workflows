@@ -9,7 +9,7 @@ from datetime import timedelta, datetime
 from dateutil.relativedelta import relativedelta
 from pprint import pprint
 
-def queryMapByTile(lat,lon,time_ranges, queue, dag,  algorithm,version,params={},taxprefix="med",**kwargs):
+def queryMapByTile(lat,lon,time_ranges, queue, dag,  algorithm,version,params={},task_id="med",**kwargs):
     return [CDColQueryOperator(
         algorithm=algorithm,version=version,
         lat=(LAT,LAT+1), 
@@ -17,9 +17,9 @@ def queryMapByTile(lat,lon,time_ranges, queue, dag,  algorithm,version,params={}
         time_ranges=time_ranges,
         params=params,
         queue=queue,
-        dag=dag, task_id="{}{}{}".format(taxprefix,str(LAT),str(LON)),**kwargs) for LAT in range(*lat) for LON in range(*lon)]
+        dag=dag, task_id="{}{}{}".format(task_id,str(LAT),str(LON)),**kwargs) for LAT in range(*lat) for LON in range(*lon)]
 
-def queryMapByTileByYear(lat,lon,time_ranges,queue, dag, algorithm,version,params={},taxprefix="med",**kwargs):
+def queryMapByTileByYear(lat,lon,time_ranges,queue, dag, algorithm,version,params={},task_id="med",**kwargs):
 
     return [CDColQueryOperator(
         algorithm=algorithm, version=version,
@@ -28,9 +28,9 @@ def queryMapByTileByYear(lat,lon,time_ranges,queue, dag, algorithm,version,param
         time_ranges=("01-01-"+str(T),"31-12-"+str(T)),
         params=params,
         queue=queue,
-        dag=dag, task_id="{}{}{}_{}".format(taxprefix, str(LAT), str(LON), "01-01-"+str(T)+"_31-12-"+str(T)), **kwargs) for LAT in range(*lat) for LON in range(*lon) for T in xrange(int(time_ranges[0].split('-')[0]), (int(time_ranges[1].split('-')[0]))+1) ]
+        dag=dag, task_id="{}{}{}_{}".format(task_id, str(LAT), str(LON), "01-01-"+str(T)+"_31-12-"+str(T)), **kwargs) for LAT in range(*lat) for LON in range(*lon) for T in xrange(int(time_ranges[0].split('-')[0]), (int(time_ranges[1].split('-')[0]))+1) ]
 
-def queryMapByTileByMonths(lat,lon,time_ranges,queue, dag, algorithm,version,params={},months=12,taxprefix="med",  **kwargs):
+def queryMapByTileByMonths(lat,lon,time_ranges,queue, dag, algorithm,version,params={},months=12,task_id="med",  **kwargs):
     tasks = []
     
     for LAT in range(*lat):
@@ -45,17 +45,17 @@ def queryMapByTileByMonths(lat,lon,time_ranges,queue, dag, algorithm,version,par
                                                 time_ranges=(start.strftime('%d-%m-%Y'), (start + relativedelta(months=months-1, day=end.day)).strftime('%d-%m-%Y')),
                                                 params=params,
                                                 queue=queue,
-                                                dag=dag, task_id="{}{}{}_{}_{}".format(taxprefix, str(LAT), str(LON), start.strftime('%d-%m-%Y') , (start + relativedelta(months=months-1, day=end.day)).strftime('%d-%m-%Y'),**kwargs)))
+                                                dag=dag, task_id="{}{}{}_{}_{}".format(task_id, str(LAT), str(LON), start.strftime('%d-%m-%Y') , (start + relativedelta(months=months-1, day=end.day)).strftime('%d-%m-%Y'),**kwargs)))
                 start += relativedelta(months=months)
 
     return tasks
 
-def IdentityMap(upstream,algorithm,version, queue, dag, taxprefix,params={}):
+def IdentityMap(upstream,algorithm,version, queue, dag, task_id,params={}):
     i=1
     tasks=[]
     trans = str.maketrans({"(": None, ")": None, " ": None, ",": "_"})
     for prev in upstream:
-        _t=CDColFromFileOperator(algorithm=algorithm,version=version,queue=queue, dag=dag,  lat=prev.lat, lon=prev.lon, task_id=("{}_{}_{}".format(taxprefix,prev.lat,prev.lon)).translate(trans),params=params)
+        _t=CDColFromFileOperator(algorithm=algorithm,version=version,queue=queue, dag=dag,  lat=prev.lat, lon=prev.lon, task_id=("{}_{}_{}".format(task_id,prev.lat,prev.lon)).translate(trans),params=params)
         i+=1
         prev>>_t
         tasks.append(_t)
@@ -74,9 +74,9 @@ def BashMap(upstream,algorithm,version, queue, dag, task_id ,params={}):
 
     return tasks
     
-def OneReduce(upstream, algorithm,version, queue, dag,  taxprefix, params={}):
+def OneReduce(upstream, algorithm,version, queue, dag,  task_id, params={}):
     reduce= CDColReduceOperator(
-        task_id="{}_{}_{}".format(taxprefix,"all","all" ),
+        task_id="{}_{}_{}".format(task_id,"all","all" ),
         algorithm=algorithm,
         version=version,
         params=params,
@@ -85,14 +85,14 @@ def OneReduce(upstream, algorithm,version, queue, dag,  taxprefix, params={}):
     upstream>>reduce
     return [reduce]
     
-def reduceByTile(upstream, algorithm,version, queue, dag,  taxprefix, params={}):
+def reduceByTile(upstream, algorithm,version, queue, dag,  task_id, params={}):
     reducers={}
     trans = str.maketrans({"(": None, ")": None, " ": None, ",": "_"})
     for prev in upstream:
         key="{}_{}".format(prev.lat,prev.lon)
         if key not in reducers:
             reducers[key]=CDColReduceOperator(
-                task_id=taxprefix+key.translate(trans),
+                task_id="{}_{}".format(task_id,key.translate(trans)),
                 algorithm=algorithm,
                 version=version,
                 params=params,

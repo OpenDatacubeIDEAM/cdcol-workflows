@@ -16,7 +16,8 @@ _params = {
     'minValid': 1,
     'normalized': True,
     'products': ["LS8_OLI_LASRC"],
-    'mosaic': False
+    'mosaic': False,
+    'generate-geotiff': True
 }
 
 _queues = {
@@ -49,7 +50,7 @@ masked0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                    product=_params['products'][0],
                                    params={'bands': _params['bands']},
                                    queue=_queues['mascara-landsat'], dag=dag,
-                                   taxprefix="masked_{}_".format(_params['products'][0])
+                                   task_id="masked_"+_params['products'][0]
 
                                    )
 if len(_params['products']) > 1:
@@ -59,11 +60,11 @@ if len(_params['products']) > 1:
                                        product=_params['products'][1],
                                        params={'bands': _params['bands']},
                                        queue=_queues['mascara-landsat'], dag=dag,
-                                       taxprefix="masked_{}_".format(_params['products'][1])
+                                       task_id="masked_"+_params['products'][1]
 
                                        )
     full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0",
-                                        queue=_queues['joiner-reduce'], dag=dag, taxprefix="joined",
+                                        queue=_queues['joiner-reduce'], dag=dag, task_id="joined",
                                         params={'bands': _params['bands']})
 else:
     full_query = masked0
@@ -72,7 +73,7 @@ medians = dag_utils.IdentityMap(
     full_query,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
-    taxprefix="medianas_",
+    task_id="medianas",
     queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
@@ -81,7 +82,7 @@ medians = dag_utils.IdentityMap(
         'minValid': _params['minValid'],
     })
 ndsi = dag_utils.IdentityMap(medians, algorithm="ndsi-wf", version="1.0", queue=_queues['ndsi-wf'], dag=dag,
-                             taxprefix="ndsi")
+                             task_id="ndsi")
 
 delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         provide_context=True,
@@ -94,11 +95,15 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         }, 'execID': args['execID']},
                                         dag=dag)
 
+workflow = ndsi
 if _params['mosaic']:
-    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
+    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
     # if _params['normalized']:
     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-    ndsi >> mosaic >> delete_partial_results
+    workflow = workflow >> mosaic
 
-else:
-    ndsi >> delete_partial_results
+if _params['generate-geotiff']:
+    workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
+
+    workflow>>delete_partial_results
+

@@ -55,9 +55,8 @@ masked0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                        'bands': _params['bands'],
                                        'minValid': _params['minValid']
                                    }, queue=_queues['mascara-landsat'], dag=dag,
-                                   taxprefix="masked_{}".format(_params['products'][0])
+                                   task_id="masked_"+_params['products'][0])
 
-                                   )
 if len(_params['products']) > 1:
     masked1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                        time_ranges=_params['time_ranges'],
@@ -68,9 +67,9 @@ if len(_params['products']) > 1:
                                            'bands': _params['bands'],
                                            'minValid': _params['minValid']
                                        }, queue=_queues['mascara-landsat'], dag=dag,
-                                       taxprefix="masked_{}".format(_params['products'][1]))
+                                       task_id="masked_"+_params['products'][1])
     full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0",
-                                        queue=_queues['joiner-reduce'], dag=dag, taxprefix="joined",
+                                        queue=_queues['joiner-reduce'], dag=dag, task_id="joined",
                                         params={'bands': _params['bands']})
 else:
     full_query = masked0
@@ -79,7 +78,7 @@ medians = dag_utils.IdentityMap(
     full_query,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
-    taxprefix="medianas",
+    task_id="medianas",
     queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
@@ -89,7 +88,7 @@ medians = dag_utils.IdentityMap(
     })
 
 ndvi = dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", queue=_queues['ndvi-wf'], dag=dag,
-                             taxprefix="ndvi")
+                             task_id="ndvi")
 
 delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         provide_context=True,

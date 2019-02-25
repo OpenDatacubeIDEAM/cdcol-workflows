@@ -19,7 +19,8 @@ _params = {
 	'vegetation_rate': 0.3,
 	'slice_size': 3,
 	'products': ["LS8_OLI_LASRC"],
-	'mosaic': False
+	'mosaic': False,
+	'generate-geotiff': True
 }
 
 
@@ -54,7 +55,7 @@ masked0=dag_utils.queryMapByTile(
 	algorithm="mascara-landsat", version="1.0",
 	product=_params['products'][0],
 	params={'bands':_params['bands']},
-	queue=_queues['mascara-landsat'], dag=dag, taxprefix="masked_{}_".format(_params['products'][0])
+	queue=_queues['mascara-landsat'], dag=dag, task_id="masked_"+_params['products'][0]
 
 )
 if len(_params['products']) > 1:
@@ -63,10 +64,10 @@ if len(_params['products']) > 1:
 									   algorithm="mascara-landsat", version="1.0",
 									   product=_params['products'][1],
 									   params={'bands': _params['bands']},
-									   queue=_queues['mascara-landsat'], dag=dag,  taxprefix="masked_{}_".format(_params['products'][1])
+									   queue=_queues['mascara-landsat'], dag=dag,  task_id="masked_{}"+_params['products'][1]
 
 									   )
-	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue=_queues['joiner-reduce'], dag=dag,  taxprefix="joined" , params={'bands': _params['bands']})
+	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue=_queues['joiner-reduce'], dag=dag,  task_id="joined" , params={'bands': _params['bands']})
 else:
 	full_query = masked0
 
@@ -74,7 +75,7 @@ medians=dag_utils.IdentityMap(
 	full_query,
 	algorithm="compuesto-temporal-medianas-wf",
 	version="1.0",
-	taxprefix="medianas_",
+	task_id="medianas",
 	queue=_queues['compuesto-temporal-medianas-wf'],
 	dag=dag,
 	params={
@@ -83,7 +84,7 @@ medians=dag_utils.IdentityMap(
         'minValid': _params['minValid']
 	},
 )
-ndvi=dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", queue=_queues['ndvi-wf'], dag=dag,  taxprefix="ndvi")
+ndvi=dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", queue=_queues['ndvi-wf'], dag=dag,  task_id="ndvi")
 bosque=dag_utils.IdentityMap(
 	ndvi,
 	algorithm="bosque-no-bosque-wf",
@@ -93,7 +94,7 @@ bosque=dag_utils.IdentityMap(
 		'vegetation_rate':_params['vegetation_rate'],
 		'slice_size':_params['slice_size']
 	},
-	queue=_queues['bosque-no-bosque-wf'], dag=dag,  taxprefix="bosque",
+	queue=_queues['bosque-no-bosque-wf'], dag=dag,  task_id="bosque",
 )
 
 delete_partial_results = PythonOperator(task_id='delete_partial_results',
@@ -108,11 +109,15 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                             }, 'execID': args['execID']},
                                             dag=dag)
 
+workflow = bosque
 if _params['mosaic']:
-    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag)
+    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
     # if _params['normalized']:
     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-    bosque >> mosaic >> delete_partial_results
+    workflow = workflow >> mosaic
 
-else:
-    bosque >> delete_partial_results
+if _params['generate-geotiff']:
+    workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
+
+    workflow>>delete_partial_results
+

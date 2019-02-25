@@ -17,7 +17,8 @@ _params = {
     'minValid':1,
     'normalized':False,
     'products': ["LS7_ETM_LEDAPS"],
-    'classes':4
+    'classes':4,
+    'generate-geotiff': True
 }
 
 _queues = {
@@ -50,19 +51,19 @@ period1 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      algorithm="mascara-landsat", version="1.0",
                                      product=_params['products'][0],
                                      params={'bands': _params['bands']},
-                                    queue=_queues['mascara-landsat'], dag=dag, taxprefix="period1_")
+                                    queue=_queues['mascara-landsat'], dag=dag, task_id="masked_p_1_"+_params['products'][0])
 
 period2 = dag_utils.queryMapByTile(lat=_params['lat'],
                                      lon=_params['lon'], time_ranges=_params['time_ranges'][1],
                                      algorithm="mascara-landsat", version="1.0",
                                      product=_params['products'][0],
                                      params={'bands': _params['bands']},
-                                   queue=_queues['mascara-landsat'], dag=dag, taxprefix="period2_")
+                                   queue=_queues['mascara-landsat'], dag=dag, task_id="masked_p_2_"+_params['products'][0])
 medians1 = dag_utils.IdentityMap(
    period1,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
-    taxprefix="medianas_1",
+    task_id="medianas_p_1",
     queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
@@ -75,7 +76,7 @@ medians2 = dag_utils.IdentityMap(
    period2,
     algorithm="compuesto-temporal-medianas-wf",
     version="1.0",
-    taxprefix="medianas_2",
+    task_id="medianas_p_2",
     queue=_queues['compuesto-temporal-medianas-wf'],
     dag=dag,
     params={
@@ -85,15 +86,14 @@ medians2 = dag_utils.IdentityMap(
     })
 print(queue_utils.get_tiles(_params['lat'],_params['lon']))
 if queue_utils.get_tiles(_params['lat'],_params['lon'])>1:
-    mosaic1 = dag_utils.OneReduce(medians1, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic_1")
-    mosaic2 = dag_utils.OneReduce(medians2, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, taxprefix="mosaic_2")
+    mosaic1 = dag_utils.OneReduce(medians1, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, task_id="mosaic_p_1")
+    mosaic2 = dag_utils.OneReduce(medians2, algorithm="joiner", version="1.0", queue=_queues['joiner'], dag=dag, task_id="mosaic_p_2")
     results = mosaic1+mosaic2
 else:
     results = medians1+medians2
 
 
-pca = dag_utils.reduceByTile(results, algorithm="deteccion-cambios-pca-wf", version="1.0", queue=_queues['deteccion-cambios-pca-wf'], dag=dag, params={'bands':_params['bands']}, taxprefix="pca")
-
+pca = dag_utils.reduceByTile(results, algorithm="deteccion-cambios-pca-wf", version="1.0", queue=_queues['deteccion-cambios-pca-wf'], dag=dag, params={'bands':_params['bands']}, task_id="pca")
 
 delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                         provide_context=True,
@@ -105,4 +105,9 @@ delete_partial_results = PythonOperator(task_id='delete_partial_results',
                                             'compuesto-temporal-medianas-wf':"1.0",
                                         }, 'execID': args['execID']},
                                         dag=dag)
-pca >> delete_partial_results
+
+workflow= pca
+if _params['generate-geotiff']:
+    workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
+
+workflow >> delete_partial_results
