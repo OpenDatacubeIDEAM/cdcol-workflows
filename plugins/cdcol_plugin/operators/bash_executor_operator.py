@@ -40,9 +40,11 @@ class CDColBashOperator(BaseOperator):
         try:
             p = Popen([bash_script_path, folder]+_files, stdout=PIPE, stderr=PIPE)
             stdout, stderr = p.communicate()
+            stdout = stdout.decode('ascii')
+            stderr = stderr.decode('ascii')
             #out = check_output([bash_script_path, folder]+_files)
-            print(stdout.encode('ascii'))
-            print(sterr.encode('ascii'))
+            print(stdout)
+            print(stderr)
         except CalledProcessError as cpe:
             print('Error generating geotiff ' )
         return "something"
