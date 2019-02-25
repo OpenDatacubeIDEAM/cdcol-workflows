@@ -3,7 +3,7 @@
 import airflow
 from airflow.models import DAG
 from airflow.operators.python_operator import PythonOperator
-from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
+from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator, CDColBashOperator
 
 from datetime import timedelta, datetime
 from dateutil.relativedelta import relativedelta
@@ -54,16 +54,27 @@ def IdentityMap(upstream,algorithm,version, queue, dag, taxprefix,params={}):
     i=1
     tasks=[]
     for prev in upstream:
-        _t=CDColFromFileOperator(algorithm=algorithm,version=version,queue=queue, dag=dag,  lat=prev.lat, lon=prev.lon, task_id=taxprefix+str(i),params=params)
+        _t=CDColFromFileOperator(algorithm=algorithm,version=version,queue=queue, dag=dag,  lat=prev.lat, lon=prev.lon, task_id="{}_{}_{}".format(taxprefix,prev.lat,prev.lon ),params=params)
         i+=1
         prev>>_t
         tasks.append(_t)
-    
+
+    return tasks
+
+def BashMap(upstream,algorithm,version, queue, dag, taxprefix,params={}):
+    i = 1
+    tasks = []
+    for prev in upstream:
+        _t = CDColBashOperator(algorithm=algorithm, version=version, queue=queue, dag=dag, lat=prev.lat, lon=prev.lon, task_id="{}_{}_{}".format(taxprefix,prev.lat,prev.lon ), params=params)
+        i += 1
+        prev >> _t
+        tasks.append(_t)
+
     return tasks
     
 def OneReduce(upstream, algorithm,version, queue, dag,  taxprefix, params={}):
     reduce= CDColReduceOperator(
-        task_id=taxprefix,
+        task_id="{}_{}_{}".format(taxprefix,"all","all" ),
         algorithm=algorithm,
         version=version,
         params=params,
