@@ -74,7 +74,7 @@ def BashMap(upstream,algorithm,version, queue, dag, task_id ,params={}):
 
     return tasks
     
-def OneReduce(upstream, algorithm,version, queue,trigger_rule , dag,  task_id, params={}):
+def OneReduce(upstream, algorithm,version, queue , dag,  task_id, params={},trigger_rule=None):
     reduce= CDColReduceOperator(
         task_id="{}_{}_{}".format(task_id,"all","all" ),
         algorithm=algorithm,
