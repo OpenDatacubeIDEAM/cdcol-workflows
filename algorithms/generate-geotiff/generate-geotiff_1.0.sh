@@ -49,17 +49,17 @@ else
 	fi
 fi
 
-GEOTIFF_FILES=$(ls ${FILE%.*}.*.tiff | sed -e 's/\(^.*\.\([0-9]*\)\.tiff\)/\2_\1/' | sort -t _ -k 1 -n | sed -e 's/^[0-9]*_\(.*\)/\1/')
+GEOTIFF_FILES=$(ls ${FOLDER}.*.tiff | sed -e 's/\(^.*\.\([0-9]*\)\.tiff\)/\2_\1/' | sort -t _ -k 1 -n | sed -e 's/^[0-9]*_\(.*\)/\1/')
 if [ $WITH_BANDS_NAME = false ]
 then
-	gdal_merge.py -separate -o ${FILE%.*}.tiff $GEOTIFF_FILES
+	gdal_merge.py -separate -o ${FOLDER}.tiff $GEOTIFF_FILES
 	$SALIDA= "${SALIDA}${FOLDER}/${BN}.tiff"
 else
 	VRT_FILE=$FOLDER/geotiff.vrt
 	gdalbuildvrt -separate $VRT_FILE $GEOTIFF_FILES
 	$PYTHON $METADATA_SCRIPT $VRT_FILE $GEOTIFF_FILES
-	gdal_translate $VRT_FILE ${FILE%.*}.tiff
+	gdal_translate $VRT_FILE ${FOLDER}.tiff
 	rm $VRT_FILE
 fi
-rm ${FILE%.*}.*.tiff
+rm ${FOLDER}.*.tiff
 echo $SALIDA
