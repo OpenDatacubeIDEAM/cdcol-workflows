@@ -19,7 +19,7 @@ class CDColBashOperator(BaseOperator):
         self.lat = lat
         self.lon = lon
         self.alg_kwargs = params
-        self.folder = "{}/{}/{}_{}/".format(common.RESULTS_FOLDER, execID, algorithm, version, )
+        self.folder = "{}/{}/{}_{}/".format(common.RESULTS_FOLDER, execID, algorithm, version )
         self.product = product
         self.output_type = output_type
 
