@@ -40,8 +40,8 @@ class CDColBashOperator(BaseOperator):
         try:
             p = Popen([bash_script_path, self.task_id, self.algorithm, folder]+_files, stdout=PIPE, stderr=PIPE)
             stdout, stderr = p.communicate()
-            stdout = stdout.decode('ascii')
-            stderr = stderr.decode('ascii')
+            stdout = stdout.decode('utf-8')
+            stderr = stderr.decode('utf-8')
             #out = check_output([bash_script_path, folder]+_files)
             if stdout:
                 print(stdout)
