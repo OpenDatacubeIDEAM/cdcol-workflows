@@ -82,9 +82,10 @@ def IdentityMap(upstream, algorithm, version, queue, dag, task_id, delete_partia
                                 queue='airflow_small',
                                 op_kwargs={'algorithm': prev.algorithm, 'version':prev.version, 'execID': prev.execID, 'task_id':prev.task_id},
                                 dag=dag)
+            delete << _t
         i += 1
         prev >> _t
-        delete << _t
+
         tasks.append(_t)
 
     return tasks
@@ -120,9 +121,10 @@ def BashMap(upstream, algorithm, version, queue, dag, task_id, delete_partial_re
                                 queue='airflow_small',
                                 op_kwargs={'algorithm': prev.algorithm, 'version':prev.version, 'execID': prev.execID, 'task_id':prev.task_id},
                                 dag=dag)
+            delete << _t
         i += 1
         prev >> _t
-        delete << _t
+
         tasks.append(_t)
 
     return tasks
