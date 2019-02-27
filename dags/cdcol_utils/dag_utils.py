@@ -76,7 +76,7 @@ def IdentityMap(upstream, algorithm, version, queue, dag, task_id, delete_partia
                                    task_id=id,
                                    params=params)
         if delete_partial_results:
-            delete = PythonOperator(task_id=id,
+            delete = PythonOperator(task_id="del_"+prev.task_id,
                                 provide_context=True,
                                 python_callable=other_utils.delete_partial_result,
                                 queue='airflow_small',
