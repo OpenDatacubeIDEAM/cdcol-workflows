@@ -98,6 +98,6 @@ if _params['mosaic']:
 
 if _params['generate-geotiff']:
     workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
-
-workflow>>delete_partial_results
+workflow
+medians>>delete_partial_results
 
