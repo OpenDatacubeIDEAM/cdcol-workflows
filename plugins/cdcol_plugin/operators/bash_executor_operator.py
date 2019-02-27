@@ -2,6 +2,7 @@
 # coding=utf8
 
 import os, errno
+import glob
 from airflow.models import BaseOperator
 from airflow import utils as airflow_utils
 from cdcol_plugin.operators import common
@@ -45,10 +46,10 @@ class CDColBashOperator(BaseOperator):
             #out = check_output([bash_script_path, folder]+_files)
             if stdout:
                 print(stdout)
-                return stdout.splitlines()[-1:]
+                return glob.glob("{}*{}*".format(self.folder,self.task_id))
             else:
                 print(stderr)
-                return []
+                raise AirflowSkipException("ERROR")
 
         except CalledProcessError as cpe:
             print('Error generating geotiff ' )

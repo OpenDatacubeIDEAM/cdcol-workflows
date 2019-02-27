@@ -67,5 +67,5 @@ else
 	$SALIDA= "${SALIDA}${FOLDER}/${BN}.tiff"
 	rm $VRT_FILE
 fi
-#rm -rf $FOLDER_TMP
+rm -rf $FOLDER_TMP
 echo $SALIDA
