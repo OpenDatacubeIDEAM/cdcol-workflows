@@ -106,21 +106,29 @@ def DeleteMap(upstream, dag):
     return tasks
 
 
-def BashMap(upstream, algorithm, version, queue, dag, task_id, params={}):
+def BashMap(upstream, algorithm, version, queue, dag, task_id, delete_partial_results=False, params={}):
     i = 1
     tasks = []
     trans = str.maketrans({"(": None, ")": None, " ": None, ",": "_"})
     for prev in upstream:
         _t = CDColBashOperator(algorithm=algorithm, version=version, queue=queue, dag=dag, lat=prev.lat, lon=prev.lon,
                                task_id=("{}_{}_{}".format(task_id, prev.lat, prev.lon)).translate(trans), params=params)
+        if delete_partial_results:
+            delete = PythonOperator(task_id="del_"+prev.task_id,
+                                provide_context=True,
+                                python_callable=other_utils.delete_partial_result,
+                                queue='airflow_small',
+                                op_kwargs={'algorithm': prev.algorithm, 'version':prev.version, 'execID': prev.execID, 'task_id':prev.task_id},
+                                dag=dag)
         i += 1
         prev >> _t
+        delete << _t
         tasks.append(_t)
 
     return tasks
 
 
-def OneReduce(upstream, algorithm, version, queue, dag, task_id, params={}, trigger_rule=None):
+def OneReduce(upstream, algorithm, version, queue, dag, task_id, delete_partial_results=False,params={}, trigger_rule=None):
     reduce = CDColReduceOperator(
         task_id="{}_{}_{}".format(task_id, "all", "all"),
         algorithm=algorithm,
@@ -130,6 +138,20 @@ def OneReduce(upstream, algorithm, version, queue, dag, task_id, params={}, trig
         trigger_rule=trigger_rule,
         dag=dag)
     upstream >> reduce
+    if delete_partial_results:
+        tasks = []
+        for prev in upstream:
+            delete = PythonOperator(task_id="del_" + prev.task_id,
+                                    provide_context=True,
+                                    python_callable=other_utils.delete_partial_result,
+                                    queue='airflow_small',
+                                    op_kwargs={'algorithm': prev.algorithm, 'version': prev.version,
+                                               'execID': prev.execID, 'task_id': prev.task_id},
+                                    dag=dag)
+            tasks.append(delete)
+        delete << reduce
+
+
     return [reduce]
 
 
