@@ -157,7 +157,7 @@ def OneReduce(upstream, algorithm, version, queue, dag, task_id, delete_partial_
     return [reduce]
 
 
-def reduceByTile(upstream, algorithm, version, queue, dag, task_id, params={}):
+def reduceByTile(upstream, algorithm, version, queue, dag, task_id, delete_partial_results=False, params={}):
     reducers = {}
     trans = str.maketrans({"(": None, ")": None, " ": None, ",": "_"})
     for prev in upstream:
@@ -173,6 +173,14 @@ def reduceByTile(upstream, algorithm, version, queue, dag, task_id, params={}):
                 queue=queue,
                 dag=dag)
         prev >> reducers[key]
+        if delete_partial_results:
+            delete = PythonOperator(task_id="del_"+prev.task_id,
+                                provide_context=True,
+                                python_callable=other_utils.delete_partial_result,
+                                queue='airflow_small',
+                                op_kwargs={'algorithm': prev.algorithm, 'version':prev.version, 'execID': prev.execID, 'task_id':prev.task_id},
+                                dag=dag)
+            delete << reducers[key]
     return reducers.values()
 
 

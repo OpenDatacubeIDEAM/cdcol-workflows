@@ -18,6 +18,7 @@ _params = {
     'products': ["LS8_OLI_LASRC"],
     'genera_mosaico': True,
     'genera_geotiff': True,
+    'elimina_resultados_anteriores':True
 }
 
 _steps = {
@@ -33,7 +34,7 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
                                           unidades=len(_params['products'])),
         'params': {'bands': _params['bands']},
-        'del_prev_result':True,
+        'del_prev_result':_params['elimina_resultados_anteriores'],
     },
     'medianas': {
         'algorithm': "compuesto-temporal-medianas-wf",
@@ -45,14 +46,14 @@ _steps = {
             'bands': _params['bands'],
             'minValid': _params['minValid'],
         },
-        'del_prev_result':True,
+        'del_prev_result':_params['elimina_resultados_anteriores'],
     },
     'mosaico': {
         'algorithm': "joiner",
         'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
         'params': {},
-        'del_prev_result':True,
+        'del_prev_result':_params['elimina_resultados_anteriores'],
     },
     'geotiff':{
         'algorithm': "generate-geotiff",
@@ -79,7 +80,7 @@ dag = DAG(
 
 mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                    time_ranges=_params['time_ranges'],
-                                   algorithm=_steps['mascara']['algorithm'], version=_steps['mascara']['algorithm'],
+                                   algorithm=_steps['mascara']['algorithm'], version=_steps['mascara']['version'],
                                    product=_params['products'][0],
                                    params=_steps['mascara']['params'],
                                    queue=_steps['mascara']['queue'], dag=dag,
@@ -89,7 +90,7 @@ if len(_params['products']) > 1:
     mascara_1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                          time_ranges=_params['time_ranges'],
                                          algorithm=_steps['mascara']['algorithm'],
-                                         version=_steps['mascara']['algorithm'],
+                                         version=_steps['mascara']['version'],
                                          product=_params['products'][1],
                                          params=_steps['mascara']['params'],
                                          queue=_steps['mascara']['queue'], dag=dag,
