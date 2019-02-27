@@ -27,7 +27,7 @@ _params = {
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2", "pixel_qa"],
     'minValid': 1,
     'normalized': True,
-    'classes':4,
+    'modelos':'/web_storage/downloads/models/',
     'products': ["LS8_OLI_LASRC"],
     'genera_mosaico': True,
     'genera_geotiff': True,

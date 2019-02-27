@@ -120,12 +120,12 @@ medianas_periodo_2 = dag_utils.IdentityMap(
     params=_steps['medianas']['params'])
 
 if queue_utils.get_tiles(_params['lat'],_params['lon'])>1:
-    mosaico_periodo_1 = dag_utils.OneReduce(medianas_periodo_1, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
+    mosaico_periodo_1 = dag_utils.OneReduce(medianas_periodo_1, task_id="mosaico_p1_", algorithm=_steps['mosaico']['algorithm'],
                                   version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
                                   delete_partial_results=_steps['mosaico']['del_prev_result'],
                                   trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
 
-    mosaico_periodo_2 = dag_utils.OneReduce(medianas_periodo_2, task_id="mosaic",
+    mosaico_periodo_2 = dag_utils.OneReduce(medianas_periodo_2, task_id="mosaico_p2_",
                                             algorithm=_steps['mosaico']['algorithm'],
                                             version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
                                             delete_partial_results=_steps['mosaico']['del_prev_result'],
