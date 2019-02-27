@@ -1,32 +1,65 @@
-#!/usr/bin/python3
-# coding=utf8
 import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
 from airflow.operators.python_operator import PythonOperator
-from cdcol_utils import dag_utils, other_utils, queue_utils
+from cdcol_utils import dag_utils, queue_utils, other_utils
 from airflow.utils.trigger_rule import TriggerRule
 
 from datetime import timedelta
 from pprint import pprint
 
 _params = {
-    'lat': (9,11),
-    'lon': (-76,-74),
-    'time_ranges': ("2013-01-01", "2015-12-31"),
+    'lat': (4, 6),
+    'lon': (-74, -72),
+    'time_ranges': ("2017-01-01", "2017-12-31"),
+    'bands': ["blue", "green", "red", "nir", "swir1", "swir2", "pixel_qa"],
+    'minValid': 1,
+    'normalized': True,
     'products': ["LS8_OLI_LASRC"],
-    'mosaic':True,
-    'generate-geotiff': True
+    'genera_mosaico': True,
+    'genera_geotiff': True,
+    'elimina_resultados_anteriores': True
 }
 
-_queues = {
+_steps = {
+    'wofs': {
+        'algorithm': "wofs-wf",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(),
+        'params': {'bands': _params['bands']},
+    },
+    'reduccion': {
+        'algorithm': "joiner",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
+                                          unidades=len(_params['products'])),
+        'params': {},
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'serie_tiempo': {
+        'algorithm': "wofs-time-series-wf",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
+                                          unidades=len(_params['products'])),
+        'params': {},
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'mosaico': {
+        'algorithm': "joiner",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
+        'params': {},
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'geotiff': {
+        'algorithm': "generate-geotiff",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
+        'params': {},
+        'del_prev_result': False,
+    }
 
-    'wofs-wf': queue_utils.assign_queue(),
-    'joiner-reduce-wofs': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
-    'wofs-time-series-wf': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
-    'joiner': queue_utils.assign_queue(input_type='multi_temporal_unidad_area', time_range=_params['time_ranges'], lat=_params['lat'], lon=_params['lon'], unidades=len(_params['products'])),
 }
-
 
 args = {
     'owner': 'cubo',
@@ -40,50 +73,41 @@ dag = DAG(
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
-wofs_classification = dag_utils.queryMapByTileByMonths(
-    lat=_params['lat'],
-    lon=_params['lon'],
-    time_ranges=_params['time_ranges'],
-    algorithm="wofs-wf",
-    version="1.0",
-    product=_params['products'][0],
-    queue= _queues['wofs-wf'],
-    months=6,
-    dag=dag,
-    task_id="wofs"
+wofs = dag_utils.queryMapByTileByYear( lat=_params['lat'], lon=_params['lon'],
+    time_ranges=_params['time_ranges'], product=_params['products'][0],
+    algorithm=_steps['wofs']['algorithm'], version=_steps['wofs']['version'],
+    queue=_steps['wofs']['queue'],
+    dag=dag, task_id="wofs"
 )
 
-reducer=dag_utils.reduceByTile(wofs_classification, algorithm="joiner",version="1.0",queue=_queues['joiner-reduce-wofs'], dag=dag, task_id="joined")
 
-time_series=dag_utils.IdentityMap(
-    reducer,
-        algorithm="wofs-time-series-wf",
-        version="1.0",
-        task_id="wofs_time_series",
-        queue=_queues['wofs-time-series-wf'],
+reduccion = dag_utils.reduceByTile(wofs, algorithm=_steps['reduccion']['algorithm'],
+                                       version=_steps['reduccion']['version'],
+                                       queue=_steps['reduccion']['queue'], dag=dag, task_id="joined",
+                                       delete_partial_results=_steps['reduccion']['del_prev_result'],
+                                       params=_steps['reduccion']['params'], )
+
+serie_tiempo=dag_utils.IdentityMap( reduccion, algorithm=_steps['serie_tiempo']['algorithm'],
+        version=_steps['serie_tiempo']['version'], task_id="wofs_serie_tiempo",
+        queue=_steps['serie_tiempo']['queue'], delete_partial_results=_steps['serie_tiempo']['del_prev_result'],
         dag=dag
 )
 
-delete_partial_results = PythonOperator(task_id='delete_partial_results',
-                                            provide_context=True,
-                                            python_callable=other_utils.delete_partial_results,
-                                            queue='airflow_small',
-                                            op_kwargs={'algorithms': {
-                                                'wofs-wf': "1.0",
-                                                'joiner-reduce-wofs': "1.0",
-                                            }, 'execID': args['execID']},
-                                            dag=dag)
-
-workflow = time_series
-
-if _params['mosaic']:
-    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+workflow = serie_tiempo
+if _params['genera_mosaico']:
+    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
+                                  version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
+                                  delete_partial_results=_steps['mosaico']['del_prev_result'],
+                                  trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
     # if _params['normalized']:
     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-    workflow = [workflow >> mosaic]
+    workflow = mosaico
 
-if _params['generate-geotiff']:
-    workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
+if _params['genera_geotiff']:
+    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm=_steps['geotiff']['algorithm'],
+                                version=_steps['geotiff']['version'],
+                                queue=_steps['geotiff']['queue'],
+                                delete_partial_results=_steps['geotiff']['del_prev_result'], dag=dag)
+    workflow = geotiff
 
-
-workflow>>delete_partial_results
+workflow

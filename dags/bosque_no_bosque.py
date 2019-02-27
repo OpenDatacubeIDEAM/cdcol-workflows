@@ -1,124 +1,173 @@
-#!/usr/bin/python3
-# coding=utf8
 import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
 from airflow.operators.python_operator import PythonOperator
 from cdcol_utils import dag_utils, queue_utils, other_utils
-from datetime import timedelta
-from pprint import pprint
 from airflow.utils.trigger_rule import TriggerRule
 
+from datetime import timedelta
+from pprint import pprint
+
 _params = {
-	'lat': (4,6),
-	'lon': (-74,-72),
-	'time_ranges': ("2017-01-01", "2017-12-31"),
-	'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
-	'minValid':1,
-	'normalized':True,
-	'ndvi_threshold': 0.7,
-	'vegetation_rate': 0.3,
-	'slice_size': 3,
-	'products': ["LS8_OLI_LASRC"],
-	'mosaic': False,
-	'generate-geotiff': True
+    'lat': (4, 6),
+    'lon': (-74, -72),
+    'time_ranges': ("2017-01-01", "2017-12-31"),
+    'bands': ["blue", "green", "red", "nir", "swir1", "swir2", "pixel_qa"],
+    'minValid': 1,
+    'normalized': True,
+    'ndvi_threshold': 0.7,
+    'vegetation_rate': 0.3,
+    'slice_size': 3,
+    'products': ["LS8_OLI_LASRC"],
+    'genera_mosaico': True,
+    'genera_geotiff': True,
+    'elimina_resultados_anteriores': True
 }
 
-
-_queues = {
-
-    'mascara-landsat': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),
-    'joiner-reduce': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
-    'compuesto-temporal-medianas-wf':queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products']) ),
-    'ndvi-wf' : queue_utils.assign_queue(),
-	'bosque-no-bosque-wf' : queue_utils.assign_queue(),
-    'joiner': queue_utils.assign_queue(input_type='multi_area',lat=_params['lat'], lon=_params['lon'] ),
-    'test-reduce': queue_utils.assign_queue(),
+_steps = {
+    'mascara': {
+        'algorithm': "mascara-landsat",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),
+        'params': {'bands': _params['bands']},
+    },
+    'reduccion': {
+        'algorithm': "joiner-reduce",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
+                                          unidades=len(_params['products'])),
+        'params': {'bands': _params['bands']},
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'medianas': {
+        'algorithm': "compuesto-temporal-medianas-wf",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
+                                          unidades=len(_params['products'])),
+        'params': {
+            'normalized': _params['normalized'],
+            'bands': _params['bands'],
+            'minValid': _params['minValid'],
+        },
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'ndvi': {
+        'algorithm': "ndvi-wf",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(),
+        'params': {},
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'bosque': {
+        'algorithm': "bosque-no-bosque-wf",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(),
+        'params': {
+            'ndvi_threshold': _params['ndvi_threshold'],
+            'vegetation_rate': _params['vegetation_rate'],
+            'slice_size': _params['slice_size']
+        },
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'mosaico': {
+        'algorithm': "joiner",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
+        'params': {},
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'geotiff': {
+        'algorithm': "generate-geotiff",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
+        'params': {},
+        'del_prev_result': False,
+    }
 }
 
-args={
-	'owner':'cubo',
-	'start_date':airflow.utils.dates.days_ago(2),
-	'execID':"bosque_no_bosque",
-	'product':"LS8_OLI_LASRC"
+args = {
+    'owner': 'cubo',
+    'start_date': airflow.utils.dates.days_ago(2),
+    'execID': "bosque_no_bosque",
+    'product': "LS8_OLI_LASRC"
 }
-dag=DAG(
-	dag_id=args["execID"], default_args=args,
-	schedule_interval=None,
-	dagrun_timeout=timedelta(minutes=20)
+dag = DAG(
+    dag_id=args["execID"], default_args=args,
+    schedule_interval=None,
+    dagrun_timeout=timedelta(minutes=20)
 )
 
+args = {
+    'owner': 'cubo',
+    'start_date': airflow.utils.dates.days_ago(2),
+    'execID': "ndvi",
+    'product': "LS8_OLI_LASRC"
+}
 
-masked0=dag_utils.queryMapByTile(
-	lat=_params['lat'],
-	lon=_params['lon'],
-	time_ranges= _params['time_ranges'],
-	algorithm="mascara-landsat", version="1.0",
-	product=_params['products'][0],
-	params={'bands':_params['bands']},
-	queue=_queues['mascara-landsat'], dag=dag, task_id="masked_"+_params['products'][0]
+dag = DAG(
+    dag_id=args["execID"], default_args=args,
+    schedule_interval=None,
+    dagrun_timeout=timedelta(minutes=120))
 
-)
+mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
+                                     time_ranges=_params['time_ranges'],
+                                     algorithm=_steps['mascara']['algorithm'], version=_steps['mascara']['version'],
+                                     product=_params['products'][0],
+                                     params=_steps['mascara']['params'],
+                                     queue=_steps['mascara']['queue'], dag=dag,
+                                     task_id="mascara_" + _params['products'][0])
+
 if len(_params['products']) > 1:
-	masked1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
-									   time_ranges=_params['time_ranges'],
-									   algorithm="mascara-landsat", version="1.0",
-									   product=_params['products'][1],
-									   params={'bands': _params['bands']},
-									   queue=_queues['mascara-landsat'], dag=dag,  task_id="masked_{}"+_params['products'][1]
+    mascara_1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
+                                         time_ranges=_params['time_ranges'],
+                                         algorithm=_steps['mascara']['algorithm'],
+                                         version=_steps['mascara']['version'],
+                                         product=_params['products'][1],
+                                         params=_steps['mascara']['params'],
+                                         queue=_steps['mascara']['queue'], dag=dag,
+                                         task_id="mascara_" + _params['products'][1])
 
-									   )
-	full_query = dag_utils.reduceByTile(masked0 + masked1, algorithm="joiner-reduce", version="1.0", queue=_queues['joiner-reduce'], dag=dag,  task_id="joined" , params={'bands': _params['bands']})
+    reduccion = dag_utils.reduceByTile(mascara_0 + mascara_1, algorithm=_steps['reduccion']['algorithm'],
+                                       version=_steps['reduccion']['version'],
+                                       queue=_steps['reduccion']['queue'], dag=dag, task_id="joined",
+                                       delete_partial_results=_steps['reduccion']['del_prev_result'],
+                                       params=_steps['reduccion']['params'], )
 else:
-	full_query = masked0
+    reduccion = mascara_0
 
-medians=dag_utils.IdentityMap(
-	full_query,
-	algorithm="compuesto-temporal-medianas-wf",
-	version="1.0",
-	task_id="medianas",
-	queue=_queues['compuesto-temporal-medianas-wf'],
-	dag=dag,
-	params={
-		'normalized':_params['normalized'],
-        'bands':_params['bands'],
-        'minValid': _params['minValid']
-	},
-)
-ndvi=dag_utils.IdentityMap(medians, algorithm="ndvi-wf", version="1.0", queue=_queues['ndvi-wf'], dag=dag,  task_id="ndvi")
-bosque=dag_utils.IdentityMap(
-	ndvi,
-	algorithm="bosque-no-bosque-wf",
-	version="1.0",
-	params={
-		'ndvi_threshold': _params['ndvi_threshold'],
-		'vegetation_rate':_params['vegetation_rate'],
-		'slice_size':_params['slice_size']
-	},
-	queue=_queues['bosque-no-bosque-wf'], dag=dag,  task_id="bosque",
-)
+medianas = dag_utils.IdentityMap(
+    reduccion,
+    algorithm=_steps['medianas']['algorithm'],
+    version=_steps['medianas']['version'],
+    task_id="medianas",
+    queue=_steps['medianas']['queue'], dag=dag,
+    delete_partial_results=_steps['medianas']['del_prev_result'],
+    params=_steps['medianas']['params'])
 
-delete_partial_results = PythonOperator(task_id='delete_partial_results',
-                                            provide_context=True,
-                                            python_callable=other_utils.delete_partial_results,
-                                            queue='airflow_small',
-                                            op_kwargs={'algorithms': {
-                                                'mascara-landsat': "1.0",
-                                                'joiner-reduce': "1.0",
-												 'compuesto-temporal-medianas-wf':"1.0",
-												 'ndvi-wf':"1.0",
-                                            }, 'execID': args['execID']},
-                                            dag=dag)
+ndvi = dag_utils.IdentityMap(medianas, algorithm=_steps['ndvi']['algorithm'], version=_steps['ndvi']['version'],
+                             queue=_steps['ndvi']['queue'], delete_partial_results=_steps['ndvi']['del_prev_result'],
+                             dag=dag, task_id="ndvi")
+
+bosque = dag_utils.IdentityMap(ndvi, algorithm=_steps['bosque']['algorithm'],
+    version=_steps['bosque']['version'], params=_steps['bosque']['params'],
+    queue=_steps['bosque']['queue'], delete_partial_results=_steps['ndvi']['del_prev_result'], dag=dag,
+    task_id="bosque" )
 
 workflow = bosque
-if _params['mosaic']:
-    mosaic = CDColReduceOperator(task_id="mosaic", algorithm="joiner", version="1.0", queue=_queues['joiner'], trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+if _params['genera_mosaico']:
+    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
+                                  version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
+                                  delete_partial_results=_steps['mosaico']['del_prev_result'],
+                                  trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
     # if _params['normalized']:
     #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
-    workflow = [workflow >> mosaic]
+    workflow = mosaico
 
-if _params['generate-geotiff']:
-    workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
+if _params['genera_geotiff']:
+    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm=_steps['geotiff']['algorithm'],
+                                version=_steps['geotiff']['version'],
+                                queue=_steps['geotiff']['queue'],
+                                delete_partial_results=_steps['geotiff']['del_prev_result'], dag=dag)
+    workflow = geotiff
 
-workflow>>delete_partial_results
-
+workflow
