@@ -52,7 +52,7 @@ else
 	fi
 fi
 
-GEOTIFF_FILES=$(ls ${FOLDER_TMP}.*.tiff | sed -e 's/\(^.*\.\([0-9]*\)\.tiff\)/\2_\1/' | sort -t _ -k 1 -n | sed -e 's/^[0-9]*_\(.*\)/\1/')
+GEOTIFF_FILES=$(ls ${FOLDER_TMP}*.tiff | sed -e 's/\(^.*\.\([0-9]*\)\.tiff\)/\2_\1/' | sort -t _ -k 1 -n | sed -e 's/^[0-9]*_\(.*\)/\1/')
 echo $GEOTIFF_FILES
 if [ $WITH_BANDS_NAME = false ]
 then
