@@ -1,7 +1,7 @@
 from xml.etree import ElementTree as etree
 from xml.etree.ElementTree import SubElement as sub
 import sys
-
+print("entro")
 vrt_file_path = sys.argv[1]
 
 vrt_data = etree.parse(vrt_file_path)
@@ -14,6 +14,7 @@ for each_path in sys.argv[2:]:
 	mdi_e = sub(metadata_e, 'MDI')
 	mdi_e.set('key','band_' + band_number)
 	mdi_e.text = band_name
+	print(mdi_e.text)
 
 vrt_data.write(vrt_file_path)
 
