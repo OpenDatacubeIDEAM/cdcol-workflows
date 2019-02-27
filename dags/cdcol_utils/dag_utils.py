@@ -74,8 +74,16 @@ def IdentityMap(upstream, algorithm, version, queue, dag, task_id, params={}):
                                    lon=prev.lon,
                                    task_id=("{}_{}_{}".format(task_id, prev.lat, prev.lon)).translate(trans),
                                    params=params)
+        delete = PythonOperator(task_id='delete_partial_results_' + str(i),
+                            provide_context=True,
+                            python_callable=other_utils.delete_partial_results,
+                            queue='airflow_small',
+                            op_kwargs={'algorithms': {}, 'execID': prev.execID},
+                            dag=dag)
         i += 1
-        prev >> _t
+        #prev >> _t
+        _t.setUpstream(prev)
+        _t.setDownstream(delete)
         tasks.append(_t)
 
     return tasks

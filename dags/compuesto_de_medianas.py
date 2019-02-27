@@ -78,7 +78,8 @@ medians = dag_utils.IdentityMap(
         'bands': _params['bands'],
         'minValid': _params['minValid'],
     })
-delete_partial_results = dag_utils.DeleteMap(medians, dag)
+
+#delete_partial_results = dag_utils.DeleteMap(medians, dag)
 
 workflow = medians
 if _params['mosaic']:
@@ -91,5 +92,5 @@ if _params['mosaic']:
 if _params['generate-geotiff']:
     workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
 workflow
-delete_partial_results
+#delete_partial_results
 
