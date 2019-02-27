@@ -127,7 +127,7 @@ mosaico = dag_utils.OneReduce(medianas, task_id="mosaic", algorithm=_steps['mosa
 
 kmeans = CDColFromFileOperator(task_id="k_means", algorithm=_steps['k_means']['algorithm'], version=_steps['k_means']['version'], queue=_steps['k_means']['queue'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params=_steps['k_means']['params'])
 
-workflow = mosaico >> kmeans
+workflow = [mosaico >> kmeans]
 
 if _steps['k_means']['del_prev_result']:
     eliminar_mosaico = PythonOperator(task_id="del_"+mosaico[0].task_id,
