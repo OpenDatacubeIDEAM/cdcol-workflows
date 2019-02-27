@@ -136,7 +136,7 @@ else:
     resultado_completo = medianas_periodo_1+medianas_periodo_2
 
 
-pca = dag_utils.reduceByTile(resultado_completo, task_id="pca", algorithm=_steps['pca']['algorithm'], version=_steps['pca']['version'], queue=_steps['pca']['queue'], dag=dag,  lat=_params['lat'], lon=_params['lon'], delete_partial_results=_steps['pca']['del_prev_result'], params=_steps['pca']['params'])
+pca = dag_utils.reduceByTile(resultado_completo, task_id="pca", algorithm=_steps['pca']['algorithm'], version=_steps['pca']['version'], queue=_steps['pca']['queue'], dag=dag, delete_partial_results=_steps['pca']['del_prev_result'], params=_steps['pca']['params'])
 
 workflow=pca
 if _params['genera_geotiff']:
