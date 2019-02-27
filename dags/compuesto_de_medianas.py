@@ -18,7 +18,8 @@ _params = {
     'normalized': True,
     'products': ["LS8_OLI_LASRC"],
     'mosaic': True,
-'generate-geotiff': True
+    'generate-geotiff': True,
+    'delete_partial_results': True
 }
 
 _queues = {
@@ -73,6 +74,7 @@ medians = dag_utils.IdentityMap(
     version="1.0",
     task_id="medianas",
     queue=_queues['compuesto-temporal-medianas-wf'], dag=dag,
+    delete_partial_results=True,
     params={
         'normalized': _params['normalized'],
         'bands': _params['bands'],
