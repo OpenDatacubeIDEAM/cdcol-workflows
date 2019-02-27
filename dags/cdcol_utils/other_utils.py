@@ -15,3 +15,5 @@ def delete_partial_result(algorithm, version, execID, task_id, **kwargs):
     if os.path.exists(folder) and os.path.isdir(folder):
         files=glob.glob("{}*{}*".format(folder,task_id))
         print(files)
+        for f in files:
+            os.remove(f)

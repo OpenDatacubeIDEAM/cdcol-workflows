@@ -70,16 +70,17 @@ def IdentityMap(upstream, algorithm, version, queue, dag, task_id, delete_partia
     tasks = []
     trans = str.maketrans({"(": None, ")": None, " ": None, ",": "_"})
     for prev in upstream:
+        id=("{}_{}_{}".format(task_id, prev.lat, prev.lon)).translate(trans)
         _t = CDColFromFileOperator(algorithm=algorithm, version=version, queue=queue, dag=dag, lat=prev.lat,
                                    lon=prev.lon,
-                                   task_id=("{}_{}_{}".format(task_id, prev.lat, prev.lon)).translate(trans),
+                                   task_id=id,
                                    params=params)
         if delete_partial_results:
-            delete = PythonOperator(task_id=("{}_{}_{}_{}".format('del', task_id , prev.lat, prev.lon)).translate(trans),
+            delete = PythonOperator(task_id=id,
                                 provide_context=True,
                                 python_callable=other_utils.delete_partial_result,
                                 queue='airflow_small',
-                                op_kwargs={'algorithm': algorithm, 'version':version, 'execID': prev.execID, 'task_id':task_id},
+                                op_kwargs={'algorithm': prev.algorithm, 'version':prev.version, 'execID': prev.execID, 'task_id':prev.task_id},
                                 dag=dag)
         i += 1
         prev >> _t
