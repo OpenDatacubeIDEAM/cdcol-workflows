@@ -130,11 +130,11 @@ kmeans = CDColFromFileOperator(task_id="k_means", algorithm=_steps['k_means']['a
 workflow = mosaico >> kmeans
 
 if _steps['k_means']['del_prev_result']:
-    eliminar_mosaico = PythonOperator(task_id="del_"+mosaico.task_id,
+    eliminar_mosaico = PythonOperator(task_id="del_"+mosaico[0].task_id,
                                 provide_context=True,
                                 python_callable=other_utils.delete_partial_result,
                                 queue='airflow_small',
-                                op_kwargs={'algorithm': mosaico.algorithm, 'version':mosaico.version, 'execID': args['execID'], 'task_id':mosaico.task_id},
+                                op_kwargs={'algorithm': mosaico[0].algorithm, 'version':mosaico[0].version, 'execID': args['execID'], 'task_id':mosaico[0].task_id},
                                 dag=dag)
     eliminar_mosaico = workflow >> eliminar_mosaico
 
