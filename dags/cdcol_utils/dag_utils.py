@@ -33,7 +33,7 @@ def queryMapByTileByYear(lat, lon, time_ranges, queue, dag, algorithm, version, 
         queue=queue,
         dag=dag, task_id="{}{}{}_{}".format(task_id, str(LAT), str(LON), "01-01-" + str(T) + "_31-12-" + str(T)),
         **kwargs) for LAT in range(*lat) for LON in range(*lon) for T in
-        xrange(int(time_ranges[0].split('-')[0]), (int(time_ranges[1].split('-')[0])) + 1)]
+        range(int(time_ranges[0].split('-')[0]), (int(time_ranges[1].split('-')[0])) + 1)]
 
 
 def queryMapByTileByMonths(lat, lon, time_ranges, queue, dag, algorithm, version, params={}, months=12, task_id="med",
@@ -45,10 +45,8 @@ def queryMapByTileByMonths(lat, lon, time_ranges, queue, dag, algorithm, version
             start = datetime.strptime(time_ranges[0], '%Y-%m-%d')
             end = datetime.strptime(time_ranges[1], '%Y-%m-%d')
             while start <= end:
-                tasks.append(CDColQueryOperator(algorithm=algorithm,
-                                                version=version,
-                                                lat=(LAT, LAT + 1),
-                                                lon=(LON, LON + 1),
+                tasks.append(CDColQueryOperator(algorithm=algorithm,version=version,
+                                                lat=(LAT, LAT + 1),lon=(LON, LON + 1),
                                                 time_ranges=(start.strftime('%d-%m-%Y'), (
                                                             start + relativedelta(months=months - 1,
                                                                                   day=end.day)).strftime('%d-%m-%Y')),
