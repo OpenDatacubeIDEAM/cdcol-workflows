@@ -78,15 +78,7 @@ medians = dag_utils.IdentityMap(
         'bands': _params['bands'],
         'minValid': _params['minValid'],
     })
-delete_partial_results = PythonOperator(task_id='delete_partial_results',
-                                        provide_context=True,
-                                        python_callable=other_utils.delete_partial_results,
-                                        queue='airflow_small',
-                                        op_kwargs={'algorithms': {
-                                            'mascara-landsat': "1.0",
-                                            'joiner-reduce': "1.0",
-                                        }, 'execID': args['execID']},
-                                        dag=dag)
+delete_partial_results = dag_utils.DeleteMap(medians, dag)
 
 workflow = medians
 if _params['mosaic']:
@@ -99,5 +91,5 @@ if _params['mosaic']:
 if _params['generate-geotiff']:
     workflow = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm="generate-geotiff", version="1.0", queue=_queues['joiner'], dag=dag)
 workflow
-medians>>delete_partial_results
+delete_partial_results
 
