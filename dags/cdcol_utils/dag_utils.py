@@ -85,12 +85,13 @@ def DeleteMap(upstream, dag):
     i = 1
     tasks = []
     for prev in upstream:
-        _t = PythonOperator(task_id='delete_partial_results',
+        _t = PythonOperator(task_id='delete_partial_results_'+str(i),
                             provide_context=True,
                             python_callable=other_utils.delete_partial_results,
                             queue='airflow_small',
                             op_kwargs={'algorithms': {}, 'execID': prev.execID},
                             dag=dag)
+        i += 1
         prev >> _t
         tasks.append(_t)
     return tasks
