@@ -151,7 +151,7 @@ def OneReduce(upstream, algorithm, version, queue, dag, task_id, delete_partial_
                                                'execID': prev.execID, 'task_id': prev.task_id},
                                     dag=dag)
             tasks.append(delete)
-        delete << reduce
+        tasks << reduce
 
 
     return [reduce]
