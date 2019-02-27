@@ -91,6 +91,8 @@ def DeleteMap(upstream, dag):
                             queue='airflow_small',
                             op_kwargs={'algorithms': {}, 'execID': prev.execID},
                             dag=dag)
+        prev >> _t
+        tasks.append(_t)
     return tasks
 
 
