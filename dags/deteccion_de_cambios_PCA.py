@@ -26,13 +26,13 @@ _steps = {
     'mascara': {
         'algorithm': "mascara-landsat",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),
+        'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges'][0]),
         'params': {'bands': _params['bands']},
     },
     'reduccion': {
         'algorithm': "joiner-reduce",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
         'params': {'bands': _params['bands']},
         'del_prev_result': _params['elimina_resultados_anteriores'],
@@ -40,7 +40,7 @@ _steps = {
     'medianas': {
         'algorithm': "compuesto-temporal-medianas-wf",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
         'params': {
             'normalized': _params['normalized'],
