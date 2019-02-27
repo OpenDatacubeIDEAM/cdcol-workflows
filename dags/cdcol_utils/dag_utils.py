@@ -81,9 +81,8 @@ def IdentityMap(upstream, algorithm, version, queue, dag, task_id, params={}):
                             op_kwargs={'algorithms': {}, 'execID': prev.execID},
                             dag=dag)
         i += 1
-        #prev >> _t
-        _t.setUpstream(prev)
-        _t.setDownstream(delete)
+        prev >> _t
+        delete << _t
         tasks.append(_t)
 
     return tasks
