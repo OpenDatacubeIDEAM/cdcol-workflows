@@ -8,7 +8,7 @@ from pprint import pprint
 args = {
     'owner': 'mp.mancipe10',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID': "mp.mancipe10-paso-2_medianas",
+    'execID': "mp.mancipe10_paso_2_medianas",
     'product': "LS8_OLI_LASRC"
 }
 
