@@ -1,18 +1,17 @@
 import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
-from airflow.operators.python_operator import PythonOperator
-from cdcol_utils import dag_utils, queue_utils, other_utils
+from cdcol_utils import dag_utils, queue_utils
 from airflow.utils.trigger_rule import TriggerRule
+
 
 from datetime import timedelta
 from pprint import pprint
 
 _params = {
-    'lat': (4, 6),
-    'lon': (-74, -72),
-    'time_ranges': ("2015-01-01", "2017-12-31"),
-    'bands': ["blue", "green", "red", "nir", "swir1", "swir2", "pixel_qa"],
+    'lat': (9,11),
+    'lon': (-76,-75),
+    'time_ranges': ("2013-01-01", "2014-12-31"),
     'products': ["LS8_OLI_LASRC"],
     'genera_mosaico': True,
     'genera_geotiff': True,
@@ -56,18 +55,17 @@ _steps = {
         'params': {},
         'del_prev_result': False,
     }
-
 }
 
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID':"wofs",
+    'execID':"mp.mancipe10_paso_6_mosaico_wofs",
     'product':_params['products'][0]
 }
 
 dag = DAG(
-    dag_id=args["execID"], default_args=args,
+    dag_id=args['execID'], default_args=args,
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
@@ -77,7 +75,6 @@ wofs = dag_utils.queryMapByTileByYear( lat=_params['lat'], lon=_params['lon'],
     queue=_steps['wofs']['queue'],
     dag=dag, task_id="wofs"
 )
-
 
 reduccion = dag_utils.reduceByTile(wofs, algorithm=_steps['reduccion']['algorithm'],
                                        version=_steps['reduccion']['version'],
