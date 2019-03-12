@@ -23,7 +23,7 @@ clasificacion = CDColQueryOperator(algorithm="wofs-wf",
                            lat=(10,11),
                            lon=(-75,-74),
                            product="LS8_OLI_LASRC",
-                           time_ranges=("2017-01-01", "2017-12-31"),
+                           time_ranges=("2015-01-01", "2015-12-31"),
                            params={
                                'bands':["blue", "green", "red", "nir", "swir1", "swir2"],
                            },
