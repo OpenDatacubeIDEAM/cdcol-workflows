@@ -33,7 +33,7 @@ _steps = {
 }
 
 args = {
-    'owner': 'cubo',
+    'owner': 'mp.mancipe10',
     'start_date': airflow.utils.dates.days_ago(2),
     'execID': "mp.mancipe10_pca_paso_4_consulta_varios_tiles",
     'product': _params['products'][0]
