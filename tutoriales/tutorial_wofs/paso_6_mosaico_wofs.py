@@ -11,7 +11,7 @@ from pprint import pprint
 _params = {
     'lat': (9,11),
     'lon': (-76,-75),
-    'time_ranges': ("2013-01-01", "2014-12-31"),
+    'time_ranges': ("2012-01-01", "2013-12-31"),
     'products': ["LS7_ETM_LEDAPS"],
     'genera_mosaico': True,
     'genera_geotiff': True,
@@ -59,7 +59,7 @@ _steps = {
 args = {
     'owner': 'mp.mancipe10',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID':"mp.mancipe10_paso_6_mosaico_wofs",
+    'execID':"mp.mancipe10_wofs_paso_6_mosaico_wofs",
     'product':_params['products'][0]
 }
 

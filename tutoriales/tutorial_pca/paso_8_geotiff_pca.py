@@ -29,6 +29,14 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges'][0]),
         'params': {'bands': _params['bands']},
     },
+    'reduccion': {
+        'algorithm': "joiner-reduce",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
+                                          unidades=len(_params['products'])),
+        'params': {'bands': _params['bands']},
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
     'medianas': {
         'algorithm': "compuesto-temporal-medianas-wf",
         'version': '1.0',
@@ -40,6 +48,27 @@ _steps = {
             'minValid': _params['minValid'],
         },
         'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'mosaico': {
+        'algorithm': "joiner",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
+        'params': {},
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'pca': {
+        'algorithm': "deteccion-cambios-pca-wf",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
+        'params': {'bands': _params['bands']},
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'geotiff': {
+        'algorithm': "generate-geotiff",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
+        'params': {},
+        'del_prev_result': False,
     }
 
 }
@@ -47,7 +76,7 @@ _steps = {
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID': "mp.mancipe10_pca_paso_5_medianas_varios_tiles",
+    'execID': "mp.mancipe10_pca_paso_8_geotiff_pca",
     'product': _params['products'][0]
 }
 
@@ -92,5 +121,33 @@ medianas_periodo_2 = dag_utils.IdentityMap(
     delete_partial_results=_steps['medianas']['del_prev_result'],
     params=_steps['medianas']['params'])
 
-medianas_periodo_1
-medianas_periodo_2
+if queue_utils.get_tiles(_params['lat'], _params['lon']) > 1:
+    mosaico_periodo_1 = dag_utils.OneReduce(medianas_periodo_1, task_id="mosaico_p1_",
+                                            algorithm=_steps['mosaico']['algorithm'],
+                                            version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
+                                            delete_partial_results=_steps['mosaico']['del_prev_result'],
+                                            trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+
+    mosaico_periodo_2 = dag_utils.OneReduce(medianas_periodo_2, task_id="mosaico_p2_",
+                                            algorithm=_steps['mosaico']['algorithm'],
+                                            version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
+                                            delete_partial_results=_steps['mosaico']['del_prev_result'],
+                                            trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+
+    resultado_completo = mosaico_periodo_1 + mosaico_periodo_2
+else:
+    resultado_completo = medianas_periodo_1 + medianas_periodo_2
+
+pca = dag_utils.reduceByTile(resultado_completo, task_id="pca", algorithm=_steps['pca']['algorithm'],
+                             version=_steps['pca']['version'], queue=_steps['pca']['queue'], dag=dag,
+                             delete_partial_results=_steps['pca']['del_prev_result'], params=_steps['pca']['params'])
+
+workflow = pca
+if _params['genera_geotiff']:
+    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm=_steps['geotiff']['algorithm'],
+                                version=_steps['geotiff']['version'],
+                                queue=_steps['geotiff']['queue'],
+                                delete_partial_results=_steps['geotiff']['del_prev_result'], dag=dag)
+    geotiff = workflow
+
+workflow

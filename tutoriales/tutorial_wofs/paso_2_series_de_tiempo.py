@@ -9,7 +9,7 @@ from pprint import pprint
 args = {
     'owner': 'mp.mancipe10',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID':"mp.mancipe10_paso_2_series_de_tiempo",
+    'execID':"mp.mancipe10_wofs_paso_2_series_de_tiempo",
     'product':"LS7_ETM_LEDAPS"
 }
 
