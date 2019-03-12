@@ -12,7 +12,6 @@ _params = {
     'lat': (4, 6),
     'lon': (-74, -72),
     'time_ranges': ("2015-01-01", "2017-12-31"),
-    'bands': ["blue", "green", "red", "nir", "swir1", "swir2", "pixel_qa"],
     'products': ["LS8_OLI_LASRC"],
     'genera_mosaico': True,
     'genera_geotiff': True,
@@ -24,7 +23,6 @@ _steps = {
         'algorithm': "wofs-wf",
         'version': '1.0',
         'queue': queue_utils.assign_queue(),
-        'params': {'bands': _params['bands']},
     },
     'reduccion': {
         'algorithm': "joiner",

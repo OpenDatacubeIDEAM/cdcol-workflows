@@ -23,7 +23,6 @@ _steps = {
         'algorithm': "wofs-wf",
         'version': '1.0',
         'queue': queue_utils.assign_queue(),
-        'params': {'bands': _params['bands']},
     },
     'reduccion': {
         'algorithm': "joiner",
