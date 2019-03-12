@@ -11,7 +11,7 @@ _params = {
     'lat': (9,11),
     'lon': (-76,-75),
     'time_ranges': ("2013-01-01", "2014-12-31"),
-    'products': ["LS8_OLI_LASRC"],
+    'products': ["LS7_ETM_LEDAPS"],
     'elimina_resultados_anteriores': True
 }
 

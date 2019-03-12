@@ -10,7 +10,7 @@ args = {
     'owner': 'mp.mancipe10',
     'start_date': airflow.utils.dates.days_ago(2),
     'execID':"mp.mancipe10_paso_2_series_de_tiempo",
-    'product':"LS8_OLI_LASRC"
+    'product':"LS7_ETM_LEDAPS"
 }
 
 dag = DAG(
@@ -22,8 +22,8 @@ clasificacion = CDColQueryOperator(algorithm="wofs-wf",
                            version="1.0",
                            lat=(10,11),
                            lon=(-75,-74),
-                           product="LS8_OLI_LASRC",
-                           time_ranges=("2015-01-01", "2015-12-31"),
+                           product="LS7_ETM_LEDAPS",
+                           time_ranges=("2013-01-01", "2013-12-31"),
                            params={
                                'bands':["blue", "green", "red", "nir", "swir1", "swir2"],
                            },

@@ -22,11 +22,8 @@ clasificacion = CDColQueryOperator(algorithm="wofs-wf",
                            version="1.0",
                            lat=(10,11),
                            lon=(-75,-74),
-                           product="LS8_OLI_LASRC",
-                           time_ranges=("2015-01-01", "2015-12-31"),
-                           params={
-                               'bands':["blue", "green", "red", "nir", "swir1", "swir2"],
-                           },
-                           queue='airflow_small',dag=dag, task_id="wofs_")
+                           product="LS7_ETM_LEDAPS",
+                           time_ranges=("2013-01-01", "2013-12-31"),
+                           queue='airflow_small',dag=dag, task_id="wofs")
 
 clasificacion

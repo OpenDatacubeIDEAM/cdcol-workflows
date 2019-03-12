@@ -57,7 +57,7 @@ _steps = {
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
     'pca': {
-        'algorithm': "k-means-wf",
+        'algorithm': "deteccion-cambios-pca-wf",
         'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
         'params': {'bands':_params['bands']},
