@@ -27,11 +27,11 @@ clasificacion = CDColQueryOperator(algorithm="wofs-wf",
                            params={
                                'bands':["blue", "green", "red", "nir", "swir1", "swir2"],
                            },
-                           queue='airflow_small',dag=dag, task_id="wofs_")
+                           queue='airflow_small',dag=dag, task_id="wofs_clasificacion")
 
 series_de_tiempo = CDColFromFileOperator(algorithm="wofs-time-series-wf",
                                          version="1.0",
-                                         task_id="wofs_time_series_",
+                                         task_id="wofs_series_de_tiempo",
                                          queue='airflow_small',
                                          dag=dag)
 
