@@ -15,18 +15,16 @@ _params = {
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2", "pixel_qa"],
     'minValid': 1,
     'normalized': True,
-    'classes': 4,
     'products': ["LS7_ETM_LEDAPS"],
-    'genera_mosaico': True,
-    'genera_geotiff': True,
-    'elimina_resultados_anteriores': True
 }
 
 _steps = {
     'mascara': {
         'algorithm': "mascara-landsat",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges'][0]),
+        'queue': queue_utils.assign_queue(
+            input_type='multi_temporal',
+            time_range=_params['time_ranges'][0]),
         'params': {'bands': _params['bands']},
     }
 

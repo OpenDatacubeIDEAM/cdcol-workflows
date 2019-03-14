@@ -35,22 +35,30 @@ _steps = {
     'serie_tiempo': {
         'algorithm': "wofs-time-series-wf",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
-                                          unidades=len(_params['products'])),
+        'queue': queue_utils.assign_queue(
+            input_type='multi_temporal_unidad',
+            time_range=_params['time_ranges'],
+            unidades=len(_params['products'])),
         'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
     'mosaico': {
         'algorithm': "joiner",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
+        'queue': queue_utils.assign_queue(
+            input_type='multi_area',
+            lat=_params['lat'],
+            lon=_params['lon']),
         'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
     'geotiff': {
         'algorithm': "generate-geotiff",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
+        'queue': queue_utils.assign_queue(
+            input_type='multi_area',
+            lat=_params['lat'],
+            lon=_params['lon']),
         'params': {},
         'del_prev_result': False,
     }
@@ -89,19 +97,21 @@ serie_tiempo=dag_utils.IdentityMap( reduccion, algorithm=_steps['serie_tiempo'][
 
 workflow = serie_tiempo
 if _params['genera_mosaico']:
-    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
-                                  version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
+    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic",
+                                  algorithm=_steps['mosaico']['algorithm'],
+                                  version=_steps['mosaico']['version'],
+                                  queue=_steps['mosaico']['queue'],
                                   delete_partial_results=_steps['mosaico']['del_prev_result'],
                                   trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
-    # if _params['normalized']:
-    #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
     workflow = mosaico
 
 if _params['genera_geotiff']:
-    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm=_steps['geotiff']['algorithm'],
+    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff",
+                                algorithm=_steps['geotiff']['algorithm'],
                                 version=_steps['geotiff']['version'],
                                 queue=_steps['geotiff']['queue'],
-                                delete_partial_results=_steps['geotiff']['del_prev_result'], dag=dag)
+                                delete_partial_results=_steps['geotiff']['del_prev_result'],
+                                dag=dag)
     workflow = geotiff
 
 workflow

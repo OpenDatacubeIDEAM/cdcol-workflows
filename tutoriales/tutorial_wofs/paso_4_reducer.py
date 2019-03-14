@@ -24,8 +24,10 @@ _steps = {
     'reduccion': {
         'algorithm': "joiner",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
-                                          unidades=len(_params['products'])),
+        'queue': queue_utils.assign_queue(
+            input_type='multi_temporal_unidad',
+            time_range=_params['time_ranges'],
+            unidades=len(_params['products'])),
         'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
