@@ -9,7 +9,7 @@ from pprint import pprint
 _params = {
     'lat': (9, 11),
     'lon': (-76, -75),
-    'time_ranges': ("2012-01-01", "2013-12-31"),
+    'time_ranges': ("2013-01-01", "2014-12-31"),
     'products': ["LS7_ETM_LEDAPS"],
     'elimina_resultados_anteriores': True
 }
