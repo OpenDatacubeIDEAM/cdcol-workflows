@@ -11,7 +11,7 @@ from pprint import pprint
 _params = {
     'lat': (9,11),
     'lon': (-76,-75),
-    'time_ranges': ("2013-01-01", "2014-12-31"),
+    'time_ranges': ("2010-01-01", "2011-12-31"),
     'products': ["LS7_ETM_LEDAPS"],
     'genera_mosaico': True,
     'genera_geotiff': True,
