@@ -120,5 +120,5 @@ normalizacion = CDColReduceOperator(algorithm="normalizacion",
                           },
                           dag=dag, task_id="pca", )
 
-mascara_ls8>>medianas>>mosaico>>normalizacion
+mosaico>>normalizacion
 mascara_ls7_mosaic>>normalizacion
