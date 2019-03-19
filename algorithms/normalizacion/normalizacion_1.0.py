@@ -1,7 +1,24 @@
+
+import sys
+import numpy as np
+import time
+from arrnorm.auxil.auxil import similarity
+import matplotlib.pyplot as plt
+from scipy import stats
+from arrnorm.auxil.auxil import orthoregress
+from operator import itemgetter
+from scipy import linalg, stats
+import arrnorm.auxil.auxil as auxil
+from datetime import datetime
+
+print xarrs
+
 #consulta de mosaico
-inDataset1=[]
+inDataset1=[xarrs[k] for k in xarrs.keys() if 'consulta_referencia' in k][0];
 #mosaico de LS8
-inDataset2=[]
+inDataset2=[xarrs[k] for k in xarrs.keys() if 'consulta_cubo' in k][0];
+
+
 
 band_pos=None
 dims=None
