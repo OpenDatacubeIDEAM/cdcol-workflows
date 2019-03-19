@@ -78,7 +78,7 @@ class CDColQueryOperator(BaseOperator):
             filename=folder+"{}_{}_{}_{}_{}_output.nc".format(self.task_id,str(self.algorithm),self.lat[0],self.lon[0],re.sub('[^\w_.)(-]', '', str(self.time_ranges)))
             output=  kwargs["output"]
             if self.to_tiff:
-                common.write_geotiff_from_xr(filename, ouput)
+                common.write_geotiff_from_xr(filename, output)
             else:
                 common.saveNC(output,filename, history)
             fns.append(filename)

@@ -76,7 +76,7 @@ class CDColReduceOperator(BaseOperator):
             filename=folder+"{}_output.nc".format(_exp )
             output=  kwargs["output"]
             if self.to_tiff:
-                common.write_geotiff_from_xr(filename, ouput)
+                common.write_geotiff_from_xr(filename, output)
             else:
                 common.saveNC(output,filename, history)
             fns.append(filename)

@@ -65,7 +65,7 @@ class CDColFromFileOperator(BaseOperator):
             filename=folder+"{}_{}_{}_{}_{}_output.nc".format(self.task_id,str(self.algorithm),_fn.split("_")[2],_fn.split("_")[3],_fn.split("_")[4])
             output=  kwargs["output"]
             if self.to_tiff:
-                common.write_geotiff_from_xr(filename, ouput)
+                common.write_geotiff_from_xr(filename, output)
             else:
                 common.saveNC(output,filename, history)
             fns.append(filename)
