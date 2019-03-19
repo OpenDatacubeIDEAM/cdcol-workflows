@@ -68,9 +68,9 @@ def readNetCDF(file):
 def getUpstreamVariable(task, context,key='return_value'):
     start = time.time()
     task_instance = context['task_instance']
-    #upstream_tasks = task.get_direct_relatives(upstream=True)
-    #upstream_task_ids = [task.task_id for task in upstream_tasks]
-    upstream_task_ids = task.get_direct_relatives(upstream=True)
+    upstream_tasks = task.get_direct_relatives(upstream=True)
+    upstream_task_ids = [task.task_id for task in upstream_tasks]
+    #upstream_task_ids = task.get_direct_relatives(upstream=True)
     upstream_variable_values = task_instance.xcom_pull(task_ids=upstream_task_ids, key=key)
     end = time.time()
     logging.info('TIEMPO UPSTREAM:' + str((end - start)))
