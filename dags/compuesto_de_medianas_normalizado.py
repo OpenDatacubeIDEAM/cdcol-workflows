@@ -18,7 +18,7 @@ _params = {
     'products': ["LS8_OLI_LASRC","LS7_ETM_LEDAPS_MOSAIC"],
     'genera_mosaico': True,
     'genera_geotiff': True,
-    'elimina_resultados_anteriores': True
+    'elimina_resultados_anteriores': False
 }
 
 _steps = {
@@ -118,7 +118,7 @@ normalizacion = CDColReduceOperator(algorithm="normalizacion",
                           params={
                               'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
                           },
-                          dag=dag, task_id="pca", )
+                          dag=dag, task_id="normalizacion", )
 
 mosaico>>normalizacion
 mascara_ls7_mosaic>>normalizacion
