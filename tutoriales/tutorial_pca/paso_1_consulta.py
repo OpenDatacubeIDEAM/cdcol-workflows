@@ -26,7 +26,7 @@ consulta_2013 = CDColQueryOperator(algorithm="mascara-landsat",
                               params={
                                   'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
                               },
-                              queue='airflow_small', dag=dag, task_id="consulta_p_2013")
+                              queue='airflow_small', dag=dag, to_tiff=True, task_id="consulta_p_2013")
 consulta_2014 = CDColQueryOperator(algorithm="mascara-landsat",
                               version="1.0",
                               lat=(10, 11),
@@ -36,7 +36,7 @@ consulta_2014 = CDColQueryOperator(algorithm="mascara-landsat",
                               params={
                                   'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
                               },
-                              queue='airflow_small', dag=dag, task_id="consulta_p_2014")
+                              queue='airflow_small', dag=dag, to_tiff=True, task_id="consulta_p_2014")
 
 consulta_2013
 consulta_2014
