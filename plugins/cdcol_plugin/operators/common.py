@@ -97,7 +97,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
 
     """
     print(dataset.data_vars)
-    print(type(dataset.data_vars))
+    print(type(dataset.data_vars.keys()))
     assert isinstance(bands, list), "Bands must a list of strings"
     assert len(bands) > 0 and isinstance(bands[0], str), "You must supply at least one band."
     with rasterio.open(
