@@ -11,7 +11,7 @@ from airflow.exceptions import AirflowException, AirflowSensorTimeout, AirflowSk
 #Each map task of the identity mapper is a CDColFromFileOperator
 class CDColFromFileOperator(BaseOperator):
     @airflow_utils.apply_defaults
-    def __init__(self, execID, algorithm,version, product,str_files=None, lat=None, lon=None, output_type="output",params={}, *args,**kwargs):
+    def __init__(self, execID, algorithm,version, product,str_files=None, lat=None, lon=None, output_type="output",params={},  to_tiff=False, *args,**kwargs):
         """
             algorithm: algorithm to execute over the query results
             version: algorithm version
@@ -29,6 +29,7 @@ class CDColFromFileOperator(BaseOperator):
         self.folder = "{}/{}/{}_{}/".format(common.RESULTS_FOLDER, execID,algorithm,version,)
         self.product = product
         self.output_type=output_type
+        self.to_tiff = to_tiff
      
     def execute(self, context):
         if not os.path.exists(os.path.dirname(self.folder)):
@@ -63,14 +64,27 @@ class CDColFromFileOperator(BaseOperator):
             #Guardar a un archivo...
             filename=folder+"{}_{}_{}_{}_{}_output.nc".format(self.task_id,str(self.algorithm),_fn.split("_")[2],_fn.split("_")[3],_fn.split("_")[4])
             output=  kwargs["output"]
-            print(filename)
-            common.saveNC(output,filename, history)
+            if self.to_tiff:
+                common.write_geotiff_from_xr(filename, ouput)
+            else:
+                common.saveNC(output,filename, history)
             fns.append(filename)
         if "outputs" in kwargs:
-            for xa in kwargs["outputs"]:
-                filename=folder+"{}_{}_{}_{}_{}_{}.nc".format(self.task_id,str(self.algorithm),_fn.split("_")[2],_fn.split("_")[3],_fn.split("_")[4],xa)
-                common.saveNC(kwargs["outputs"][xa],filename, history)
-                fns.append(filename)
+            if self.to_tiff:
+                for xa in kwargs["outputs"]:
+                    filename = folder + "{}_{}_{}_{}_{}_{}.nc".format(self.task_id, str(self.algorithm),
+                                                                      _fn.split("_")[2], _fn.split("_")[3],
+                                                                      _fn.split("_")[4], xa)
+                    common.write_geotiff_from_xr(filename, kwargs["outputs"][xa])
+                    fns.append(filename)
+
+            else:
+                for xa in kwargs["outputs"]:
+                    filename = folder + "{}_{}_{}_{}_{}_{}.nc".format(self.task_id, str(self.algorithm),
+                                                                      _fn.split("_")[2], _fn.split("_")[3],
+                                                                      _fn.split("_")[4], xa)
+                    common.saveNC(kwargs["outputs"][xa], filename, history)
+                    fns.append(filename)
         if "outputtxt" in kwargs:
             filename=folder+"{}_{}_{}_{}_{}.txt".format(self.task_id,str(self.algorithm),_fn.split("_")[2],_fn.split("_")[3],_fn.split("_")[4])
             with open(filename, "w") as text_file:

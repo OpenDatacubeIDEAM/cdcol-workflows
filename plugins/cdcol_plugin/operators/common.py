@@ -9,7 +9,7 @@ import os
 import re
 import xarray as xr
 import itertools
-
+import rasterio
 import time
 import logging
 
@@ -21,10 +21,11 @@ logging.basicConfig(
 # To print loggin information in the console
 logging.getLogger().addHandler(logging.StreamHandler())
 
-ALGORITHMS_FOLDER = "/web_storage/algorithms"
+ALGORITHMS_FOLDER = "/web_storage/algorithms/workflows"
 RESULTS_FOLDER = "/source_storage/results"
 nodata=-9999
-def saveNC(output,filename, history):
+
+def saveNC(output,filename,history):
     start = time.time()
     nco=netcdf_writer.create_netcdf(filename)
     nco.history = (history.encode('ascii','replace'))
@@ -67,9 +68,49 @@ def readNetCDF(file):
 def getUpstreamVariable(task, context,key='return_value'):
     start = time.time()
     task_instance = context['task_instance']
-    upstream_tasks = task.get_direct_relatives(upstream=True)
-    upstream_task_ids = [task.task_id for task in upstream_tasks]
+    #upstream_tasks = task.get_direct_relatives(upstream=True)
+    #upstream_task_ids = [task.task_id for task in upstream_tasks]
+    upstream_task_ids = task.get_direct_relatives(upstream=True)
     upstream_variable_values = task_instance.xcom_pull(task_ids=upstream_task_ids, key=key)
     end = time.time()
     logging.info('TIEMPO UPSTREAM:' + str((end - start)))
-    return list(itertools.chain.from_iterable(upstream_variable_values))
+    return list(itertools.chain.from_iterable(filter(None.__ne__,upstream_variable_values)))
+
+def _get_transform_from_xr(dataset):
+    """Create a geotransform from an xarray dataset.
+    """
+
+    from rasterio.transform import from_bounds
+    geotransform = from_bounds(dataset.longitude[0], dataset.latitude[-1], dataset.longitude[-1], dataset.latitude[0],
+                               len(dataset.longitude), len(dataset.latitude))
+    return geotransform
+
+def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:4326"):
+    """Write a geotiff from an xarray dataset.
+
+    Args:
+        tif_path: path for the tif to be written to.
+        dataset: xarray dataset
+        bands: list of strings representing the bands in the order they should be written
+        no_data: nodata value for the dataset
+        crs: requested crs.
+
+    """
+    print(dataset.data_vars)
+    print(type(dataset.data_vars))
+    assert isinstance(bands, list), "Bands must a list of strings"
+    assert len(bands) > 0 and isinstance(bands[0], str), "You must supply at least one band."
+    with rasterio.open(
+            tif_path,
+            'w',
+            driver='GTiff',
+            height=dataset.dims['latitude'],
+            width=dataset.dims['longitude'],
+            count=len(bands),
+            dtype=dataset[bands[0]].dtype,#str(dataset[bands[0]].dtype),
+            crs=crs,
+            transform=_get_transform_from_xr(dataset),
+            nodata=no_data) as dst:
+        for index, band in enumerate(bands):
+            dst.write(dataset[band].values, index + 1)
+        dst.close()

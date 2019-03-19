@@ -19,7 +19,7 @@ logging.getLogger().addHandler(logging.StreamHandler())
 
 class CDColQueryOperator(BaseOperator):
     @airflow_utils.apply_defaults
-    def __init__(self, execID, algorithm,version, product, lat, lon, time_ranges, params={}, *args,**kwargs):
+    def __init__(self, execID, algorithm,version, product, lat, lon, time_ranges, params={},  to_tiff=False, *args,**kwargs):
         """
             algorithm: algorithm to execute over the query results
             version: algorithm version
@@ -38,6 +38,7 @@ class CDColQueryOperator(BaseOperator):
         self.alg_kwargs=params
         self.folder = "{}/{}/{}_{}/".format(common.RESULTS_FOLDER, execID,algorithm,version)
         self.product = product
+        self.to_tiff = to_tiff
      
     def execute(self, context):
         if not os.path.exists(os.path.dirname(self.folder)):
@@ -76,13 +77,31 @@ class CDColQueryOperator(BaseOperator):
             #Guardar a un archivo...
             filename=folder+"{}_{}_{}_{}_{}_output.nc".format(self.task_id,str(self.algorithm),self.lat[0],self.lon[0],re.sub('[^\w_.)(-]', '', str(self.time_ranges)))
             output=  kwargs["output"]
-            common.saveNC(output,filename, history)
+            if self.to_tiff:
+                common.write_geotiff_from_xr(filename, ouput)
+            else:
+                common.saveNC(output,filename, history)
             fns.append(filename)
         if "outputs" in kwargs:
-            for xa in kwargs["outputs"]:
-                filename=folder+"{}_{}_{}_{}_{}_{}.nc".format(self.task_id,str(self.algorithm),self.lat[0],self.lon[0],re.sub('[^\w_.)(-]', '', str(self.time_ranges)),xa)
-                common.saveNC(kwargs["outputs"][xa],filename, history)
-                fns.append(filename)
+
+
+            if self.to_tiff:
+
+                for xa in kwargs["outputs"]:
+                    filename = folder + "{}_{}_{}_{}_{}_{}.nc".format(self.task_id, str(self.algorithm), self.lat[0],
+                                                                      self.lon[0],
+                                                                      re.sub('[^\w_.)(-]', '', str(self.time_ranges)),
+                                                                      xa)
+                    common.write_geotiff_from_xr(filename, kwargs["outputs"][xa])
+                    fns.append(filename)
+            else:
+                for xa in kwargs["outputs"]:
+                    filename = folder + "{}_{}_{}_{}_{}_{}.nc".format(self.task_id, str(self.algorithm), self.lat[0],
+                                                                      self.lon[0],
+                                                                      re.sub('[^\w_.)(-]', '', str(self.time_ranges)),
+                                                                      xa)
+                    common.saveNC(kwargs["outputs"][xa], filename, history)
+                    fns.append(filename)
         if "outputtxt" in kwargs:
             filename=folder+"{}_{}_{}.txt".format(self.lat[0],self.lon[0],re.sub('[^\w_.)(-]', '', str(self.time_ranges)))
             with open(filename, "w") as text_file:

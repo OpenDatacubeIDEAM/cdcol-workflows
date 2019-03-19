@@ -11,7 +11,7 @@ from airflow.utils.trigger_rule import TriggerRule
 #Each reduce task of the reducer is a CDColReduceOperator
 class CDColReduceOperator(BaseOperator):
     @airflow_utils.apply_defaults
-    def __init__(self, execID, algorithm,version, product, params={}, str_files=None, output_type="output", lat=None, lon=None,year=None, *args,**kwargs):
+    def __init__(self, execID, algorithm,version, product, params={}, str_files=None, output_type="output", lat=None, lon=None,year=None, to_tiff=False, *args,**kwargs):
         """
             algorithm: algorithm to execute over the query results
             version: algorithm version
@@ -30,6 +30,7 @@ class CDColReduceOperator(BaseOperator):
         self.lat=lat
         self.lon=lon
         self.year=year
+        self.to_tiff=to_tiff
      
     def execute(self, context):
         if not os.path.exists(os.path.dirname(self.folder)):
@@ -69,17 +70,28 @@ class CDColReduceOperator(BaseOperator):
         else:
             _exp="{}_{}_{}_{}_{}".format(self.task_id,str(self.algorithm),"All","All","All" )
 
+
         if "output" in kwargs: #output debería ser un xarray
             #Guardar a un archivo...
             filename=folder+"{}_output.nc".format(_exp )
             output=  kwargs["output"]
-            common.saveNC(output,filename, history)
+            if self.to_tiff:
+                common.write_geotiff_from_xr(filename, ouput)
+            else:
+                common.saveNC(output,filename, history)
             fns.append(filename)
         if "outputs" in kwargs:
-            for xa in kwargs["outputs"]:
-                filename=folder+"{}_{}.nc".format(_exp,xa)
-                common.saveNC(kwargs["outputs"][xa],filename, history)
-                fns.append(filename)
+            if self.to_tiff:
+                common.write_geotiff_from_xr(filename, ouput, bands)
+                for xa in kwargs["outputs"]:
+                    filename = folder + "{}_{}.nc".format(_exp, xa)
+                    common.write_geotiff_from_xr(filename, kwargs["outputs"][xa])
+                    fns.append(filename)
+            else:
+                for xa in kwargs["outputs"]:
+                    filename = folder + "{}_{}.nc".format(_exp, xa)
+                    common.saveNC(kwargs["outputs"][xa], filename, history)
+                    fns.append(filename)
         if "outputtxt" in kwargs:
             filename=folder+"{}.txt".format(_exp)
             with open(filename, "w") as text_file:

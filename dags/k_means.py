@@ -137,6 +137,7 @@ if _steps['k_means']['del_prev_result']:
                                 op_kwargs={'algorithm': mosaico[0].algorithm, 'version':mosaico[0].version, 'execID': args['execID'], 'task_id':mosaico[0].task_id},
                                 dag=dag)
     eliminar_mosaico = workflow >> eliminar_mosaico
+    eliminar_mosaico
 
 if _params['genera_geotiff']:
     geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm=_steps['geotiff']['algorithm'],
@@ -144,5 +145,4 @@ if _params['genera_geotiff']:
                                 queue=_steps['geotiff']['queue'],
                                 delete_partial_results=_steps['geotiff']['del_prev_result'], dag=dag)
 
-eliminar_mosaico
 workflow

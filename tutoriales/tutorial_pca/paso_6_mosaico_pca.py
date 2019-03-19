@@ -29,8 +29,10 @@ _steps = {
     'medianas': {
         'algorithm': "compuesto-temporal-medianas-wf",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
-                                          unidades=len(_params['products'])),
+        'queue': queue_utils.assign_queue(
+            input_type='multi_temporal_unidad',
+            time_range=_params['time_ranges'][0],
+            unidades=len(_params['products'])),
         'params': {
             'normalized': _params['normalized'],
             'bands': _params['bands'],
@@ -41,7 +43,10 @@ _steps = {
     'mosaico': {
         'algorithm': "joiner",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
+        'queue': queue_utils.assign_queue(
+            input_type='multi_area',
+            lat=_params['lat'],
+            lon=_params['lon']),
         'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
@@ -99,13 +104,15 @@ medianas_periodo_2 = dag_utils.IdentityMap(
 if queue_utils.get_tiles(_params['lat'], _params['lon']) > 1:
     mosaico_periodo_1 = dag_utils.OneReduce(medianas_periodo_1, task_id="mosaico_p1_",
                                             algorithm=_steps['mosaico']['algorithm'],
-                                            version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
+                                            version=_steps['mosaico']['version'],
+                                            queue=_steps['mosaico']['queue'],
                                             delete_partial_results=_steps['mosaico']['del_prev_result'],
                                             trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
 
     mosaico_periodo_2 = dag_utils.OneReduce(medianas_periodo_2, task_id="mosaico_p2_",
                                             algorithm=_steps['mosaico']['algorithm'],
-                                            version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
+                                            version=_steps['mosaico']['version'],
+                                            queue=_steps['mosaico']['queue'],
                                             delete_partial_results=_steps['mosaico']['del_prev_result'],
                                             trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
 
