@@ -94,7 +94,7 @@ mascara_ls7_mosaic = CDColQueryOperator(algorithm="just-query",
                                    params={
                                        'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
                                    },
-                                   queue='airflow_small', dag=dag, task_id="consulta_referencia_"+ _params['products'][1])
+                                   queue=_steps['mosaico']['queue'], dag=dag, task_id="consulta_referencia_"+ _params['products'][1])
 
 
 

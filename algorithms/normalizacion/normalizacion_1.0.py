@@ -1,4 +1,3 @@
-
 import sys
 import numpy as np
 import time
@@ -10,6 +9,7 @@ from operator import itemgetter
 from scipy import linalg, stats
 import arrnorm.auxil.auxil as auxil
 from datetime import datetime
+import xarray as xr
 
 print xarrs
 
@@ -183,3 +183,100 @@ while current_iter < max_iters:
         means2 = best_results[1]["means2"]
         sigMADs = best_results[1]["sigMADs"]
         rho = best_results[1]["rho"]
+
+outBands = []
+for band in range(bands + 1):
+    outBands.append(np.zeros([rows,cols]))
+
+for row in range(rows):
+    for k in range(bands):
+        bandSour = np.asarray(rasterBands2[k])
+        tile[:, k] = np.asarray([bandSour[0][row]])
+        bandTarg = np.asarray(rasterBands1[k])
+        tile[:, bands + k] = np.asarray([bandTarg[0][row]])
+    mads = np.asarray((tile[:, 0:bands] - means1) * A - (tile[:, bands::] - means2) * B)
+    chisqr = np.sum((mads / sigMADs) ** 2, axis=1)
+    for k in range(bands):
+        outBands[k][row]=np.asarray([mads[:,k]])
+    outBands[bands][row]=np.asarray([chisqr])
+    del mads,chisqr
+    #outBands.FlushCache()
+
+for k in range(len(Bands)):
+    bandSour = np.asarray(rasterBands2[k])
+    tile[:, k] = np.asarray([bandSour[0][row]])
+
+
+#Parametros de entrada definidos para la funcion de normalización
+ncpThresh=0.15
+pos=None
+dims=None
+img_target=None
+graphics=False
+
+# Normalización de imagen objetivo con imagen de cambios
+try:
+    rows = list(inDataset1.dims.values())[0]
+    cols = list(inDataset1.dims.values())[1]
+    bands = len(inDataset1.data_vars)
+
+except Exception as err:
+    print('Error: {}  --Images could not be read.'.format(err))
+    sys.exit(1)
+
+if pos is None:
+    pos = list(range(1, bands + 1))
+else:
+    bands = len(band_pos)
+if dims is None:
+    x0 = 0
+    y0 = 0
+else:
+    x0, y0, cols, rows = dims
+
+chisqr = np.asarray(outBands[bands]).ravel()
+ncp = 1 - stats.chi2.cdf(chisqr, [bands - 1])
+idx = where(ncp > ncpThresh)
+
+aa = []
+bb = []
+
+j = 1
+bands = len(pos)
+
+# Cáculo ortoregresión con imagen referencia e imagen objetivo obteniendo valores de pendiente, intercepción y correlación entre las mismas.
+
+outBand = []
+for k in pos:
+    x = np.asarray(rasterBands2[k - 1]).ravel()
+    y = np.asarray(rasterBands1[k - 1]).ravel()
+    b, a, R = orthoregress(y[idx], x[idx])
+    print('band: {}  slope: {} intercept: {}  correlation: {}'.format(k, b, a, R))
+    my = max(y[idx])
+    aa.append(a)
+    bb.append(b)
+    outBand.append(np.zeros([rows, cols]))
+    # Imagen normalizada resultante
+    outBand[k - 1] = resize(a + b * y, (rows, cols))
+    # outBand.FlushCache()
+    j += 1
+
+ncoords=[]
+xdims =[]
+xcords={}
+for x in nbar.coords:
+    if(x!='time'):
+        ncoords.append( ( x, nbar.coords[x]) )
+        xdims.append(x)
+        xcords[x]=nbar.coords[x]
+
+test = {}
+for k in range(bands):
+    test[Bands[k]] = outBand[k]
+
+variables = {k: xr.DataArray(v, dims=xdims, coords=ncoords)
+             for k, v in test.items()}
+output = xr.Dataset(variables, attrs={'crs': nbar.crs})
+
+for x in output.coords:
+    output.coords[x].attrs["units"]=nbar.coords[x].units
