@@ -48,7 +48,7 @@ medianas_2013 = CDColFromFileOperator(algorithm="compuesto-temporal-medianas-wf"
                                      'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
                                      'minValid': 1,
                                  },
-                                 queue='airflow_small', dag=dag, to_tiff=True, task_id="medianas_2013")
+                                 queue='airflow_small', dag=dag, task_id="medianas_2013")
 
 medianas_2014 = CDColFromFileOperator(algorithm="compuesto-temporal-medianas-wf",
                                  version="1.0",
@@ -60,7 +60,7 @@ medianas_2014 = CDColFromFileOperator(algorithm="compuesto-temporal-medianas-wf"
                                      'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
                                      'minValid': 1,
                                  },
-                                 queue='airflow_small', dag=dag, to_tiff=True, task_id="medianas_2014")
+                                 queue='airflow_small', dag=dag,  task_id="medianas_2014")
 
 
 consulta_2013>>medianas_2013
