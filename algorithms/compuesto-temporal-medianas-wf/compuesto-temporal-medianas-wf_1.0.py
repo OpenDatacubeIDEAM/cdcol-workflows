@@ -31,4 +31,4 @@ for x in output.coords:
     output.coords[x].attrs["units"]=xarr0.coords[x].units
 print(xarr0.coords['time'][0])
 output=output.expand_dims(dim='time',axis=0)
-output['time']=np.array([xarr0.coords['time'][0]], dtype='datetime64')
+output['time']=xarr0.coords['time'][0]
