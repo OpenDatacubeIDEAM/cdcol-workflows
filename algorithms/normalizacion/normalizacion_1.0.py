@@ -75,6 +75,8 @@ results = []
 for band in Bands:
     rasterBands1.append(inDataset1[band])
     rasterBands2.append(inDataset2[band])
+    print(rasterBands1)
+    print(rasterBands2)
 
 # check if the band data has only zeros
 for band in range(len(Bands)):
