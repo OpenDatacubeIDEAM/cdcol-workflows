@@ -5,11 +5,14 @@ import numpy as np
 print ("Compuesto temporal de medianas para " + product)
 nodata=-9999
 medians = {}
+time_axis = list(xarr0.coords.keys()).index('time')
+print(time_axis)
+print(xarr0.coords)
 for band in bands:
     datos = xarr0.data_vars[band]
     allNan = ~np.isnan(datos)
-    medians[band] = np.nanmedian(datos, 0).astype(np.int16)
-    medians[band][np.sum(allNan, 0) < minValid] = nodata
+    medians[band] = np.nanmedian(datos, time_axis).astype(np.int16)
+    medians[band][np.sum(allNan, time_axis) < minValid] = nodata
 del datos
 
 
