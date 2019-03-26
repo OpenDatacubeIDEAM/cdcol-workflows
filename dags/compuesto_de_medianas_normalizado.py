@@ -85,16 +85,13 @@ mascara_ls8 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                      queue=_steps['mascara']['queue'], dag=dag,
                                      task_id="consulta_cubo_" + _params['products'][0])
 
-mascara_ls7_mosaic = CDColQueryOperator(algorithm="just-query",
-                                   version="1.0",
-                                   lat=(9, 11),
-                                   lon=(-76, -74),
-                                   product= _params['products'][1],
-                                   time_ranges=("2015-01-01", "2015-12-31"),
-                                   params={
-                                       'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
-                                   },
-                                   queue=_steps['mosaico']['queue'], dag=dag, task_id="consulta_referencia_"+ _params['products'][1])
+mascara_ls7_mosaic = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
+                                     time_ranges=_params['time_ranges'],
+                                     algorithm='just_query', version=_steps['mascara']['version'],
+                                     product=_params['products'][1],
+                                     params=_steps['mascara']['params'],
+                                     queue=_steps['mascara']['queue'], dag=dag,
+                                     task_id="consulta_referencia_" + _params['products'][1])
 
 
 
@@ -108,17 +105,19 @@ medianas = dag_utils.IdentityMap(
     params=_steps['medianas']['params'])
 
 
-mosaico = dag_utils.OneReduce(medianas, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
-                                  version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
-                                  delete_partial_results=_steps['mosaico']['del_prev_result'],
-                                  trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
-
-normalizacion = CDColReduceOperator(algorithm="normalizacion",
+normalizacion = dag_utils.reduceByTile(medianas+mascara_ls7_mosaic, algorithm="normalizacion",
                           version="1.0", queue=_steps['mosaico']['queue'],
                           params={
                               'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
                           },
                           dag=dag, task_id="normalizacion", )
 
-mosaico>>normalizacion
-mascara_ls7_mosaic>>normalizacion
+
+mosaico = dag_utils.OneReduce(medianas, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
+                                  version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
+                                  delete_partial_results=_steps['mosaico']['del_prev_result'],
+                                  trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+
+
+
+normalizacion>>mosaico

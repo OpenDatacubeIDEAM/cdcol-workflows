@@ -11,12 +11,12 @@ import arrnorm.auxil.auxil as auxil
 from datetime import datetime
 import xarray as xr
 
-print xarrs
+print(xarrs)
 
 #consulta de mosaico
 inDataset1=[xarrs[k] for k in xarrs.keys() if 'consulta_referencia' in k][0];
 #mosaico de LS8
-inDataset2=[xarrs[k] for k in xarrs.keys() if 'consulta_cubo' in k][0];
+inDataset2=[xarrs[k] for k in xarrs.keys() if 'medianas' in k][0];
 
 
 
