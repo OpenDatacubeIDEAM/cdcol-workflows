@@ -87,7 +87,7 @@ mascara_ls8 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 
 mascara_ls7_mosaic = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                      time_ranges=_params['time_ranges'],
-                                     algorithm='just_query', version=_steps['mascara']['version'],
+                                     algorithm='just-query', version=_steps['mascara']['version'],
                                      product=_params['products'][1],
                                      params=_steps['mascara']['params'],
                                      queue=_steps['mascara']['queue'], dag=dag,
