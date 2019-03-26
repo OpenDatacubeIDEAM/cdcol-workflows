@@ -163,15 +163,16 @@ while current_iter < max_iters:
         del c1, b1, c2, b2
 
     except Exception as err:
-        print("\n WARNING: Occurred a exception value error for the last iteration No. {0},\n"
+        print(err)
+        print("\n WARNING: Occurred a exception value error for the last iteration No. {},\n"
               " then the ArrNorm will be use the best result at the moment calculated, you\n"
               " should check the result and all bands in input file if everything is correct.".format(current_iter))
         # ending the iteration
-        # current_iter = max_iters
+        current_iter = max_iters
     if current_iter == max_iters:  # end iteration
         # select the result with the best delta
         best_results = sorted(results, key=itemgetter(0))[0]
-        print("\n The best delta for all iterations is {0}, iter num: {1},\n"
+        print("\n The best delta for all iterations is {}, iter num: {},\n"
               " making the final result normalization with this parameters.".
               format(round(best_results[0], 5), best_results[1]["iter"]))
 
