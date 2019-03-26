@@ -108,7 +108,7 @@ medianas = dag_utils.IdentityMap(
 normalizacion = dag_utils.reduceByTile(medianas+mascara_ls7_mosaic, algorithm="normalizacion",
                           version="1.0", queue=_steps['mosaico']['queue'],
                           params={
-                              'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
+                              'Bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
                           },
                           dag=dag, task_id="normalizacion", )
 
