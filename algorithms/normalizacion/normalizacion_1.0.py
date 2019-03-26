@@ -84,87 +84,89 @@ for band in range(len(Bands)):
         sys.exit(1)
 
 while current_iter < max_iters:
-    try:
-        for row in range(rows):
-            for k in range(len(Bands)):
-                bandSour = np.asarray(rasterBands2[k])
-                tile[:, k] = np.asarray([bandSour[0][row]])
-                bandTarg = np.asarray(rasterBands1[k])
-                tile[:, bands + k] = np.asarray([bandTarg[0][row]])
-            tile = np.nan_to_num(tile)
-            tst1 = np.sum(tile[:, 0:bands], axis=1)
-            tst2 = np.sum(tile[:, bands::], axis=1)
-            idx1 = set(np.where((tst1 != 0))[0])
-            idx2 = set(np.where((tst2 != 0))[0])
-            idx = list(idx1.intersection(idx2))
-            if current_iter > 0:
-                mads = np.asarray((tile[:, 0:bands] - means1) * A - (tile[:, bands::] - means2) * B)
-                chisqr = np.sum((mads / sigMADs) ** 2, axis=1)
-                wts = 1 - stats.chi2.cdf(chisqr, [bands])
-                cpm.update(tile[idx, :], wts[idx])
-            else:
-                cpm.update(tile[idx, :])
-        # weighted covariance matrices and means
-        S = cpm.covariance()
-        means = cpm.means()
-        # reset prov means object
-        cpm.__init__(2 * bands)
-        s11 = S[0:bands, 0:bands]
-        s22 = S[bands:, bands:]
-        s12 = S[0:bands, bands:]
-        s21 = S[bands:, 0:bands]
-        c1 = s12 * linalg.inv(s22) * s21
-        b1 = s11
-        c2 = s21 * linalg.inv(s11) * s12
-        b2 = s22
-        # solution of generalized eigenproblems
-        if bands > 1:
-            mu2a, A = auxil.geneiv(c1, b1)
-            mu2b, B = auxil.geneiv(c2, b2)
-            # sort a
-            idx = np.argsort(mu2a)
-            A = A[:, idx]
-            # sort b
-            idx = np.argsort(mu2b)
-            B = B[:, idx]
-            mu2 = mu2b[idx]
+
+    for row in range(rows):
+        for k in range(len(Bands)):
+            bandSour = np.asarray(rasterBands2[k])
+            tile[:, k] = np.asarray([bandSour[0][row]])
+            bandTarg = np.asarray(rasterBands1[k])
+            tile[:, bands + k] = np.asarray([bandTarg[0][row]])
+        tile = np.nan_to_num(tile)
+        tst1 = np.sum(tile[:, 0:bands], axis=1)
+        tst2 = np.sum(tile[:, bands::], axis=1)
+        idx1 = set(np.where((tst1 != 0))[0])
+        idx2 = set(np.where((tst2 != 0))[0])
+        idx = list(idx1.intersection(idx2))
+        if current_iter > 0:
+            mads = np.asarray((tile[:, 0:bands] - means1) * A - (tile[:, bands::] - means2) * B)
+            chisqr = np.sum((mads / sigMADs) ** 2, axis=1)
+            wts = 1 - stats.chi2.cdf(chisqr, [bands])
+            cpm.update(tile[idx, :], wts[idx])
         else:
-            mu2 = c1 / b1
-            A = 1 / np.sqrt(b1)
-            B = 1 / np.sqrt(b2)
-        # canonical correlations
-        rho = np.sqrt(mu2)
-        b2 = np.diag(B.T * B)
-        sigma = np.sqrt(2 * (1 - rho))
-        # stopping criterion
-        delta = max(abs(rho - oldrho))
-        rhos[current_iter, :] = rho
-        oldrho = rho
-        # tile the sigmas and means
-        sigMADs = np.tile(sigma, (cols, 1))
-        means1 = np.tile(means[0:bands], (cols, 1))
-        means2 = np.tile(means[bands::], (cols, 1))
-        # ensure sum of positive correlations between X and U is positive
-        D = np.diag(1 / np.sqrt(np.diag(s11)))
-        s = np.ravel(np.sum(D * s11 * A, axis=0))
-        A = A * np.diag(s / np.abs(s))
-        # ensure positive correlation between each pair of canonical variates
-        cov = np.diag(A.T * s12 * B)
-        B = B * np.diag(cov / np.abs(cov))
-        current_iter += 1
+            cpm.update(tile[idx, :])
+    # weighted covariance matrices and means
+    S = cpm.covariance()
+    means = cpm.means()
+    # reset prov means object
+    cpm.__init__(2 * bands)
+    s11 = S[0:bands, 0:bands]
+    s22 = S[bands:, bands:]
+    s12 = S[0:bands, bands:]
+    s21 = S[bands:, 0:bands]
+    c1 = s12 * linalg.inv(s22) * s21
+    b1 = s11
+    c2 = s21 * linalg.inv(s11) * s12
+    b2 = s22
+    # solution of generalized eigenproblems
+    if bands > 1:
+        mu2a, A = auxil.geneiv(c1, b1)
+        mu2b, B = auxil.geneiv(c2, b2)
+        # sort a
+        idx = np.argsort(mu2a)
+        A = A[:, idx]
+        # sort b
+        idx = np.argsort(mu2b)
+        B = B[:, idx]
+        mu2 = mu2b[idx]
+    else:
+        mu2 = c1 / b1
+        A = 1 / np.sqrt(b1)
+        B = 1 / np.sqrt(b2)
+    # canonical correlations
+    rho = np.sqrt(mu2)
+    b2 = np.diag(B.T * B)
+    sigma = np.sqrt(2 * (1 - rho))
+    # stopping criterion
+    delta = max(abs(rho - oldrho))
+    rhos[current_iter, :] = rho
+    oldrho = rho
+    # tile the sigmas and means
+    sigMADs = np.tile(sigma, (cols, 1))
+    means1 = np.tile(means[0:bands], (cols, 1))
+    means2 = np.tile(means[bands::], (cols, 1))
+    # ensure sum of positive correlations between X and U is positive
+    D = np.diag(1 / np.sqrt(np.diag(s11)))
+    s = np.ravel(np.sum(D * s11 * A, axis=0))
+    A = A * np.diag(s / np.abs(s))
+    # ensure positive correlation between each pair of canonical variates
+    cov = np.diag(A.T * s12 * B)
+    B = B * np.diag(cov / np.abs(cov))
+    current_iter += 1
 
-        results.append((delta, {"iter": current_iter, "A": A, "B": B, "means1": means1, "means2": means2,
-                                "sigMADs": sigMADs, "rho": rho}))
-        del s11, s22
-        del s12, s21
-        del c1, b1, c2, b2
-
-    except Exception as err:
-        print("\n WARNING: Occurred a exception value error for the last iteration No. {0},\n"
-              " then the ArrNorm will be use the best result at the moment calculated, you\n"
-              " should check the result and all bands in input file if everything is correct.".format(current_iter))
-        # ending the iteration
-        # current_iter = max_iters
+    results.append((delta, {"iter": current_iter, "A": A, "B": B, "means1": means1, "means2": means2,
+                            "sigMADs": sigMADs, "rho": rho}))
+    del s11, s22
+    del s12, s21
+    del c1, b1, c2, b2
+    # try:
+    #
+    #
+    # except Exception as err:
+    #     print("\n WARNING: Occurred a exception value error for the last iteration No. {0},\n"
+    #           " then the ArrNorm will be use the best result at the moment calculated, you\n"
+    #           " should check the result and all bands in input file if everything is correct.".format(current_iter))
+    #     # ending the iteration
+    #     # current_iter = max_iters
     if current_iter == max_iters:  # end iteration
         # select the result with the best delta
         best_results = sorted(results, key=itemgetter(0))[0]
