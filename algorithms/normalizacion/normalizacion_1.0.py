@@ -14,9 +14,9 @@ import xarray as xr
 print(xarrs)
 
 #consulta de mosaico
-inDataset1=[xarrs[k] for k in xarrs.keys() if 'consulta_referencia' in k][0];
+inDataset2=[xarrs[k] for k in xarrs.keys() if 'consulta_referencia' in k][0];
 #mosaico de LS8
-inDataset2=[xarrs[k] for k in xarrs.keys() if 'medianas' in k][0];
+inDataset1=[xarrs[k] for k in xarrs.keys() if 'medianas' in k][0];
 
 
 
@@ -75,8 +75,7 @@ results = []
 for band in Bands:
     rasterBands1.append(inDataset1[band])
     rasterBands2.append(inDataset2[band])
-    print(rasterBands1)
-    print(rasterBands2)
+
 
 # check if the band data has only zeros
 for band in range(len(Bands)):
@@ -118,6 +117,7 @@ while current_iter < max_iters:
     s22 = S[bands:, bands:]
     s12 = S[0:bands, bands:]
     s21 = S[bands:, 0:bands]
+
     c1 = s12 * linalg.inv(s22) * s21
     b1 = s11
     c2 = s21 * linalg.inv(s11) * s12
@@ -164,16 +164,16 @@ while current_iter < max_iters:
     del s12, s21
     del c1, b1, c2, b2
 
-    # try:
-    #
-    #
-    # except Exception as err:
-    #     print(err)
-    #     print("\n WARNING: Occurred a exception value error for the last iteration No. {},\n"
-    #           " then the ArrNorm will be use the best result at the moment calculated, you\n"
-    #           " should check the result and all bands in input file if everything is correct.".format(current_iter))
-    #     # ending the iteration
-    #     current_iter = max_iters
+    try:
+
+
+    except Exception as err:
+        print(err)
+        print("\n WARNING: Occurred a exception value error for the last iteration No. {},\n"
+              " then the ArrNorm will be use the best result at the moment calculated, you\n"
+              " should check the result and all bands in input file if everything is correct.".format(current_iter))
+        # ending the iteration
+        #current_iter = max_iters
     if current_iter == max_iters:  # end iteration
         # select the result with the best delta
         best_results = sorted(results, key=itemgetter(0))[0]
