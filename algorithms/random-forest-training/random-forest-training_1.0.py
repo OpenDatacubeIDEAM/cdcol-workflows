@@ -42,14 +42,14 @@ shapefiles = [os.path.join(train_data_path, f) for f in files if f.endswith('.sh
 
 rows, cols = xarr0[bands[0]].shape
 _coords=xarr0.coords
-_crs=xarr0.crs
+
 
 #(originX, pixelWidth, 0, originY, 0, pixelHeight)
 geo_transform=(_coords["longitude"].values[0], 0.000269995,0, _coords["latitude"].values[0],0,-0.000271302)
-if(_crs.wkt):
-    proj=_crs.wkt
+if xarr0.crs.wkt:
+    proj=xarr0.crs.wkt
 else:
-    proj = _crs.crs_wkt
+    proj = xarr0.crs.crs_wkt
 
 labeled_pixels = rasterizar_entrenamiento(shapefiles, rows, cols, geo_transform, proj)
 
