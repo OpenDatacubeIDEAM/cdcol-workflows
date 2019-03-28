@@ -40,6 +40,7 @@ files = [f for f in os.listdir(train_data_path) if f.endswith('.shp')]
 classes = [f.split('.')[0] for f in files]
 shapefiles = [os.path.join(train_data_path, f) for f in files if f.endswith('.shp')]
 
+print(xarr0[bands[0]].shape)
 rows, cols = xarr0[bands[0]].shape
 _coords=xarr0.coords
 
@@ -67,6 +68,8 @@ training_samples= training_samples[_msk,:]
 training_labels=training_labels[_msk]
 
 classifier = RandomForestClassifier(n_jobs=-1, n_estimators=50, verbose=1)
+print(training_samples)
+print(training_labels)
 classifier.fit(training_samples, training_labels)
 
 joblib.dump(classifier,train_data_path+'modelo_random_forest')
