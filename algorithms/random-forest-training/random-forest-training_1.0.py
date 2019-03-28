@@ -46,10 +46,7 @@ _coords=xarr0.coords
 
 #(originX, pixelWidth, 0, originY, 0, pixelHeight)
 geo_transform=(_coords["longitude"].values[0], 0.000269995,0, _coords["latitude"].values[0],0,-0.000271302)
-if xarr0.crs.wkt:
-    proj=xarr0.crs.wkt
-else:
-    proj = xarr0.crs.crs_wkt
+proj = xarr0.crs.crs_wkt
 
 labeled_pixels = rasterizar_entrenamiento(shapefiles, rows, cols, geo_transform, proj)
 
