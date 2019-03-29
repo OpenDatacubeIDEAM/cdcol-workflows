@@ -28,7 +28,7 @@ _params = {
     'minValid': 1,
     'normalized': True,
     'modelos': '/web_storage/downloads/models/',
-    'products': ["LS8_OLI_LASRC"],
+    'products': ["LS7_ETM_LEDAPS"],
     'genera_mosaico': True,
     'genera_geotiff': True,
     'elimina_resultados_anteriores': True
