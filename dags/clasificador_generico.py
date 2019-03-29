@@ -21,10 +21,10 @@ dag = DAG(
     dagrun_timeout=timedelta(minutes=120))
 
 _params = {
-    'lat': (4, 6),
-    'lon': (-74, -72),
-    'time_ranges': ("2017-01-01", "2017-12-31"),
-    'bands': ["blue", "green", "red", "nir", "swir1", "swir2", "pixel_qa"],
+    'lat': (10, 11),
+    'lon': (-75, -74),
+    'time_ranges': ("2011-01-01", "2011-12-31"),
+    'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid': 1,
     'normalized': True,
     'modelos':'/web_storage/downloads/models/',
@@ -123,14 +123,17 @@ medianas = dag_utils.IdentityMap(
     delete_partial_results=_steps['medianas']['del_prev_result'],
     params=_steps['medianas']['params'])
 
-mosaico = dag_utils.OneReduce(medianas, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
-                                  version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
-                                  delete_partial_results=_steps['mosaico']['del_prev_result'],
-                                  trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+workflow=medianas
+if queue_utils.get_tiles(_params['lat'],_params['lon'])>1:
+    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
+                                      version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
+                                      delete_partial_results=_steps['mosaico']['del_prev_result'],
+                                      trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+    workflow=mosaico
 
 clasificador = CDColFromFileOperator(task_id="clasificador_generico", algorithm=_steps['clasificador']['algorithm'], version=_steps['clasificador']['version'], queue=_steps['clasificador']['queue'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params=_steps['clasificador']['params'])
 
-workflow = [mosaico >> clasificador]
+workflow = [workflow >> clasificador]
 
 if _steps['clasificador']['del_prev_result']:
     eliminar_mosaico = PythonOperator(task_id="del_"+mosaico[0].task_id,
