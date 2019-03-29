@@ -27,7 +27,7 @@ _params = {
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid': 1,
     'normalized': True,
-    'modelos':'/web_storage/downloads/models/',
+    'modelos': '/web_storage/downloads/models/',
     'products': ["LS8_OLI_LASRC"],
     'genera_mosaico': True,
     'genera_geotiff': True,
@@ -74,7 +74,7 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
         'params': {
             'bands': _params['bands'],
-            'modelos': _params['modelos']+args["execID"]
+            'modelos': _params['modelos'] + args["execID"]
         },
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
@@ -126,29 +126,44 @@ medianas = dag_utils.IdentityMap(
 workflow=medianas
 if queue_utils.get_tiles(_params['lat'],_params['lon'])>1:
     mosaico = dag_utils.OneReduce(workflow, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
-                                      version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
-                                      delete_partial_results=_steps['mosaico']['del_prev_result'],
-                                      trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+                                  version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
+                                  delete_partial_results=_steps['mosaico']['del_prev_result'],
+                                  trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
     workflow=mosaico
 
-clasificador = CDColFromFileOperator(task_id="clasificador_generico", algorithm=_steps['clasificador']['algorithm'], version=_steps['clasificador']['version'], queue=_steps['clasificador']['queue'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params=_steps['clasificador']['params'])
+entrenamiento = dag_utils.IdentityMap(
+    workflow,
+    algorithm="random-forest-training",
+    version=_steps['medianas']['version'],
+    task_id="entrenamiento",
+    queue=_steps['medianas']['queue'], dag=dag,
+    delete_partial_results=_steps['mosaico']['del_prev_result'],
+    params={
+        'bands': _params['bands'],
+        'train_data_path': _params['modelos'] + args["execID"]
+    })
 
-workflow = [workflow >> clasificador]
+entrenamiento
 
-if _steps['clasificador']['del_prev_result']:
-    eliminar_mosaico = PythonOperator(task_id="del_"+mosaico[0].task_id,
-                                provide_context=True,
-                                python_callable=other_utils.delete_partial_result,
-                                queue='airflow_small',
-                                op_kwargs={'algorithm': mosaico[0].algorithm, 'version':mosaico[0].version, 'execID': args['execID'], 'task_id':mosaico[0].task_id},
-                                dag=dag)
-    eliminar_mosaico = workflow >> eliminar_mosaico
+# clasificador = CDColFromFileOperator(task_id="clasificador_generico", algorithm=_steps['clasificador']['algorithm'], version=_steps['clasificador']['version'], queue=_steps['clasificador']['queue'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params=_steps['clasificador']['params'])
+#
+# workflow = [mosaico >> clasificador]
+#
+# if _steps['clasificador']['del_prev_result']:
+#     eliminar_mosaico = PythonOperator(task_id="del_"+mosaico[0].task_id,
+#                                 provide_context=True,
+#                                 python_callable=other_utils.delete_partial_result,
+#                                 queue='airflow_small',
+#                                 op_kwargs={'algorithm': mosaico[0].algorithm, 'version':mosaico[0].version, 'execID': args['execID'], 'task_id':mosaico[0].task_id},
+#                                 dag=dag)
+#     eliminar_mosaico = workflow >> eliminar_mosaico
+#
+# if _params['genera_geotiff']:
+#     geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm=_steps['geotiff']['algorithm'],
+#                                 version=_steps['geotiff']['version'],
+#                                 queue=_steps['geotiff']['queue'],
+#                                 delete_partial_results=_steps['geotiff']['del_prev_result'], dag=dag)
+#
+# eliminar_mosaico
+# workflow
 
-if _params['genera_geotiff']:
-    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm=_steps['geotiff']['algorithm'],
-                                version=_steps['geotiff']['version'],
-                                queue=_steps['geotiff']['queue'],
-                                delete_partial_results=_steps['geotiff']['del_prev_result'], dag=dag)
-
-eliminar_mosaico
-workflow
