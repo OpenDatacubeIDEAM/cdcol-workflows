@@ -20,6 +20,7 @@ inDataset2=[xarrs[k] for k in xarrs.keys() if 'consulta_referencia' in k][0];
 band_pos=None
 dims=None
 max_iters=20
+nodata=-9999
 
 try:
     rows = list(inDataset1.dims.values())[0]
@@ -112,6 +113,7 @@ while current_iter < max_iters:
             tile[:, bands + k] = np.asarray([bandTarg[0][row]])
 
         tile = np.nan_to_num(tile)
+        tile[tile==nodata]=0
         tst1 = np.sum(tile[:, 0:bands], axis=1)
         tst2 = np.sum(tile[:, bands::], axis=1)
         idx1 = set(np.where((tst1 != 0))[0])
