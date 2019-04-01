@@ -29,14 +29,15 @@ try:
     cols2 = list(inDataset2.dims.values())[1]
     bands2 = len(inDataset2.data_vars)
 
-    print(rows)
-    print(cols)
-    print(bands)
-    print(rows2)
-    print(cols2)
-    print(bands2)
-    print(inDataset1['red'].shape)
-    print(inDataset2['red'].shape)
+    print("indataset1: rows {}, cols {}, bands {}, shape {}".format(rows, cols, bands, inDataset1['red'].shape))
+    print("indataset2: rows {}, cols {}, bands {}, shape {}".format(rows, cols, bands, inDataset2['red'].shape))
+    print("indataset1: zeros {}, nans {}, -9999 {}".format((inDataset1['red'] == 0).sum(),
+                                                           np.count_nonzero(np.isnan(inDataset1['red'])),
+                                                           (inDataset1['red'] == -9999).sum()))
+    print("indataset2: zeros {}, nans {}, -9999 {}".format((inDataset2['red'] == 0).sum(),
+                                                           np.count_nonzero(np.isnan(inDataset2['red'])),
+                                                           (inDataset2['red'] == -9999).sum()))
+
 except Exception as err:
     print('Error: {}  --Images could not be read.'.format(err))
     sys.exit(1)
@@ -80,17 +81,14 @@ results = []
 
 for band in Bands:
     in1 = inDataset1[band]
-    if(len(inDataset1[band].shape)>2):
-        inDataset1[band].drop('time')
+    # if(len(inDataset1[band].shape)>2):
+    #     inDataset1[band].drop('time')
     rasterBands1.append(in1)
     in2 = inDataset2[band]
-    if (len(inDataset2[band].shape) > 2):
-        inDataset2[band].drop('time')
+    # if (len(inDataset2[band].shape) > 2):
+    #     inDataset2[band].drop('time')
     rasterBands2.append(in2)
-    print("Medians - NON Nans: {}".format(np.count_nonzero(~np.isnan(in1))))
-    print("Medians - Nans: {}".format(np.count_nonzero(np.isnan(in1))))
-    print("Mosaico - NON Nans: {}".format(np.count_nonzero(~np.isnan(in2))))
-    print("Mosaico - Nans: {}".format(np.count_nonzero(np.isnan(in2))))
+
 
 print(rasterBands1[0].shape)
 
@@ -108,15 +106,11 @@ while current_iter < max_iters:
 
     for row in range(rows):
         for k in range(len(Bands)):
-
             bandSour = np.asarray(rasterBands2[k])
-            print(np.asarray(rasterBands2[k]))
             tile[:, k] = np.asarray([bandSour[0][row]])
-            print(np.asarray([bandSour[0][row]]))
             bandTarg = np.asarray(rasterBands1[k])
-            print(np.asarray(rasterBands1[k]))
             tile[:, bands + k] = np.asarray([bandTarg[0][row]])
-            print(np.asarray([bandTarg[0][row]]))
+
         tile = np.nan_to_num(tile)
         tst1 = np.sum(tile[:, 0:bands], axis=1)
         tst2 = np.sum(tile[:, bands::], axis=1)
