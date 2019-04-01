@@ -12,7 +12,6 @@ from datetime import datetime
 import xarray as xr
 
 
-
 #consulta de mosaico
 inDataset2=[xarrs[k] for k in xarrs.keys() if 'consulta_referencia' in k][0];
 #mosaico de LS8
@@ -29,6 +28,15 @@ try:
     rows2 = list(inDataset2.dims.values())[0]
     cols2 = list(inDataset2.dims.values())[1]
     bands2 = len(inDataset2.data_vars)
+
+    print(rows)
+    print(cols)
+    print(bands)
+    print(rows2)
+    print(cols2)
+    print(bands2)
+    print(inDataset1['red'].shape)
+    print(inDataset2['red'].shape)
 except Exception as err:
     print('Error: {}  --Images could not be read.'.format(err))
     sys.exit(1)
@@ -73,6 +81,9 @@ results = []
 for band in Bands:
     rasterBands1.append(inDataset1[band])
     rasterBands2.append(inDataset2[band])
+
+print(rasterBands1.shape)
+print(rasterBands2.shape)
 
 # check if the band data has only zeros
 for band in range(len(Bands)):
