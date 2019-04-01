@@ -79,10 +79,14 @@ rhos = np.zeros((max_iters, bands))
 results = []
 
 for band in Bands:
-
-    rasterBands1.append(inDataset1[band])
-    print(inDataset2[band].drop('time'))
-    rasterBands2.append(inDataset2[band])
+    in1 = inDataset1[band]
+    if(len(inDataset1[band].shape)>2):
+        inDataset1[band].drop('time')
+    rasterBands1.append(in1)
+    in2 = inDataset2[band]
+    if (len(inDataset2[band].shape) > 2):
+        inDataset2[band].drop('time')
+    rasterBands2.append(in2)
 
 print(type(rasterBands1))
 print(type(rasterBands1[0]))
