@@ -87,9 +87,12 @@ for band in Bands:
     if (len(inDataset2[band].shape) > 2):
         inDataset2[band].drop('time')
     rasterBands2.append(in2)
+    print("Medians - NON Nans: {}".format(np.count_nonzero(~np.isnan(in1))))
+    print("Medians - Nans: {}".format(np.count_nonzero(np.isnan(in1))))
+    print("Mosaico - NON Nans: {}".format(np.count_nonzero(~np.isnan(in2))))
+    print("Mosaico - Nans: {}".format(np.count_nonzero(np.isnan(in2))))
 
-print(type(rasterBands1))
-print(type(rasterBands1[0]))
+print(rasterBands1[0].shape)
 
 
 # check if the band data has only zeros
@@ -105,10 +108,15 @@ while current_iter < max_iters:
 
     for row in range(rows):
         for k in range(len(Bands)):
+
             bandSour = np.asarray(rasterBands2[k])
+            print(np.asarray(rasterBands2[k]))
             tile[:, k] = np.asarray([bandSour[0][row]])
+            print(np.asarray([bandSour[0][row]]))
             bandTarg = np.asarray(rasterBands1[k])
+            print(np.asarray(rasterBands1[k]))
             tile[:, bands + k] = np.asarray([bandTarg[0][row]])
+            print(np.asarray([bandTarg[0][row]]))
         tile = np.nan_to_num(tile)
         tst1 = np.sum(tile[:, 0:bands], axis=1)
         tst2 = np.sum(tile[:, bands::], axis=1)
