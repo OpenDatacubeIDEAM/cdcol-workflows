@@ -11,11 +11,11 @@ import arrnorm.auxil.auxil as auxil
 from datetime import datetime
 import xarray as xr
 
-
-#consulta de mosaico
-inDataset2=[xarrs[k] for k in xarrs.keys() if 'consulta_referencia' in k][0];
 #mosaico de LS8
 inDataset1=[xarrs[k] for k in xarrs.keys() if 'medianas' in k][0];
+#consulta de mosaico
+inDataset2=[xarrs[k] for k in xarrs.keys() if 'consulta_referencia' in k][0];
+
 
 band_pos=None
 dims=None
@@ -82,8 +82,9 @@ for band in Bands:
     rasterBands1.append(inDataset1[band])
     rasterBands2.append(inDataset2[band])
 
-print(rasterBands1.shape)
-print(rasterBands2.shape)
+print(type(rasterBands1))
+
+
 
 # check if the band data has only zeros
 for band in range(len(Bands)):
