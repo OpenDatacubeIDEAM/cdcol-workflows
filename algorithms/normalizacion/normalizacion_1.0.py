@@ -83,7 +83,7 @@ for band in Bands:
     rasterBands2.append(inDataset2[band])
 
 print(type(rasterBands1))
-
+print(type(rasterBands1[0]))
 
 
 # check if the band data has only zeros
