@@ -247,7 +247,7 @@ else:
 
 chisqr = np.asarray(outBands[bands]).ravel()
 ncp = 1 - stats.chi2.cdf(chisqr, [bands - 1])
-idx = where(ncp > ncpThresh)
+idx = np.where(ncp > ncpThresh)
 
 aa = []
 bb = []
@@ -268,7 +268,7 @@ for k in pos:
     bb.append(b)
     outBand.append(np.zeros([rows, cols]))
     # Imagen normalizada resultante
-    outBand[k - 1] = resize(a + b * y, (rows, cols))
+    outBand[k - 1] = np.resize(a + b * y, (rows, cols))
     # outBand.FlushCache()
     j += 1
 
