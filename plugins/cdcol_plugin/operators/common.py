@@ -39,9 +39,11 @@ def saveNC(output,filename,history):
         netcdf_writer.create_coordinate(nco, x, coords[x].values, coords[x].units)
         cnames=cnames+(x,)
     _crs=output.crs
+    output = output.drop('crs')
     if isinstance(_crs, xr.DataArray):
         _crs=CRS(str(_crs.spatial_ref))
     netcdf_writer.create_grid_mapping_variable(nco, _crs)
+
     for band in output.data_vars:
         #Para evitar problemas con xarray <0.11
         if band in coords.keys() or band == 'crs':
