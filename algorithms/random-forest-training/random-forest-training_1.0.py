@@ -40,7 +40,6 @@ files = [f for f in os.listdir(train_data_path) if f.endswith('.shp')]
 classes = [f.split('.')[0] for f in files]
 shapefiles = [os.path.join(train_data_path, f) for f in files if f.endswith('.shp')]
 
-print(xarr0[bands[0]].shape)
 rows, cols = xarr0[bands[0]].shape
 _coords=xarr0.coords
 
