@@ -275,17 +275,17 @@ for k in pos:
 ncoords=[]
 xdims =[]
 xcords={}
-for x in nbar.coords:
+for x in inDataset1.coords:
     if(x!='time'):
-        ncoords.append( ( x, nbar.coords[x]) )
+        ncoords.append( ( x, inDataset1.coords[x]) )
         xdims.append(x)
-        xcords[x]=nbar.coords[x]
+        xcords[x]=inDataset1.coords[x]
 test = {}
 for k in range(bands):
     test[Bands[k]] = outBand[k]
 
 variables = {k: xr.DataArray(v, dims=xdims, coords=ncoords)
              for k, v in test.items()}
-output = xr.Dataset(variables, attrs={'crs': nbar.crs})
+output = xr.Dataset(variables, attrs={'crs': inDataset1.crs})
 for x in output.coords:
-    output.coords[x].attrs["units"]=nbar.coords[x].units
+    output.coords[x].attrs["units"]=inDataset1.coords[x].units
