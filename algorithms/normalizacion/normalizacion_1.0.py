@@ -282,7 +282,7 @@ for x in inDataset1.coords:
         xcords[x]=inDataset1.coords[x]
 test = {}
 for k in range(bands):
-    test[Bands[k]] = outBand[k]
+    test[Bands[k]] = outBand[k].astype(np.int16)
 
 variables = {k: xr.DataArray(v, dims=xdims, coords=ncoords)
              for k, v in test.items()}
