@@ -42,7 +42,6 @@ _steps = {
                                           time_range=_params['time_ranges'],
                                           unidades=len(_params['products'])),
         'params': {
-            'normalized': _params['normalized'],
             'bands': _params['bands'],
             'minValid': _params['minValid'],
         },
