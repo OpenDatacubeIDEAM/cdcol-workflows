@@ -71,4 +71,4 @@ print(training_samples)
 print(training_labels)
 classifier.fit(training_samples, training_labels)
 
-joblib.dump(classifier,train_data_path+'modelo_random_forest')
+joblib.dump(classifier,train_data_path+'modelo_random_forest.pkl')
