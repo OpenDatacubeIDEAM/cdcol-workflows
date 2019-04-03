@@ -46,6 +46,8 @@ class CDColReduceOperator(BaseOperator):
             raise AirflowSkipException("there is not files")
         i=0
         _files=[ x for x in self.str_files if "{}.nc".format(self.output_type) in x and (self.lat is None or "{}_{}".format(self.lat[0],self.lon[0]) in x) and self.year is None or "_{}_".format(self.year)]
+        _other_files=[x for x in self.str_files if ".nc" not in x]
+        print(_other_files)
         kwargs=self.alg_kwargs
         xarrs={}
         for _f in _files:
@@ -57,6 +59,7 @@ class CDColReduceOperator(BaseOperator):
         kwargs["xarrs"]=xarrs
         kwargs["product"]=self.product
         kwargs["folder"]=folder
+        kwargs["other_files"]=_other_files
         exec(open(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py", encoding='utf-8').read(),kwargs)
         fns=[]
 

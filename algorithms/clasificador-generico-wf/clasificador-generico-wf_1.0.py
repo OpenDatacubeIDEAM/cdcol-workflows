@@ -31,7 +31,7 @@ for band in medians1.data_vars.keys():
 import os
 
 model = None
-for file in os.listdir(modelos):
+for file in other_files:
     if file.endswith(".pkl"):
         model = file
         break
@@ -40,7 +40,7 @@ if model is None:
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", category=UserWarning)
-    classifier = joblib.load(os.path.join(modelos, model))
+    classifier = joblib.load(model)
 result = classifier.predict(nmed.T)
 result = result.reshape(sp)
 
