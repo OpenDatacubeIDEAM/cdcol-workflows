@@ -53,12 +53,12 @@ result = result.reshape(sp)
 coordenadas = []
 dimensiones = []
 xcords = {}
-for coordenada in xarr0.coords:
+for coordenada in xarrs[0].coords:
     if (coordenada != 'time'):
-        coordenadas.append((coordenada, xarr0.coords[coordenada]))
+        coordenadas.append((coordenada, xarrs[0].coords[coordenada]))
         dimensiones.append(coordenada)
-        xcords[coordenada] = xarr0.coords[coordenada]
+        xcords[coordenada] = xarrs[0].coords[coordenada]
 valores = {"classified": xr.DataArray(result, dims=dimensiones, coords=coordenadas)}
-output = xr.Dataset(valores, attrs={'crs': xarr0.crs})
+output = xr.Dataset(valores, attrs={'crs': xarrs[0].crs})
 for coordenada in output.coords:
-    output.coords[coordenada].attrs["units"] = xarr0.coords[coordenada].units
+    output.coords[coordenada].attrs["units"] = xarrs[0].coords[coordenada].units
