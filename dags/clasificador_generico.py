@@ -136,8 +136,8 @@ entrenamiento = dag_utils.IdentityMap(
     algorithm="random-forest-training",
     version=_steps['medianas']['version'],
     task_id="entrenamiento",
-    queue=_steps['medianas']['queue'], dag=dag,
-    delete_partial_results=_steps['mosaico']['del_prev_result'],
+    queue=_steps['mosaico']['queue'], dag=dag,
+    delete_partial_results=False,
     params={
         'bands': _params['bands'],
         'train_data_path': _params['modelos'] + args["execID"]
