@@ -27,6 +27,13 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),
         'params': {'bands': _params['bands']},
     },
+    'consulta': {
+        'algorithm': "just-query",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_temporal',
+                                          time_range=_params['time_ranges']),
+        'params': {'bands': _params['bands']},
+    },
     'reduccion': {
         'algorithm': "joiner-reduce",
         'version': '1.0',
@@ -97,11 +104,11 @@ mascara_ls8 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 
 mascara_ls7_mosaic = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                               time_ranges=_params['time_ranges'],
-                                              algorithm='just-query',
-                                              version=_steps['mascara']['version'],
+                                              algorithm=_steps['consulta']['algorithm'],
+                                              version=_steps['consulta']['version'],
                                               product=_params['products'][1],
-                                              params=_steps['mascara']['params'],
-                                              queue=_steps['mascara']['queue'],
+                                              params=_steps['consulta']['params'],
+                                              queue=_steps['consulta']['queue'],
                                               dag=dag,
                                               task_id="consulta_referencia_" + _params['products'][1])
 

@@ -30,7 +30,10 @@ _steps = {
     'consulta': {
         'algorithm': "just-query",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_area', time_range=_params['time_ranges'], lat=_params['lat'], lon=_params['lon']),
+        'queue': queue_utils.assign_queue(
+            input_type='multi_temporal_area',
+            time_range=_params['time_ranges'],
+            lat=_params['lat'], lon=_params['lon']),
         'params': {'bands': _params['bands']},
     },
     'reduccion': {
@@ -56,8 +59,9 @@ _steps = {
     'normalizacion': {
         'algorithm': "normalizacion",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_unidad',
-                                          unidades=len(_params['products'])),
+        'queue': queue_utils.assign_queue(input_type='multi_unidad_area',
+                                          unidades=len(_params['products']),
+                                          lat=_params['lat'], lon=_params['lon']),
         'params': {
             'Bands': _params['bands'],
         },
@@ -120,7 +124,7 @@ medianas = dag_utils.IdentityMap(
     delete_partial_results=_steps['medianas']['del_prev_result'],
     params=_steps['medianas']['params'])
 
-mosaico = dag_utils.OneReduce(medianas, task_id="mosaic",
+mosaico = dag_utils.OneReduce(medianas, task_id="mosaico_medianas",
                               algorithm=_steps['mosaico']['algorithm'],
                               version=_steps['mosaico']['version'],
                               queue=_steps['mosaico']['queue'],

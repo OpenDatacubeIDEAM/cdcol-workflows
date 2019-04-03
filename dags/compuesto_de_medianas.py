@@ -115,18 +115,22 @@ medianas = dag_utils.IdentityMap(
 
 workflow = medianas
 if _params['genera_mosaico']:
-    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
-                                  version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
+    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic",
+                                  algorithm=_steps['mosaico']['algorithm'],
+                                  version=_steps['mosaico']['version'],
+                                  queue=_steps['mosaico']['queue'],
                                   delete_partial_results=_steps['mosaico']['del_prev_result'],
                                   trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
 
     workflow = mosaico
 
 if _params['genera_geotiff']:
-    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm=_steps['geotiff']['algorithm'],
+    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff",
+                                algorithm=_steps['geotiff']['algorithm'],
                                 version=_steps['geotiff']['version'],
                                 queue=_steps['geotiff']['queue'],
-                                delete_partial_results=_steps['geotiff']['del_prev_result'], dag=dag)
+                                delete_partial_results=_steps['geotiff']['del_prev_result'],
+                                dag=dag)
     workflow = geotiff
 
 workflow
