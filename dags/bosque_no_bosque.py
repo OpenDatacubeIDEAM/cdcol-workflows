@@ -148,8 +148,7 @@ if _params['genera_mosaico']:
                                   version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
                                   delete_partial_results=_steps['mosaico']['del_prev_result'],
                                   trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
-    # if _params['normalized']:
-    #     normalization = CDColFromFileOperator(task_id="normalization", algorithm="normalization-wf", version="1.0", queue=_queues['normalization'])
+
     workflow = mosaico
 
 if _params['genera_geotiff']:

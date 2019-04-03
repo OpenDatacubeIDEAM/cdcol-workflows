@@ -12,12 +12,12 @@ _params = {
     'lat': (9, 11),
     'lon': (-76, -74),
     'time_ranges': ("2017-01-01", "2017-12-31"),
-    'bands': ["blue", "green", "red", "nir", "swir1", "swir2", "pixel_qa"],
+    'bands': ["red", "nir", "swir1", "swir2"],
     'minValid': 1,
-    'products': ["LS8_OLI_LASRC"],
+    'products': ["LS8_OLI_LASRC", "LS7_ETM_LEDAPS_MOSAIC"],
     'genera_mosaico': True,
     'genera_geotiff': True,
-    'elimina_resultados_anteriores': True
+    'elimina_resultados_anteriores': False
 }
 
 _steps = {
@@ -38,12 +38,23 @@ _steps = {
     'medianas': {
         'algorithm': "compuesto-temporal-medianas-wf",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad',
+                                          time_range=_params['time_ranges'],
                                           unidades=len(_params['products'])),
         'params': {
             'normalized': _params['normalized'],
             'bands': _params['bands'],
             'minValid': _params['minValid'],
+        },
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'normalizacion': {
+        'algorithm': "normalizacion",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_unidad',
+                                          unidades=len(_params['products'])),
+        'params': {
+            'Bands': _params['bands'],
         },
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
@@ -67,7 +78,7 @@ _steps = {
 args = {
     'owner': 'cubo',
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID': "compuesto_de_medianas",
+    'execID': "compuesto_de_medianas_normalizado_tile",
     'product': "LS8_OLI_LASRC"
 }
 
@@ -76,36 +87,27 @@ dag = DAG(
     schedule_interval=None,
     dagrun_timeout=timedelta(minutes=120))
 
-mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
-                                     time_ranges=_params['time_ranges'],
-                                     algorithm=_steps['mascara']['algorithm'], version=_steps['mascara']['version'],
-                                     product=_params['products'][0],
-                                     params=_steps['mascara']['params'],
-                                     queue=_steps['mascara']['queue'], dag=dag,
-                                     task_id="mascara_" + _params['products'][0])
+mascara_ls8 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
+                                       time_ranges=_params['time_ranges'],
+                                       algorithm=_steps['mascara']['algorithm'],
+                                       version=_steps['mascara']['version'],
+                                       product=_params['products'][0],
+                                       params=_steps['mascara']['params'],
+                                       queue=_steps['mascara']['queue'], dag=dag,
+                                       task_id="consulta_cubo_" + _params['products'][0])
 
-if len(_params['products']) > 1:
-    mascara_1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
-                                         time_ranges=_params['time_ranges'],
-                                         algorithm=_steps['mascara']['algorithm'],
-                                         version=_steps['mascara']['version'],
-                                         product=_params['products'][1],
-                                         params=_steps['mascara']['params'],
-                                         queue=_steps['mascara']['queue'], dag=dag,
-                                         task_id="mascara_" + _params['products'][1])
-
-    reduccion = dag_utils.reduceByTile(mascara_0 + mascara_1,
-                                       algorithm=_steps['reduccion']['algorithm'],
-                                       version=_steps['reduccion']['version'],
-                                       queue=_steps['reduccion']['queue'],
-                                       dag=dag, task_id="joined",
-                                       delete_partial_results=_steps['reduccion']['del_prev_result'],
-                                       params=_steps['reduccion']['params'], )
-else:
-    reduccion = mascara_0
+mascara_ls7_mosaic = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
+                                              time_ranges=_params['time_ranges'],
+                                              algorithm='just-query',
+                                              version=_steps['mascara']['version'],
+                                              product=_params['products'][1],
+                                              params=_steps['mascara']['params'],
+                                              queue=_steps['mascara']['queue'],
+                                              dag=dag,
+                                              task_id="consulta_referencia_" + _params['products'][1])
 
 medianas = dag_utils.IdentityMap(
-    reduccion,
+    mascara_ls8,
     algorithm=_steps['medianas']['algorithm'],
     version=_steps['medianas']['version'],
     task_id="medianas",
@@ -113,17 +115,27 @@ medianas = dag_utils.IdentityMap(
     delete_partial_results=_steps['medianas']['del_prev_result'],
     params=_steps['medianas']['params'])
 
-workflow = medianas
+normalizacion = dag_utils.reduceByTile(medianas + mascara_ls7_mosaic,
+                                       algorithm=_steps['normalizacion']['algorithm'],
+                                       version=_steps['normalizacion']['version'],
+                                       queue=_steps['normalizacion']['queue'],
+                                       params=_steps['normalizacion']['params'],
+                                       delete_partial_results=_steps['normalizacion']['del_prev_result'],
+                                       dag=dag, task_id="normalizacion")
+
+workflow = normalizacion
 if _params['genera_mosaico']:
-    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
-                                  version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
+    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic",
+                                  algorithm=_steps['mosaico']['algorithm'],
+                                  version=_steps['mosaico']['version'],
+                                  queue=_steps['mosaico']['queue'],
                                   delete_partial_results=_steps['mosaico']['del_prev_result'],
                                   trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
-
     workflow = mosaico
 
 if _params['genera_geotiff']:
-    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm=_steps['geotiff']['algorithm'],
+    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff",
+                                algorithm=_steps['geotiff']['algorithm'],
                                 version=_steps['geotiff']['version'],
                                 queue=_steps['geotiff']['queue'],
                                 delete_partial_results=_steps['geotiff']['del_prev_result'], dag=dag)
