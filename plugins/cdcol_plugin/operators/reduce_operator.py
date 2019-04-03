@@ -45,8 +45,11 @@ class CDColReduceOperator(BaseOperator):
         if self.str_files is None or len(self.str_files) == 0:
             raise AirflowSkipException("there is not files")
         i=0
-        _files=[ x for x in self.str_files if "{}.nc".format(self.output_type) in x and (self.lat is None or "{}_{}".format(self.lat[0],self.lon[0]) in x) and self.year is None or "_{}_".format(self.year)]
+        _nc_files=[x for x in self.str_files if ".nc" in x]
+        _files=[ x for x in _nc_files if "{}.nc".format(self.output_type) in x and (self.lat is None or "{}_{}".format(self.lat[0],self.lon[0]) in x) and self.year is None or "_{}_".format(self.year)]
         _other_files=[x for x in self.str_files if ".nc" not in x]
+        print(_nc_files)
+        print(_files)
         print(_other_files)
         kwargs=self.alg_kwargs
         xarrs={}
