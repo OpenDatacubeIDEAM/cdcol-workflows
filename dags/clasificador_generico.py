@@ -21,7 +21,7 @@ dag = DAG(
     dagrun_timeout=timedelta(minutes=120))
 
 _params = {
-    'lat': (1, 8),
+    'lat': (2, 7),
     'lon': (-75,-67),
     'time_ranges': ("2016-01-01", "2016-12-31"),
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],

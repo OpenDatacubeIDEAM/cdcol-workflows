@@ -136,7 +136,7 @@ normalizacion = CDColReduceOperator(algorithm=_steps['normalizacion']['algorithm
                                        queue=_steps['normalizacion']['queue'],
                                        params=_steps['normalizacion']['params'],
                                        delete_partial_results=_steps['normalizacion']['del_prev_result'],
-                                       dag=dag, task_id="normalizacion")
+                                       dag=dag, task_id="normalizacion", to_tiff=True)
 
 mosaico >> normalizacion
 mascara_ls7_mosaic >> normalizacion

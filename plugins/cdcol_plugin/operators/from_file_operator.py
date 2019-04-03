@@ -44,7 +44,11 @@ class CDColFromFileOperator(BaseOperator):
         if self.str_files is None or len(self.str_files) == 0:
             raise AirflowSkipException("there are not files")
         i=0
+
+        _nc_files = [x for x in self.str_files if ".nc" in x]
         _files=[ x for x in self.str_files if self.output_type in x]
+        _other_files = [x for x in self.str_files if ".nc" not in x]
+
         kwargs=self.alg_kwargs
         for _f in _files:
             xanm="xarr"+str(i)
@@ -55,6 +59,7 @@ class CDColFromFileOperator(BaseOperator):
         
         kwargs["product"]=self.product
         kwargs["folder"] = folder
+        kwargs["other_files"] = _other_files
         exec(open(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py", encoding='utf-8').read(),kwargs)
         fns=[]
 
