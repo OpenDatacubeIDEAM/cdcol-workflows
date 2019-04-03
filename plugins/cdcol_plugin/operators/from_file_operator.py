@@ -42,7 +42,7 @@ class CDColFromFileOperator(BaseOperator):
         if self.str_files is None:
             self.str_files=common.getUpstreamVariable(self, context)
         if self.str_files is None or len(self.str_files) == 0:
-            raise AirflowSkipException("there is not files")
+            raise AirflowSkipException("there are not files")
         i=0
         _files=[ x for x in self.str_files if self.output_type in x]
         kwargs=self.alg_kwargs
@@ -51,10 +51,10 @@ class CDColFromFileOperator(BaseOperator):
             kwargs[xanm] = common.readNetCDF(_f)
             i+=1
             if len(kwargs[xanm].data_vars) == 0:
-                open(folder+"{}_{}_no_data.lock".format(self.lat[0],self.lon[0]), "w+").close()
-                return []
+                raise AirflowSkipException("No data inside the files ")
         
         kwargs["product"]=self.product
+        kwargs["folder"] = folder
         exec(open(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py", encoding='utf-8').read(),kwargs)
         fns=[]
 
@@ -90,4 +90,6 @@ class CDColFromFileOperator(BaseOperator):
             with open(filename, "w") as text_file:
                 text_file.write(kwargs["outputtxt"])
             fns.append(filename)
+        if "outputxcom" in kwargs:
+            fns.append(kwargs["outputxcom"])
         return fns;

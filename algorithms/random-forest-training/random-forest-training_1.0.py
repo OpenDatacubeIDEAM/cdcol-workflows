@@ -1,4 +1,4 @@
-import os
+import os,posixpath
 import re
 import xarray as xr
 import numpy as np
@@ -67,8 +67,10 @@ training_samples= training_samples[_msk,:]
 training_labels=training_labels[_msk]
 
 classifier = RandomForestClassifier(n_jobs=-1, n_estimators=50, verbose=1)
-print(training_samples)
-print(training_labels)
+
 classifier.fit(training_samples, training_labels)
 
-joblib.dump(classifier,train_data_path+'modelo_random_forest.pkl')
+outputxcom=posixpath.join(folder,'modelo_random_forest.pkl')
+with open(outputxcom, 'wb') as fid:
+    joblib.dump(classifier, fid)
+

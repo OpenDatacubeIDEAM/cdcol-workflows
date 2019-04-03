@@ -67,6 +67,7 @@ class CDColQueryOperator(BaseOperator):
         end = time.time()
         logging.info('TIEMPO CONSULTA:' + str((end - start)))
         kwargs["product"]=self.product
+        kwargs["folder"] = folder
         print(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py")
         path = posixpath.join(common.ALGORITHMS_FOLDER,self.algorithm,self.algorithm+"_"+str(self.version)+".py")
         exec(open(path, encoding='utf-8').read(),kwargs)
@@ -107,4 +108,6 @@ class CDColQueryOperator(BaseOperator):
             with open(filename, "w") as text_file:
                 text_file.write(kwargs["outputtxt"])
             fns.append(filename)
+        if "outputxcom" in kwargs:
+            fns.append(kwargs["outputxcom"])
         return fns;

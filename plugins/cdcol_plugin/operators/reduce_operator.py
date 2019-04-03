@@ -5,7 +5,7 @@ from airflow.models import BaseOperator
 from airflow import utils as airflow_utils
 from cdcol_plugin.operators import common
 from airflow.utils.trigger_rule import TriggerRule
-
+from airflow.exceptions import AirflowException, AirflowSensorTimeout, AirflowSkipException
 
 #This class define the CDColReduceOperator, that will be used to make an reducer
 #Each reduce task of the reducer is a CDColReduceOperator
@@ -52,11 +52,11 @@ class CDColReduceOperator(BaseOperator):
             
             _xarr = common.readNetCDF(_f)
             if len(_xarr.data_vars) == 0:
-                open(folder+"{}_{}_no_data.lock".format(self.lat[0],self.lon[0]), "w+").close()
-                return []
+                raise AirflowSkipException("No data inside the files ")
             xarrs[os.path.basename(_f)]=_xarr
         kwargs["xarrs"]=xarrs
         kwargs["product"]=self.product
+        kwargs["folder"]=folder
         exec(open(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py", encoding='utf-8').read(),kwargs)
         fns=[]
 
@@ -97,4 +97,6 @@ class CDColReduceOperator(BaseOperator):
             with open(filename, "w") as text_file:
                 text_file.write(kwargs["outputtxt"])
             fns.append(filename)
+        if "outputxcom" in kwargs:
+            fns.append(kwargs["outputxcom"])
         return fns;

@@ -21,14 +21,14 @@ dag = DAG(
     dagrun_timeout=timedelta(minutes=120))
 
 _params = {
-    'lat': (10, 11),
-    'lon': (-75, -74),
-    'time_ranges': ("2011-01-01", "2011-12-31"),
+    'lat': (1, 8),
+    'lon': (-75,-67),
+    'time_ranges': ("2016-01-01", "2016-12-31"),
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2"],
     'minValid': 1,
     'normalized': True,
     'modelos': '/web_storage/downloads/models/',
-    'products': ["LS7_ETM_LEDAPS"],
+    'products': ["LS8_OLI_LASRC"],
     'genera_mosaico': True,
     'genera_geotiff': True,
     'elimina_resultados_anteriores': True
@@ -143,20 +143,15 @@ entrenamiento = dag_utils.IdentityMap(
         'train_data_path': _params['modelos'] + args["execID"]
     })
 
-entrenamiento
 
-# clasificador = CDColFromFileOperator(task_id="clasificador_generico", algorithm=_steps['clasificador']['algorithm'], version=_steps['clasificador']['version'], queue=_steps['clasificador']['queue'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params=_steps['clasificador']['params'])
-#
-# workflow = [mosaico >> clasificador]
-#
-# if _steps['clasificador']['del_prev_result']:
-#     eliminar_mosaico = PythonOperator(task_id="del_"+mosaico[0].task_id,
-#                                 provide_context=True,
-#                                 python_callable=other_utils.delete_partial_result,
-#                                 queue='airflow_small',
-#                                 op_kwargs={'algorithm': mosaico[0].algorithm, 'version':mosaico[0].version, 'execID': args['execID'], 'task_id':mosaico[0].task_id},
-#                                 dag=dag)
-#     eliminar_mosaico = workflow >> eliminar_mosaico
+
+clasificador = CDColReduceOperator(task_id="clasificador_generico", algorithm=_steps['clasificador']['algorithm'], version=_steps['clasificador']['version'], queue=_steps['clasificador']['queue'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params=_steps['clasificador']['params'])
+
+
+entrenamiento>>clasificador
+workflow>>clasificador
+
+
 #
 # if _params['genera_geotiff']:
 #     geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm=_steps['geotiff']['algorithm'],
