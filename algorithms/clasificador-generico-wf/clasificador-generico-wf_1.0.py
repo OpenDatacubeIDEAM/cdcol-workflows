@@ -10,7 +10,8 @@ import warnings
 # Preprocesar:
 nmed=None
 nan_mask=None
-medians1 = xarr0
+xarrs=list(xarrs.values())
+medians1 = xarrs[0]
 for band in medians1.data_vars.keys():
     if band == "crs":
         continue
