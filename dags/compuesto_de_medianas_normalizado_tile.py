@@ -114,7 +114,7 @@ medianas = dag_utils.IdentityMap(
     delete_partial_results=_steps['medianas']['del_prev_result'],
     params=_steps['medianas']['params'])
 
-normalizacion = dag_utils.reduceByTile(medianas + mascara_ls7_mosaic,
+normalizacion = dag_utils.reduceByTile(medianas + [mascara_ls7_mosaic],
                                        algorithm=_steps['normalizacion']['algorithm'],
                                        version=_steps['normalizacion']['version'],
                                        queue=_steps['normalizacion']['queue'],
