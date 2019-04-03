@@ -127,12 +127,12 @@ mosaico = dag_utils.OneReduce(medianas, task_id="mosaic",
                               delete_partial_results=_steps['mosaico']['del_prev_result'],
                               trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
 
-normalizacion = dag_utils.reduceByTile(mosaico + [mascara_ls7_mosaic],
-                                       algorithm=_steps['normalizacion']['algorithm'],
+normalizacion = CDColReduceOperator(algorithm=_steps['normalizacion']['algorithm'],
                                        version=_steps['normalizacion']['version'],
                                        queue=_steps['normalizacion']['queue'],
                                        params=_steps['normalizacion']['params'],
                                        delete_partial_results=_steps['normalizacion']['del_prev_result'],
                                        dag=dag, task_id="normalizacion")
 
-normalizacion
+mosaico >> normalizacion
+mascara_ls7_mosaic >> normalizacion
