@@ -14,7 +14,6 @@ _params = {
     'time_ranges': [("2014-01-01", "2014-12-31"), ("2015-01-01", "2015-12-31")],
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2", "pixel_qa"],
     'minValid': 1,
-    'normalized': True,
     'classes':4,
     'products': ["LS8_OLI_LASRC"],
     'genera_mosaico': True,
@@ -43,7 +42,6 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
         'params': {
-            'normalized': _params['normalized'],
             'bands': _params['bands'],
             'minValid': _params['minValid'],
         },

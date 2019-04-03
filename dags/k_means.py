@@ -14,7 +14,6 @@ _params = {
     'time_ranges': ("2017-01-01", "2017-12-31"),
     'bands': ["blue", "green", "red", "nir", "swir1", "swir2", "pixel_qa"],
     'minValid': 1,
-    'normalized': True,
     'classes':4,
     'products': ["LS8_OLI_LASRC"],
     'genera_mosaico': True,
