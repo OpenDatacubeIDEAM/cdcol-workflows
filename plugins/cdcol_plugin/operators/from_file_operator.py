@@ -67,17 +67,23 @@ class CDColFromFileOperator(BaseOperator):
         _fn=os.path.basename(_files[0])
         if "output" in kwargs: #output debería ser un xarray
             #Guardar a un archivo...
-            filename=folder+"{}_{}_{}_{}_{}_output.nc".format(self.task_id,str(self.algorithm),_fn.split("_")[2],_fn.split("_")[3],_fn.split("_")[4])
+
             output=  kwargs["output"]
             if self.to_tiff:
+                filename = folder + "{}_{}_{}_{}_{}_output.tif".format(self.task_id, str(self.algorithm),
+                                                                      _fn.split("_")[2], _fn.split("_")[3],
+                                                                      _fn.split("_")[4])
                 common.write_geotiff_from_xr(filename, output)
             else:
+                filename = folder + "{}_{}_{}_{}_{}_output.nc".format(self.task_id, str(self.algorithm),
+                                                                      _fn.split("_")[2], _fn.split("_")[3],
+                                                                      _fn.split("_")[4])
                 common.saveNC(output,filename, history)
             fns.append(filename)
         if "outputs" in kwargs:
             if self.to_tiff:
                 for xa in kwargs["outputs"]:
-                    filename = folder + "{}_{}_{}_{}_{}_{}.nc".format(self.task_id, str(self.algorithm),
+                    filename = folder + "{}_{}_{}_{}_{}_{}.tif".format(self.task_id, str(self.algorithm),
                                                                       _fn.split("_")[2], _fn.split("_")[3],
                                                                       _fn.split("_")[4], xa)
                     common.write_geotiff_from_xr(filename, kwargs["outputs"][xa])

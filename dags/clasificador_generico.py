@@ -93,13 +93,6 @@ _steps = {
             'modelos': _params['modelos'] + args["execID"]
         },
         'del_prev_result': _params['elimina_resultados_anteriores'],
-    },
-    'geotiff': {
-        'algorithm': "generate-geotiff",
-        'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
-        'params': {},
-        'del_prev_result': False,
     }
 
 }
@@ -167,7 +160,7 @@ clasificador = CDColReduceOperator(task_id="clasificador_generico",
                                    queue=_steps['clasificador']['queue'],
                                    dag=dag,
                                    lat=_params['lat'], lon=_params['lon'],
-                                   params=_steps['clasificador']['params'])
+                                   params=_steps['clasificador']['params'], to_tiff=True)
 
 
 entrenamiento>>clasificador

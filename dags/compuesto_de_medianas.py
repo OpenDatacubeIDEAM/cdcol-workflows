@@ -52,13 +52,6 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
         'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
-    },
-    'geotiff': {
-        'algorithm': "generate-geotiff",
-        'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
-        'params': {},
-        'del_prev_result': False,
     }
 
 }
@@ -110,7 +103,7 @@ medianas = dag_utils.IdentityMap(
     task_id="medianas",
     queue=_steps['medianas']['queue'], dag=dag,
     delete_partial_results=_steps['medianas']['del_prev_result'],
-    params=_steps['medianas']['params'])
+    params=_steps['medianas']['params'], to_tiff= not _params['genera_mosaico'])
 
 workflow = medianas
 if _params['genera_mosaico']:
@@ -119,17 +112,8 @@ if _params['genera_mosaico']:
                                   version=_steps['mosaico']['version'],
                                   queue=_steps['mosaico']['queue'],
                                   delete_partial_results=_steps['mosaico']['del_prev_result'],
-                                  trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+                                  trigger_rule=TriggerRule.NONE_FAILED, dag=dag, to_tiff=True)
 
     workflow = mosaico
-
-if _params['genera_geotiff']:
-    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff",
-                                algorithm=_steps['geotiff']['algorithm'],
-                                version=_steps['geotiff']['version'],
-                                queue=_steps['geotiff']['queue'],
-                                delete_partial_results=_steps['geotiff']['del_prev_result'],
-                                dag=dag)
-    workflow = geotiff
 
 workflow

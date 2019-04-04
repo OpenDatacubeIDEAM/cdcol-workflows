@@ -76,11 +76,17 @@ class CDColQueryOperator(BaseOperator):
         history = u'Creado con CDCOL con el algoritmo {} y  ver. {}'.format(self.algorithm,str(self.version))
         if "output" in kwargs: #output debería ser un xarray
             #Guardar a un archivo...
-            filename=folder+"{}_{}_{}_{}_{}_output.nc".format(self.task_id,str(self.algorithm),self.lat[0],self.lon[0],re.sub('[^\w_.)(-]', '', str(self.time_ranges)))
+
             output=  kwargs["output"]
             if self.to_tiff:
+                filename = folder + "{}_{}_{}_{}_{}_output.tif".format(self.task_id, str(self.algorithm), self.lat[0],
+                                                                      self.lon[0],
+                                                                      re.sub('[^\w_.)(-]', '', str(self.time_ranges)))
                 common.write_geotiff_from_xr(filename, output)
             else:
+                filename = folder + "{}_{}_{}_{}_{}_output.nc".format(self.task_id, str(self.algorithm), self.lat[0],
+                                                                      self.lon[0],
+                                                                      re.sub('[^\w_.)(-]', '', str(self.time_ranges)))
                 common.saveNC(output,filename, history)
             fns.append(filename)
         if "outputs" in kwargs:
@@ -89,7 +95,7 @@ class CDColQueryOperator(BaseOperator):
             if self.to_tiff:
 
                 for xa in kwargs["outputs"]:
-                    filename = folder + "{}_{}_{}_{}_{}_{}.nc".format(self.task_id, str(self.algorithm), self.lat[0],
+                    filename = folder + "{}_{}_{}_{}_{}_{}.tif".format(self.task_id, str(self.algorithm), self.lat[0],
                                                                       self.lon[0],
                                                                       re.sub('[^\w_.)(-]', '', str(self.time_ranges)),
                                                                       xa)

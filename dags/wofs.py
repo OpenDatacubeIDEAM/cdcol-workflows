@@ -14,7 +14,6 @@ _params = {
     'time_ranges': ("2015-01-01", "2017-12-31"),
     'products': ["LS8_OLI_LASRC"],
     'genera_mosaico': True,
-    'genera_geotiff': True,
     'elimina_resultados_anteriores': True
 }
 
@@ -46,13 +45,6 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
         'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
-    },
-    'geotiff': {
-        'algorithm': "generate-geotiff",
-        'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
-        'params': {},
-        'del_prev_result': False,
     }
 
 }
@@ -86,7 +78,7 @@ reduccion = dag_utils.reduceByTile(wofs, algorithm=_steps['reduccion']['algorith
 serie_tiempo=dag_utils.IdentityMap( reduccion, algorithm=_steps['serie_tiempo']['algorithm'],
         version=_steps['serie_tiempo']['version'], task_id="wofs_serie_tiempo",
         queue=_steps['serie_tiempo']['queue'], delete_partial_results=_steps['serie_tiempo']['del_prev_result'],
-        dag=dag
+        dag=dag,  to_tiff= not _params['genera_mosaico']
 )
 
 workflow = serie_tiempo
@@ -94,14 +86,8 @@ if _params['genera_mosaico']:
     mosaico = dag_utils.OneReduce(workflow, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
                                   version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
                                   delete_partial_results=_steps['mosaico']['del_prev_result'],
-                                  trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+                                  trigger_rule=TriggerRule.NONE_FAILED, dag=dag, to_tiff=True)
     workflow = mosaico
 
-if _params['genera_geotiff']:
-    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm=_steps['geotiff']['algorithm'],
-                                version=_steps['geotiff']['version'],
-                                queue=_steps['geotiff']['queue'],
-                                delete_partial_results=_steps['geotiff']['del_prev_result'], dag=dag)
-    workflow = geotiff
 
 workflow

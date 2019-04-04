@@ -60,13 +60,6 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
         'params': {'classes': _params['classes']},
         'del_prev_result': _params['elimina_resultados_anteriores'],
-    },
-    'geotiff': {
-        'algorithm': "generate-geotiff",
-        'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
-        'params': {},
-        'del_prev_result': False,
     }
 
 }
@@ -123,24 +116,12 @@ mosaico = dag_utils.OneReduce(medianas, task_id="mosaic", algorithm=_steps['mosa
                                   delete_partial_results=_steps['mosaico']['del_prev_result'],
                                   trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
 
-kmeans = CDColFromFileOperator(task_id="k_means", algorithm=_steps['k_means']['algorithm'], version=_steps['k_means']['version'], queue=_steps['k_means']['queue'], dag=dag,  lat=_params['lat'], lon=_params['lon'], params=_steps['k_means']['params'])
+kmeans = CDColFromFileOperator(task_id="k_means",
+                               algorithm=_steps['k_means']['algorithm'],
+                               version=_steps['k_means']['version'],
+                               queue=_steps['k_means']['queue'], dag=dag,
+                               lat=_params['lat'], lon=_params['lon'],
+                               params=_steps['k_means']['params'], to_tiff=True)
 
-workflow = [mosaico >> kmeans]
+mosaico >> kmeans
 
-if _steps['k_means']['del_prev_result']:
-    eliminar_mosaico = PythonOperator(task_id="del_"+mosaico[0].task_id,
-                                provide_context=True,
-                                python_callable=other_utils.delete_partial_result,
-                                queue='airflow_small',
-                                op_kwargs={'algorithm': mosaico[0].algorithm, 'version':mosaico[0].version, 'execID': args['execID'], 'task_id':mosaico[0].task_id},
-                                dag=dag)
-    eliminar_mosaico = workflow >> eliminar_mosaico
-    eliminar_mosaico
-
-if _params['genera_geotiff']:
-    geotiff = dag_utils.BashMap(workflow, task_id="generate-geotiff", algorithm=_steps['geotiff']['algorithm'],
-                                version=_steps['geotiff']['version'],
-                                queue=_steps['geotiff']['queue'],
-                                delete_partial_results=_steps['geotiff']['del_prev_result'], dag=dag)
-
-workflow
