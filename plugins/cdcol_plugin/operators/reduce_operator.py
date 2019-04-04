@@ -77,23 +77,25 @@ class CDColReduceOperator(BaseOperator):
 
         if "output" in kwargs: #output debería ser un xarray
             #Guardar a un archivo...
-            filename=folder+"{}_output.nc".format(_exp )
+
             output=  kwargs["output"]
             if self.to_tiff:
+                filename = folder + "{}_output.tif".format(_exp)
                 common.write_geotiff_from_xr(filename, output)
             else:
+                filename = folder + "{}_output.nc".format(_exp)
                 common.saveNC(output,filename, history)
             fns.append(filename)
         if "outputs" in kwargs:
             if self.to_tiff:
                 common.write_geotiff_from_xr(filename, ouput, bands)
                 for xa in kwargs["outputs"]:
-                    filename = folder + "{}_{}.nc".format(_exp, xa)
+                    filename = folder + "{}_{}.tif".format(_exp, xa)
                     common.write_geotiff_from_xr(filename, kwargs["outputs"][xa])
                     fns.append(filename)
             else:
                 for xa in kwargs["outputs"]:
-                    filename = folder + "{}_{}.nc".format(_exp, xa)
+                    filename = folder + "{}_{}.tif".format(_exp, xa)
                     common.saveNC(kwargs["outputs"][xa], filename, history)
                     fns.append(filename)
         if "outputtxt" in kwargs:
