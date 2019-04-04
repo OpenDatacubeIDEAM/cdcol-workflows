@@ -41,7 +41,6 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
                                           unidades=len(_params['products'])),
         'params': {
-            'normalized': _params['normalized'],
             'bands': _params['bands'],
             'minValid': _params['minValid'],
         },
