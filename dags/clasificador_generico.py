@@ -147,7 +147,7 @@ if queue_utils.get_tiles(_params['lat'],_params['lon'])>1:
 
 entrenamiento = dag_utils.IdentityMap(
     workflow,
-    algorithm=_steps['entrenamiento']['version'],
+    algorithm=_steps['entrenamiento']['algorithm'],
     version=_steps['entrenamiento']['version'],
     task_id="entrenamiento",
     queue=_steps['entrenamiento']['queue'], dag=dag,
