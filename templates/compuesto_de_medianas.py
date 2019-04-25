@@ -8,19 +8,7 @@ from airflow.utils.trigger_rule import TriggerRule
 from datetime import timedelta
 from pprint import pprint
 
-_params = {
-    'execID': "compuesto_de_medianas",
-    'owner':"cubo",
-    'lat': (9, 11),
-    'lon': (-76, -74),
-    'time_ranges': ("2017-01-01", "2017-12-31"),
-    'bands': ["blue", "green", "red", "nir", "swir1", "swir2", "pixel_qa"],
-    'minValid': 1,
-    'products': ["LS8_OLI_LASRC"],
-    'genera_mosaico': True,
-    'genera_geotiff': True,
-    'elimina_resultados_anteriores': True
-}
+_params = {{params}}
 
 _steps = {
     'mascara': {
