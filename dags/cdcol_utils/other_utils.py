@@ -17,3 +17,6 @@ def delete_partial_result(algorithm, version, execID, task_id, **kwargs):
         print(files)
         for f in files:
             os.remove(f)
+
+        if len(os.listdir(folder)) == 0:
+            shutil.rmtree(folder, ignore_errors=True)
