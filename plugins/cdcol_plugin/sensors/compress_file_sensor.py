@@ -9,6 +9,7 @@ class CompressFileSensor(BaseSensorOperator):
     the `poke` method inherited from `BaseSensorOperator`
     """
 
+    @airflow_utils.apply_defaults
     def __init__(self, execID, *args, **kwargs):
         super(CompressFileSensor, self).__init__(*args, **kwargs)
         self.execID = execID
