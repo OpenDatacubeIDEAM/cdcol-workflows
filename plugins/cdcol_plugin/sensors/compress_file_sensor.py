@@ -24,4 +24,5 @@ class CompressFileSensor(BaseSensorOperator):
         tasks_failed = len(dag_run.get_task_instances(state=State.FAILED))
         tasks_skiped = len(dag_run.get_task_instances(state=State.SKIPPED))
         tasks_queued = len(dag_run.get_task_instances(state=State.QUEUED))
+        total_tasks = len(dag_run.get_task_instances())
         return (tasks_failed+tasks_sucess+tasks_skiped)==(total_tasks-2) and tasks_queued==1
