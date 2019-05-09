@@ -10,7 +10,10 @@ class CompressFileSensor(BaseSensorOperator):
     """
 
     @airflow_utils.apply_defaults
-    def __init__(self, execID,poke_interval=90, soft_fail=True,mode='reschedule',*args, **kwargs):
+    def __init__(self, execID,*args, **kwargs):
+        self.mode = 'reschedule'
+        self.poke_interval = 90
+        self.soft_fail = True
         super(CompressFileSensor, self).__init__(*args, **kwargs)
         self.execID = execID
 
@@ -25,4 +28,4 @@ class CompressFileSensor(BaseSensorOperator):
         tasks_skiped = len(dag_run.get_task_instances(state=State.SKIPPED))
         tasks_queued = len(dag_run.get_task_instances(state=State.QUEUED))
         total_tasks = len(dag_run.get_task_instances())
-        return (tasks_failed+tasks_sucess+tasks_skiped)==(total_tasks-2) and tasks_queued==1
+        return (tasks_failed+tasks_sucess+tasks_skiped)==(total_tasks-2)
