@@ -57,7 +57,7 @@ def saveNC(output,filename,history):
 def readNetCDF(file):
     start = time.time()
     try:
-        _xarr=xr.open_dataset(file, mask_and_scale=False)
+        _xarr=xr.open_dataset(file, mask_and_scale=True)
         if _xarr.data_vars['crs'] is not None:
             _xarr.attrs['crs']= _xarr.data_vars['crs']
             _xarr = _xarr.drop('crs')
@@ -117,5 +117,6 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
             transform=_get_transform_from_xr(dataset),
             nodata=no_data) as dst:
         for index, band in enumerate(bands):
-            dst.write(dataset[band].values, index + 1)
+            dst.write_band(index + 1, dataset[band].values.astype(dataset[bands[0]].dtype), )
+            dst.set_band_description(index + 1, band)
         dst.close()
