@@ -5,13 +5,13 @@ from airflow.models import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator, CDColBashOperator
 from cdcol_utils import other_utils
-
+from cdcol_plugin.operators import common
 from datetime import timedelta, datetime
 from dateutil.relativedelta import relativedelta
 from pprint import pprint
 
 
-def queryMapByTile(lat, lon, time_ranges, queue, dag, algorithm, version, params={}, to_tiff=False, task_id="med", **kwargs):
+def queryMapByTile(lat, lon, time_ranges, queue, dag, algorithm, version, params={}, to_tiff=False, task_id="med", alg_folder=common.ALGORITHMS_FOLDER,  **kwargs):
     return [CDColQueryOperator(
         algorithm=algorithm, version=version,
         lat=(LAT, LAT + 1),
@@ -20,11 +20,12 @@ def queryMapByTile(lat, lon, time_ranges, queue, dag, algorithm, version, params
         params=params,
         queue=queue,
         to_tiff=to_tiff,
+        alg_folder=alg_folder,
         dag=dag, task_id="{}{}{}".format(task_id, str(LAT), str(LON)), **kwargs) for LAT in range(*lat) for LON in
         range(*lon)]
 
 
-def queryMapByTileByYear(lat, lon, time_ranges, queue, dag, algorithm, version, params={}, to_tiff=False, task_id="med", **kwargs):
+def queryMapByTileByYear(lat, lon, time_ranges, queue, dag, algorithm, version, params={}, to_tiff=False, task_id="med", alg_folder=common.ALGORITHMS_FOLDER, **kwargs):
     return [CDColQueryOperator(
         algorithm=algorithm, version=version,
         lat=(LAT, LAT + 1),
@@ -33,12 +34,13 @@ def queryMapByTileByYear(lat, lon, time_ranges, queue, dag, algorithm, version, 
         params=params,
         queue=queue,
         to_tiff=to_tiff,
+        alg_folder=alg_folder,
         dag=dag, task_id="{}{}{}_{}".format(task_id, str(LAT), str(LON), "01-01-" + str(T) + "_31-12-" + str(T)),
         **kwargs) for LAT in range(*lat) for LON in range(*lon) for T in
         range(int(time_ranges[0].split('-')[0]), (int(time_ranges[1].split('-')[0])) + 1)]
 
 
-def queryMapByTileByMonths(lat, lon, time_ranges, queue, dag, algorithm, version, params={}, months=12, to_tiff=False, task_id="med",
+def queryMapByTileByMonths(lat, lon, time_ranges, queue, dag, algorithm, version, params={}, months=12, to_tiff=False, task_id="med", alg_folder=common.ALGORITHMS_FOLDER,
                            **kwargs):
     tasks = []
 
@@ -55,6 +57,7 @@ def queryMapByTileByMonths(lat, lon, time_ranges, queue, dag, algorithm, version
                                                 params=params,
                                                 queue=queue,
                                                 to_tiff=to_tiff,
+                                                alg_folder=alg_folder,
                                                 dag=dag, task_id="{}{}{}_{}_{}".format(task_id, str(LAT), str(LON),
                                                                                        start.strftime('%d-%m-%Y'), (
                                                                                                    start + relativedelta(

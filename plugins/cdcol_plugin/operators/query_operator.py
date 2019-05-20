@@ -19,7 +19,7 @@ logging.getLogger().addHandler(logging.StreamHandler())
 
 class CDColQueryOperator(BaseOperator):
     @airflow_utils.apply_defaults
-    def __init__(self, execID, algorithm,version, product, lat, lon, time_ranges, params={},  to_tiff=False, *args,**kwargs):
+    def __init__(self, execID, algorithm,version, product, lat, lon, time_ranges, params={},  to_tiff=False, alg_folder=common.ALGORITHMS_FOLDER, *args,**kwargs):
         """
             algorithm: algorithm to execute over the query results
             version: algorithm version
@@ -39,6 +39,7 @@ class CDColQueryOperator(BaseOperator):
         self.folder = "{}/{}/{}_{}/".format(common.RESULTS_FOLDER, execID,algorithm,version)
         self.product = product
         self.to_tiff = to_tiff
+        self.alg_folder= alg_folder
      
     def execute(self, context):
         if not os.path.exists(os.path.dirname(self.folder)):
@@ -68,8 +69,7 @@ class CDColQueryOperator(BaseOperator):
         logging.info('TIEMPO CONSULTA:' + str((end - start)))
         kwargs["product"]=self.product
         kwargs["folder"] = folder
-        print(common.ALGORITHMS_FOLDER+"/"+self.algorithm+"/"+self.algorithm+"_"+str(self.version)+".py")
-        path = posixpath.join(common.ALGORITHMS_FOLDER,self.algorithm,self.algorithm+"_"+str(self.version)+".py")
+        path = posixpath.join(self.alg_folder,self.algorithm,self.algorithm+"_"+str(self.version)+".py")
         exec(open(path, encoding='utf-8').read(),kwargs)
         fns=[]
 

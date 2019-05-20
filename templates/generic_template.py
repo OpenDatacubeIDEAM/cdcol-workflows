@@ -4,7 +4,7 @@ from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColRe
 from airflow.operators.python_operator import PythonOperator
 from cdcol_utils import dag_utils, queue_utils, other_utils
 from airflow.utils.trigger_rule import TriggerRule
-
+from cdcol_plugin.operators import common
 from datetime import timedelta
 from pprint import pprint
 
@@ -14,7 +14,7 @@ _steps = {
     'generic-step': {
         'algorithm': _params['algorithm_name'],
         'version': _params['algorithm_version'],
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'], unidades=len(_params['products'])),
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0], unidades=len(_params['products'])),
         'params': _params,
     },
     'mosaico': {
@@ -39,12 +39,12 @@ dag = DAG(
     dagrun_timeout=timedelta(minutes=120))
 
 generic_step = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
-                                     time_ranges=_params['time_ranges'],
+                                     time_ranges=_params['time_ranges'][0],
                                      algorithm=_steps['generic-step']['algorithm'], version=_steps['generic-step']['version'],
                                      product=_params['products'][0],
                                      params=_steps['generic-step']['params'],
                                      queue=_steps['generic-step']['queue'], dag=dag,
-                                     task_id="generic-step_" + _params['products'][0], to_tiff=not _params['genera_mosaico'])
+                                     task_id="generic-step_" + _params['products'][0], to_tiff=not _params['genera_mosaico'], alg_folder=common.COMPLETE_ALGORITHMS_FOLDER)
 
 workflow = generic_step
 if _params['genera_mosaico']:
