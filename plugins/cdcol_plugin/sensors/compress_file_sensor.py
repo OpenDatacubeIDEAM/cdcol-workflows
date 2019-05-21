@@ -30,7 +30,7 @@ class CompressFileSensor(BaseSensorOperator):
         tasks_upstream_failed = len(dag_run.get_task_instances(state=State.UPSTREAM_FAILED))
         tasks_queued = len(dag_run.get_task_instances(state=State.QUEUED))
         total_tasks = len(dag_run.get_task_instances())
-        if((tasks_failed+tasks_upstream_failed+tasks_skiped)==(total_tasks-2)):
+        if((tasks_failed+tasks_upstream_failed+tasks_skiped+tasks_sucess)==(total_tasks-2)):
             raise AirflowSkipException("ERROR: Todas las tareas fallaron. No hay resultados para comprimir")
         else:
             return (tasks_failed+tasks_sucess+tasks_skiped)==(total_tasks-2)
