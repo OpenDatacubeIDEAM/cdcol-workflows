@@ -8,28 +8,19 @@ from airflow.utils.trigger_rule import TriggerRule
 from datetime import timedelta
 from pprint import pprint
 
-_params = {
-    'lat': (4, 6),
-    'lon': (-74, -72),
-    'time_ranges': ("2017-01-01", "2017-12-31"),
-    'bands': ["blue", "green", "red", "nir", "swir1", "swir2", "pixel_qa"],
-    'minValid': 1,
-    'products': ["LS8_OLI_LASRC"],
-    'genera_mosaico': True,
-    'elimina_resultados_anteriores': True
-}
+_params = {{params}}
 
 _steps = {
     'mascara': {
         'algorithm': "mascara-landsat",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),
+        'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges'][0]),
         'params': {'bands': _params['bands']},
     },
     'reduccion': {
         'algorithm': "joiner-reduce",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
         'params': {'bands': _params['bands']},
         'del_prev_result': _params['elimina_resultados_anteriores'],
@@ -37,7 +28,7 @@ _steps = {
     'medianas': {
         'algorithm': "compuesto-temporal-medianas-wf",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
         'params': {
             'bands': _params['bands'],
@@ -63,9 +54,9 @@ _steps = {
 }
 
 args = {
-    'owner': 'cubo',
+    'owner': _params['owner'],
     'start_date': airflow.utils.dates.days_ago(2),
-    'execID': "ndvi",
+    'execID': _params['execID'],
     'product': "LS8_OLI_LASRC"
 }
 
@@ -75,7 +66,7 @@ dag = DAG(
     dagrun_timeout=timedelta(minutes=120))
 
 mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
-                                     time_ranges=_params['time_ranges'],
+                                     time_ranges=_params['time_ranges'][0],
                                      algorithm=_steps['mascara']['algorithm'], version=_steps['mascara']['version'],
                                      product=_params['products'][0],
                                      params=_steps['mascara']['params'],
@@ -84,7 +75,7 @@ mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 
 if len(_params['products']) > 1:
     mascara_1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
-                                         time_ranges=_params['time_ranges'],
+                                         time_ranges=_params['time_ranges'][0],
                                          algorithm=_steps['mascara']['algorithm'],
                                          version=_steps['mascara']['version'],
                                          product=_params['products'][1],
