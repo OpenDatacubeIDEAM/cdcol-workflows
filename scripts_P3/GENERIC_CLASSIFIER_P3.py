@@ -59,11 +59,11 @@ for band in bands:
 
 model = None
 for file in os.listdir(modelo):
-    print file
+    print(file)
     if file.endswith(".pkl"):
         model = file
         break
-print model
+print(model)
 if model is None:
     raise "Debería haber un modelo en la carpeta " + modelo
 
@@ -82,8 +82,7 @@ for x in nbar.coords:
         ncoords.append( ( x, nbar.coords[x]) )
         xdims.append(x)
         xcords[x]=nbar.coords[x]
-variables ={"classified": xr.DataArray(result, dims=xdims,coords=ncoords)
-            
+variables ={"classified": xr.DataArray(result, dims=xdims,coords=ncoords)}
 output=xr.Dataset(variables, attrs={'crs':nbar.crs})
 for x in output.coords:
     output.coords[x].attrs["units"]=nbar.coords[x].units

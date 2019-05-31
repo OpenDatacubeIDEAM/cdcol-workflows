@@ -78,7 +78,7 @@ mascara_periodo_1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lo
                                      product=_params['products'][0],
                                      params=_steps['mascara']['params'],
                                      queue=_steps['mascara']['queue'], dag=dag,
-                                     task_id="mascara_p1_" + _params['products'][0])
+                                     task_id="mascara_p1_" + _params['products'][0]['name'])
 
 mascara_periodo_2 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                      time_ranges=_params['time_ranges'][1],
@@ -86,11 +86,12 @@ mascara_periodo_2 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lo
                                      product=_params['products'][0],
                                      params=_steps['mascara']['params'],
                                      queue=_steps['mascara']['queue'], dag=dag,
-                                     task_id="mascara_p2_" + _params['products'][0])
+                                     task_id="mascara_p2_" + _params['products'][0]['name'])
 
 medianas_periodo_1 = dag_utils.IdentityMap(
     mascara_periodo_1,
     algorithm=_steps['medianas']['algorithm'],
+    product=_params['products'][0],
     version=_steps['medianas']['version'],
     task_id="medianas_p1_",
     queue=_steps['medianas']['queue'], dag=dag,
@@ -100,6 +101,7 @@ medianas_periodo_1 = dag_utils.IdentityMap(
 medianas_periodo_2 = dag_utils.IdentityMap(
     mascara_periodo_2,
     algorithm=_steps['medianas']['algorithm'],
+    product=_params['products'][0],
     version=_steps['medianas']['version'],
     task_id="medianas_p2_",
     queue=_steps['medianas']['queue'], dag=dag,

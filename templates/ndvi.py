@@ -71,7 +71,7 @@ mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                      product=_params['products'][0],
                                      params=_steps['mascara']['params'],
                                      queue=_steps['mascara']['queue'], dag=dag,
-                                     task_id="mascara_" + _params['products'][0])
+                                     task_id="mascara_" + _params['products'][0]['name'])
 
 if len(_params['products']) > 1:
     mascara_1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
@@ -81,9 +81,10 @@ if len(_params['products']) > 1:
                                          product=_params['products'][1],
                                          params=_steps['mascara']['params'],
                                          queue=_steps['mascara']['queue'], dag=dag,
-                                         task_id="mascara_" + _params['products'][1])
+                                         task_id="mascara_" + _params['products'][1]['name'])
 
     reduccion = dag_utils.reduceByTile(mascara_0 + mascara_1, algorithm=_steps['reduccion']['algorithm'],
+                                       product=_params['products'][0],
                                        version=_steps['reduccion']['version'],
                                        queue=_steps['reduccion']['queue'], dag=dag, task_id="joined",
                                        delete_partial_results=_steps['reduccion']['del_prev_result'],
@@ -93,6 +94,7 @@ else:
 
 medianas = dag_utils.IdentityMap(
     reduccion,
+    product=_params['products'][0],
     algorithm=_steps['medianas']['algorithm'],
     version=_steps['medianas']['version'],
     task_id="medianas",
