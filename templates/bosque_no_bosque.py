@@ -14,13 +14,13 @@ _steps = {
     'mascara': {
         'algorithm': "mascara-landsat",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges'][0]),
+        'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),
         'params': {'bands': _params['bands']},
     },
     'reduccion': {
         'algorithm': "joiner-reduce",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
                                           unidades=len(_params['products'])),
         'params': {'bands': _params['bands']},
         'del_prev_result': _params['elimina_resultados_anteriores'],
@@ -28,11 +28,30 @@ _steps = {
     'medianas': {
         'algorithm': "compuesto-temporal-medianas-wf",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
                                           unidades=len(_params['products'])),
         'params': {
+            'normalized': _params['normalized'],
             'bands': _params['bands'],
             'minValid': _params['minValid'],
+        },
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'ndvi': {
+        'algorithm': "ndvi-wf",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(),
+        'params': {},
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'bosque': {
+        'algorithm': "bosque-no-bosque-wf",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(),
+        'params': {
+            'ndvi_threshold': _params['ndvi_threshold'],
+            'vegetation_rate': _params['vegetation_rate'],
+            'slice_size': _params['slice_size']
         },
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
@@ -43,7 +62,6 @@ _steps = {
         'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     }
-
 }
 
 args = {
@@ -52,14 +70,15 @@ args = {
     'execID': _params['execID'],
     'product': "LS8_OLI_LASRC"
 }
-
 dag = DAG(
-    dag_id=args['execID'], default_args=args,
+    dag_id=args["execID"], default_args=args,
     schedule_interval=None,
-    dagrun_timeout=timedelta(minutes=120))
+    dagrun_timeout=timedelta(minutes=20)
+)
+
 
 mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
-                                     time_ranges=_params['time_ranges'][0],
+                                     time_ranges=_params['time_ranges'],
                                      algorithm=_steps['mascara']['algorithm'], version=_steps['mascara']['version'],
                                      product=_params['products'][0],
                                      params=_steps['mascara']['params'],
@@ -68,7 +87,7 @@ mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 
 if len(_params['products']) > 1:
     mascara_1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
-                                         time_ranges=_params['time_ranges'][0],
+                                         time_ranges=_params['time_ranges'],
                                          algorithm=_steps['mascara']['algorithm'],
                                          version=_steps['mascara']['version'],
                                          product=_params['products'][1],
@@ -76,12 +95,10 @@ if len(_params['products']) > 1:
                                          queue=_steps['mascara']['queue'], dag=dag,
                                          task_id="mascara_" + _params['products'][1]['name'])
 
-    reduccion = dag_utils.reduceByTile(mascara_0 + mascara_1,
+    reduccion = dag_utils.reduceByTile(mascara_0 + mascara_1, algorithm=_steps['reduccion']['algorithm'],
                                        product=_params['products'][0],
-                                       algorithm=_steps['reduccion']['algorithm'],
                                        version=_steps['reduccion']['version'],
-                                       queue=_steps['reduccion']['queue'],
-                                       dag=dag, task_id="joined",
+                                       queue=_steps['reduccion']['queue'], dag=dag, task_id="joined",
                                        delete_partial_results=_steps['reduccion']['del_prev_result'],
                                        params=_steps['reduccion']['params'], )
 else:
@@ -95,14 +112,21 @@ medianas = dag_utils.IdentityMap(
     task_id="medianas",
     queue=_steps['medianas']['queue'], dag=dag,
     delete_partial_results=_steps['medianas']['del_prev_result'],
-    params=_steps['medianas']['params'], to_tiff= not _params['genera_mosaico'])
+    params=_steps['medianas']['params'])
 
-workflow = medianas
+ndvi = dag_utils.IdentityMap(medianas, algorithm=_steps['ndvi']['algorithm'], version=_steps['ndvi']['version'],
+                             queue=_steps['ndvi']['queue'], delete_partial_results=_steps['ndvi']['del_prev_result'],
+                             dag=dag, task_id="ndvi")
+
+bosque = dag_utils.IdentityMap(ndvi, algorithm=_steps['bosque']['algorithm'],
+    version=_steps['bosque']['version'], params=_steps['bosque']['params'],
+    queue=_steps['bosque']['queue'], delete_partial_results=_steps['ndvi']['del_prev_result'], dag=dag,
+    task_id="bosque", to_tiff= not _params['genera_mosaico'] )
+
+workflow = bosque
 if _params['genera_mosaico']:
-    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic",
-                                  algorithm=_steps['mosaico']['algorithm'],
-                                  version=_steps['mosaico']['version'],
-                                  queue=_steps['mosaico']['queue'],
+    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
+                                  version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
                                   delete_partial_results=_steps['mosaico']['del_prev_result'],
                                   trigger_rule=TriggerRule.NONE_FAILED, dag=dag, to_tiff=True)
 

@@ -44,7 +44,7 @@ generic_step = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                      product=_params['products'][0],
                                      params=_steps['generic-step']['params'],
                                      queue=_steps['generic-step']['queue'], dag=dag,
-                                     task_id="generic-step_" + _params['products'][0], to_tiff=not _params['genera_mosaico'], alg_folder=common.COMPLETE_ALGORITHMS_FOLDER)
+                                     task_id="generic-step_" + _params['products'][0]['name'], to_tiff=not _params['genera_mosaico'], alg_folder=common.COMPLETE_ALGORITHMS_FOLDER)
 
 workflow = generic_step
 if _params['genera_mosaico']:
