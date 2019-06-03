@@ -24,7 +24,7 @@ logging.getLogger().addHandler(logging.StreamHandler())
 
 ALGORITHMS_FOLDER = "/web_storage/algorithms/workflows"
 COMPLETE_ALGORITHMS_FOLDER="/web_storage/algorithms"
-RESULTS_FOLDER = "/source_storage/results"
+RESULTS_FOLDER = "/web_storage/results"
 nodata=-9999
 
 def saveNC(output,filename,history):
