@@ -97,7 +97,7 @@ mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                      product=_params['products'][0],
                                      params=_steps['mascara']['params'],
                                      queue=_steps['mascara']['queue'], dag=dag,
-                                     task_id="mascara_" + _params['products'][0])
+                                     task_id="mascara_" + _params['products'][0]['name'])
 
 if len(_params['products']) > 1:
     mascara_1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
@@ -107,7 +107,7 @@ if len(_params['products']) > 1:
                                          product=_params['products'][1],
                                          params=_steps['mascara']['params'],
                                          queue=_steps['mascara']['queue'], dag=dag,
-                                         task_id="mascara_" + _params['products'][1])
+                                         task_id="mascara_" + _params['products'][1]['name'])
 
     reduccion = dag_utils.reduceByTile(mascara_0 + mascara_1, algorithm=_steps['reduccion']['algorithm'],
                                        version=_steps['reduccion']['version'],
