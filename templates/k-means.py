@@ -31,27 +31,8 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
                                           unidades=len(_params['products'])),
         'params': {
-            'normalized': _params['normalized'],
             'bands': _params['bands'],
             'minValid': _params['minValid'],
-        },
-        'del_prev_result': _params['elimina_resultados_anteriores'],
-    },
-    'ndvi': {
-        'algorithm': "ndvi-wf",
-        'version': '1.0',
-        'queue': queue_utils.assign_queue(),
-        'params': {},
-        'del_prev_result': _params['elimina_resultados_anteriores'],
-    },
-    'bosque': {
-        'algorithm': "bosque-no-bosque-wf",
-        'version': '1.0',
-        'queue': queue_utils.assign_queue(),
-        'params': {
-            'ndvi_threshold': _params['ndvi_threshold'],
-            'vegetation_rate': _params['vegetation_rate'],
-            'slice_size': _params['slice_size']
         },
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
@@ -61,7 +42,15 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
         'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
+    },
+    'k_means': {
+        'algorithm': "k-means-wf",
+        'version': '1.0',
+        'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
+        'params': {'classes': _params['classes']},
+        'del_prev_result': _params['elimina_resultados_anteriores'],
     }
+
 }
 
 args = {
@@ -70,12 +59,11 @@ args = {
     'execID': _params['execID'],
     'product': "LS8_OLI_LASRC"
 }
+
 dag = DAG(
     dag_id=args["execID"], default_args=args,
     schedule_interval=None,
-    dagrun_timeout=timedelta(minutes=20)
-)
-
+    dagrun_timeout=timedelta(minutes=120))
 
 mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
                                      time_ranges=_params['time_ranges'],
@@ -114,24 +102,17 @@ medianas = dag_utils.IdentityMap(
     delete_partial_results=_steps['medianas']['del_prev_result'],
     params=_steps['medianas']['params'])
 
-ndvi = dag_utils.IdentityMap(medianas, product=_params['products'][0],
-                             algorithm=_steps['ndvi']['algorithm'], version=_steps['ndvi']['version'],
-                             queue=_steps['ndvi']['queue'], delete_partial_results=_steps['ndvi']['del_prev_result'],
-                             dag=dag, task_id="ndvi")
-
-bosque = dag_utils.IdentityMap(ndvi, algorithm=_steps['bosque']['algorithm'],
-                               product=_params['products'][0],
-                               version=_steps['bosque']['version'], params=_steps['bosque']['params'],
-                               queue=_steps['bosque']['queue'], delete_partial_results=_steps['ndvi']['del_prev_result'], dag=dag,
-                               task_id="bosque", to_tiff= not _params['genera_mosaico'] )
-
-workflow = bosque
-if _params['genera_mosaico']:
-    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
+mosaico = dag_utils.OneReduce(medianas, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],product=_params['products'][0],
                                   version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
                                   delete_partial_results=_steps['mosaico']['del_prev_result'],
-                                  trigger_rule=TriggerRule.NONE_FAILED, dag=dag, to_tiff=True)
+                                  trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
 
-    workflow = mosaico
+kmeans = CDColFromFileOperator(task_id="k_means",
+                               product=_params['products'][0],
+                               algorithm=_steps['k_means']['algorithm'],
+                               version=_steps['k_means']['version'],
+                               queue=_steps['k_means']['queue'], dag=dag,
+                               lat=_params['lat'], lon=_params['lon'],
+                               params=_steps['k_means']['params'], to_tiff=True)
 
-workflow
+mosaico >> kmeans

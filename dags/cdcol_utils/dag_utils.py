@@ -69,7 +69,8 @@ def queryMapByTileByMonths(lat, lon, time_ranges, queue, dag, algorithm, version
     return tasks
 
 
-def IdentityMap(upstream, algorithm, version, queue, dag, task_id, delete_partial_results=False, to_tiff=False, params={}):
+def IdentityMap(upstream, algorithm, version, queue, dag, task_id, delete_partial_results=False, to_tiff=False, params={},
+                           **kwargs):
     i = 1
     tasks = []
     trans = str.maketrans({"(": None, ")": None, " ": None, ",": "_"})
@@ -79,7 +80,7 @@ def IdentityMap(upstream, algorithm, version, queue, dag, task_id, delete_partia
                                    lon=prev.lon,
                                    task_id=id,
                                    to_tiff=to_tiff,
-                                   params=params)
+                                   params=params,**kwargs)
         if delete_partial_results:
             delete = PythonOperator(task_id="del_"+prev.task_id,
                                 provide_context=True,
