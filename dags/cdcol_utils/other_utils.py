@@ -25,6 +25,9 @@ def compress_results(execID,**kwargs):
     if os.path.exists(dag_results_folder) and os.path.isdir(dag_results_folder) and len(os.listdir(dag_results_folder))>0:
         with zipfile.ZipFile(os.path.join(dag_results_folder,"resultados_{}.zip".format(execID)), "w") as file_to_compress:
             for folder, subfolders, files in os.walk(dag_results_folder):
+                for subfolder in subfolders:
+                    if len(os.listdir(os.path.join(folder,subfolder)))==0:
+                        shutil.rmtree(os.path.join(folder,subfolder), ignore_errors=True)
                 for file in files:
                     file_to_compress.write(os.path.join(folder, file), os.path.relpath(os.path.join(folder,file), dag_results_folder), compress_type = zipfile.ZIP_DEFLATED)
         file_to_compress.close()
