@@ -136,7 +136,7 @@ def BashMap(upstream, algorithm, version, queue, dag, task_id, delete_partial_re
     return tasks
 
 
-def OneReduce(upstream, algorithm, version, queue, dag, task_id, delete_partial_results=False,params={}, to_tiff=False, trigger_rule=None):
+def OneReduce(upstream, algorithm, version, queue, dag, task_id, delete_partial_results=False,params={}, to_tiff=False, trigger_rule=None, **kwargs):
     reduce = CDColReduceOperator(
         task_id="{}_{}_{}".format(task_id, "all", "all"),
         algorithm=algorithm,
@@ -145,7 +145,7 @@ def OneReduce(upstream, algorithm, version, queue, dag, task_id, delete_partial_
         queue=queue,
         trigger_rule=trigger_rule,
         to_tiff=to_tiff,
-        dag=dag)
+        dag=dag, **kwargs)
     upstream >> reduce
     if delete_partial_results:
         tasks = []
@@ -164,7 +164,7 @@ def OneReduce(upstream, algorithm, version, queue, dag, task_id, delete_partial_
     return [reduce]
 
 
-def reduceByTile(upstream, algorithm, version, queue, dag, task_id, delete_partial_results=False, to_tiff=False, params={}):
+def reduceByTile(upstream, algorithm, version, queue, dag, task_id, delete_partial_results=False, to_tiff=False, params={}, **kwargs):
     reducers = {}
     trans = str.maketrans({"(": None, ")": None, " ": None, ",": "_"})
     for prev in upstream:
@@ -179,7 +179,7 @@ def reduceByTile(upstream, algorithm, version, queue, dag, task_id, delete_parti
                 lon=prev.lon,
                 queue=queue,
                 to_tiff=to_tiff,
-                dag=dag)
+                dag=dag, **kwargs)
         prev >> reducers[key]
         if delete_partial_results:
             delete = PythonOperator(task_id="del_"+prev.task_id,
