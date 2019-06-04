@@ -34,8 +34,13 @@ def assign_queue(input_type={}, time_range={}, lat={}, lon={}, unidades={} ):
     score = 1
     if input_type:
         if 'temporal' in input_type:
-            start_date_value = datetime.datetime.strptime(time_range[0], "%d-%m-%Y")
-            end_date_value = datetime.datetime.strptime(time_range[1], "%d-%m-%Y")
+            try:
+                start_date_value = datetime.datetime.strptime(time_range[0], "%d-%m-%Y")
+                end_date_value = datetime.datetime.strptime(time_range[1], "%d-%m-%Y")
+            except:
+                start_date_value = datetime.datetime.strptime(time_range[0], "%Y-%m-%d")
+                end_date_value = datetime.datetime.strptime(time_range[1], "%Y-%m-%d")
+
             anhos = 1 + (end_date_value.year - start_date_value.year)
             score *= anhos
         if 'area' in input_type:
