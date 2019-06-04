@@ -17,9 +17,8 @@ def delete_partial_result(algorithm, version, execID, task_id, **kwargs):
         print(files)
         for f in files:
             os.remove(f)
-
-        if os.path.exists(folder) and len(os.listdir(folder)) == 0:
-            shutil.rmtree(folder, ignore_errors=True)
+        # if os.path.exists(folder) and len(os.listdir(folder)) == 0:
+        #     shutil.rmtree(folder, ignore_errors=True)
 
 def compress_results(execID,**kwargs):
     dag_results_folder = "{}/{}/".format(common.RESULTS_FOLDER, execID)
