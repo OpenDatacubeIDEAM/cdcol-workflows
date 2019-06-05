@@ -85,7 +85,7 @@ def IdentityMap(upstream, algorithm, version, queue, dag, task_id, delete_partia
             delete = PythonOperator(task_id="del_"+prev.task_id,
                                 provide_context=True,
                                 python_callable=other_utils.delete_partial_result,
-                                queue='airflow_small',
+                                queue='util',
                                 op_kwargs={'algorithm': prev.algorithm, 'version':prev.version, 'execID': prev.execID, 'task_id':prev.task_id},
                                 dag=dag)
             delete << _t
@@ -104,7 +104,7 @@ def DeleteMap(upstream, dag):
         _t = PythonOperator(task_id='delete_partial_results_'+str(i),
                             provide_context=True,
                             python_callable=other_utils.delete_partial_results,
-                            queue='airflow_small',
+                            queue='util',
                             op_kwargs={'algorithms': {}, 'execID': prev.execID},
                             dag=dag)
         i += 1
@@ -124,7 +124,7 @@ def BashMap(upstream, algorithm, version, queue, dag, task_id, delete_partial_re
             delete = PythonOperator(task_id="del_"+prev.task_id,
                                 provide_context=True,
                                 python_callable=other_utils.delete_partial_result,
-                                queue='airflow_small',
+                                queue='util',
                                 op_kwargs={'algorithm': prev.algorithm, 'version':prev.version, 'execID': prev.execID, 'task_id':prev.task_id},
                                 dag=dag)
             delete << _t
@@ -153,7 +153,7 @@ def OneReduce(upstream, algorithm, version, queue, dag, task_id, delete_partial_
             delete = PythonOperator(task_id="del_" + prev.task_id,
                                     provide_context=True,
                                     python_callable=other_utils.delete_partial_result,
-                                    queue='airflow_small',
+                                    queue='util',
                                     op_kwargs={'algorithm': prev.algorithm, 'version': prev.version,
                                                'execID': prev.execID, 'task_id': prev.task_id},
                                     dag=dag)
@@ -185,7 +185,7 @@ def reduceByTile(upstream, algorithm, version, queue, dag, task_id, delete_parti
             delete = PythonOperator(task_id="del_"+prev.task_id,
                                 provide_context=True,
                                 python_callable=other_utils.delete_partial_result,
-                                queue='airflow_small',
+                                queue='util',
                                 op_kwargs={'algorithm': prev.algorithm, 'version':prev.version, 'execID': prev.execID, 'task_id':prev.task_id},
                                 dag=dag)
             delete << reducers[key]
