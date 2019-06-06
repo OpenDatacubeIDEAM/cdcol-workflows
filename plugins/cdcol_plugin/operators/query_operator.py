@@ -56,13 +56,15 @@ class CDColQueryOperator(BaseOperator):
         bands = []
         if self.product['bands'] != None and len(self.product['bands'])>0:
             bands = self.product['bands']
-        if not (self.time_ranges,list):
-            self.time_ranges = [self.time_ranges]
+
         start = time.time()
-        i=0
-        for time in self.time_ranges:
-            kwargs[xanm+str(i)] = dc.load(product=self.product['name'], measurements=bands, longitude=self.lon, latitude=self.lat, time=time)
-            i+=1
+        if isinstance(self.time_ranges,list) and self.alg_folder==common.COMPLETE_ALGORITHMS_FOLDER:
+            i=0
+            for time in self.time_ranges:
+                kwargs[xanm+str(i)] = dc.load(product=self.product['name'], measurements=bands, longitude=self.lon, latitude=self.lat, time=time)
+                i+=1
+        else:
+            kwargs[xanm + str(0)] = dc.load(product=self.product['name'], measurements=bands, longitude=self.lon,latitude=self.lat, time=time)
         #kwargs[xanm] = dc.load(product=self.product['name'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
 
         if len(kwargs[xanm].data_vars) == 0:
