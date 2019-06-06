@@ -28,7 +28,7 @@ _steps = {
         'algorithm': "mascara-landsat",
         'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),
-        'params': {'bands': _params['bands']},
+        'params': {},
     },
     'reduccion': {
         'algorithm': "joiner-reduce",
@@ -36,7 +36,7 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad',
                                           time_range=_params['time_ranges'],
                                           unidades=len(_params['products'])),
-        'params': {'bands': _params['bands']},
+        'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
     'medianas': {
@@ -45,10 +45,7 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad',
                                           time_range=_params['time_ranges'],
                                           unidades=len(_params['products'])),
-        'params': {
-            'bands': _params['bands'],
-            'minValid': _params['minValid'],
-        },
+        'params': {'minValid': _params['minValid'],},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
     'mosaico': {
@@ -67,7 +64,6 @@ _steps = {
                                           lat=_params['lat'],
                                           lon=_params['lon']),
         'params': {
-            'bands': _params['bands'],
             'train_data_path': _params['modelos'] + args["execID"]
         },
         'del_prev_result': _params['elimina_resultados_anteriores'],
@@ -79,7 +75,6 @@ _steps = {
                                           lat=_params['lat'],
                                           lon=_params['lon']),
         'params': {
-            'bands': _params['bands'],
             'modelos': _params['modelos'] + args["execID"]
         },
         'del_prev_result': _params['elimina_resultados_anteriores'],
@@ -88,7 +83,7 @@ _steps = {
 }
 
 mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
-                                     time_ranges=_params['time_ranges'],
+                                     time_ranges=_params['time_ranges'][0],
                                      algorithm=_steps['mascara']['algorithm'],
                                      version=_steps['mascara']['version'],
                                      product=_params['products'][0],
@@ -98,7 +93,7 @@ mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 
 if len(_params['products']) > 1:
     mascara_1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
-                                         time_ranges=_params['time_ranges'],
+                                         time_ranges=_params['time_ranges'][1],
                                          algorithm=_steps['mascara']['algorithm'],
                                          version=_steps['mascara']['version'],
                                          product=_params['products'][1],
