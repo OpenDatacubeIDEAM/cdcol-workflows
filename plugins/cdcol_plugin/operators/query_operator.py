@@ -56,7 +56,7 @@ class CDColQueryOperator(BaseOperator):
 
 
         start = time.time()
-        if kwargs['bands']:
+        if self.product['bands'] != None and len(self.product[bands])>0:
             kwargs[xanm] = dc.load(product=self.product['name'], measurements=self.product['bands'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
         else:
             kwargs[xanm] = dc.load(product=self.product['name'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
