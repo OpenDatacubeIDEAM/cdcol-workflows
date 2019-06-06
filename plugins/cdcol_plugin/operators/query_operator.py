@@ -60,13 +60,13 @@ class CDColQueryOperator(BaseOperator):
             bands = self.product['bands']
         if isinstance(self.time_ranges, list) and self.alg_folder == common.COMPLETE_ALGORITHMS_FOLDER:
             i = 0
-            for time in self.time_ranges:
+            for t in self.time_ranges:
                 kwargs[xanm + str(i)] = dc.load(product=self.product['name'], measurements=bands, longitude=self.lon,
-                                                latitude=self.lat, time=time)
+                                                latitude=self.lat, time=t)
                 i += 1
         else:
             kwargs[xanm + str(0)] = dc.load(product=self.product['name'], measurements=bands, longitude=self.lon,
-                                            latitude=self.lat, time=time)
+                                            latitude=self.lat, time=self.time_ranges)
         # kwargs[xanm] = dc.load(product=self.product['name'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
 
         if len(kwargs[xanm].data_vars) == 0:
