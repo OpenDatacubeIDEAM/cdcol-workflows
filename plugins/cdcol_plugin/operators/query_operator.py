@@ -50,14 +50,12 @@ class CDColQueryOperator(BaseOperator):
                     raise
         folder=self.folder
         dc = datacube.Datacube(app=self.execID)
-        i=0
         kwargs=self.alg_kwargs
         xanm="xarr"
+        start = time.time()
         bands = []
         if self.product['bands'] != None and len(self.product['bands'])>0:
             bands = self.product['bands']
-
-        start = time.time()
         if isinstance(self.time_ranges,list) and self.alg_folder==common.COMPLETE_ALGORITHMS_FOLDER:
             i=0
             for time in self.time_ranges:
