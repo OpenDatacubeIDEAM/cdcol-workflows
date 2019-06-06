@@ -52,14 +52,17 @@ class CDColQueryOperator(BaseOperator):
         dc = datacube.Datacube(app=self.execID)
         i=0
         kwargs=self.alg_kwargs
-        xanm="xarr0"
-
-
+        xanm="xarr"
+        bands = []
+        if self.product['bands'] != None and len(self.product['bands'])>0:
+            bands = self.product['bands']
+        if not (self.time_ranges,list):
+            self.time_ranges = [self.time_ranges]
         start = time.time()
-        if self.product['bands'] != None and len(self.product[bands])>0:
-            kwargs[xanm] = dc.load(product=self.product['name'], measurements=self.product['bands'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
-        else:
-            kwargs[xanm] = dc.load(product=self.product['name'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
+        i=0
+        for time in self.time_ranges:
+            kwargs[xanm+str(i)] = dc.load(product=self.product['name'], measurements=bands, longitude=self.lon, latitude=self.lat, time=time)
+            i+=1
         #kwargs[xanm] = dc.load(product=self.product['name'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
 
         if len(kwargs[xanm].data_vars) == 0:
