@@ -64,16 +64,16 @@ class CDColQueryOperator(BaseOperator):
                 kwargs[xanm + str(i)] = dc.load(product=self.product['name'], measurements=bands, longitude=self.lon,
                                                 latitude=self.lat, time=t)
                 if len(kwargs[xanm + str(i)].data_vars) == 0:
-                    print("ERROR: No hay datos en la zona")
-                    open(folder + "no_data_{}_{}.lock".format(self.lon[0], self.lat[0]), "w+").close()
+                    print("ERROR: NO HAY DATOS EN LA ZONA")
+                    open(posixpath.join(common.LOGS_FOLDER, self.execID, self.task_id, "no_data.lock"), "w+").close()
                     raise AirflowSkipException("No hay datos en la zona")
                 i += 1
         else:
             kwargs[xanm + str(0)] = dc.load(product=self.product['name'], measurements=bands, longitude=self.lon,
                                             latitude=self.lat, time=self.time_ranges)
             if len(kwargs[xanm + str(0)].data_vars) == 0:
-                print("ERROR: No hay datos en la zona")
-                open(folder + "no_data_{}_{}.lock".format(self.lon[0], self.lat[0]), "w+").close()
+                print("ERROR: NO HAY DATOS EN LA ZONA")
+                open(posixpath.join(common.LOGS_FOLDER, self.execID, self.task_id, "no_data.lock"), "w+").close()
                 raise AirflowSkipException("No hay datos en la zona")
         # kwargs[xanm] = dc.load(product=self.product['name'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
 
