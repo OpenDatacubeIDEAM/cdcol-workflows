@@ -20,7 +20,7 @@ logging.getLogger().addHandler(logging.StreamHandler())
 
 class CDColQueryOperator(BaseOperator):
     @airflow_utils.apply_defaults
-    def __init__(self, execID, task_id, algorithm, version, product, lat, lon, time_ranges, params={}, to_tiff=False,
+    def __init__(self, execID, algorithm, version, product, lat, lon, time_ranges, params={}, to_tiff=False,
                  alg_folder=common.ALGORITHMS_FOLDER, *args, **kwargs):
         """
             algorithm: algorithm to execute over the query results
@@ -32,7 +32,6 @@ class CDColQueryOperator(BaseOperator):
         """
         super(CDColQueryOperator, self).__init__(*args, **kwargs)
         self.execID = execID
-        self.task_id = task_id
         self.algorithm = algorithm
         self.version = version
         self.lat = lat
@@ -74,8 +73,7 @@ class CDColQueryOperator(BaseOperator):
                                             latitude=self.lat, time=self.time_ranges)
             if len(kwargs[xanm + str(0)].data_vars) == 0:
                 print("ERROR: No hay datos en la zona")
-                print(self.task_id)
-                open(folder + "no_data_{}.lock".format(self.task_id), "w+").close()
+                open(folder + "no_data_{}_{}.lock".format(self.lon[0], self.lat[0]), "w+").close()
                 raise AirflowSkipException("No hay datos en la zona")
         # kwargs[xanm] = dc.load(product=self.product['name'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
 
