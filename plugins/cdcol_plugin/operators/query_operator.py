@@ -72,6 +72,8 @@ class CDColQueryOperator(BaseOperator):
             kwargs[xanm + str(0)] = dc.load(product=self.product['name'], measurements=bands, longitude=self.lon,
                                             latitude=self.lat, time=self.time_ranges)
             if len(kwargs[xanm + str(0)].data_vars) == 0:
+                print("ERROR: No hay datos en la zona")
+                open(folder + "{}_{}_no_data.lock".format(self.lon[0], self.lat[0]), "w+").close()
                 raise AirflowSkipException("No hay datos en la zona")
         # kwargs[xanm] = dc.load(product=self.product['name'], longitude=self.lon, latitude=self.lat, time=self.time_ranges)
 
