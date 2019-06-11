@@ -122,6 +122,6 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
         for index, band in enumerate(bands):
             dst.write_band(index + 1, dataset[band].values.astype(dataset[bands[0]].dtype), )
             tag = ["{}={}".format('Band'+str(index+1), bands[index])]
-            dst.update_tags("{}={}".format('Band'+str(index+1), bands[index]))
+            dst.update_tags(**tag)
             dst.set_band_description(index + 1, band)
         dst.close()
