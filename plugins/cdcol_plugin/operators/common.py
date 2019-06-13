@@ -8,6 +8,7 @@ from datacube.drivers.netcdf import writer as netcdf_writer
 from datacube.utils.geometry import CRS
 from rasterio.transform import from_bounds
 from rasterio.crs import CRS
+import rasterio
 import os
 import re
 import xarray as xr
@@ -106,11 +107,13 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
     bands=list(dataset.data_vars.keys())
     assert isinstance(bands, list), "Bands must a list of strings"
     assert len(bands) > 0 and isinstance(bands[0], str), "You must supply at least one band."
-    print(dataset.crs)
     if dataset.crs:
-        crs = dataset.crs.to_dict()
-        print(crs[attrs])
-        crs = CRS.from_wkt(crs['attrs']['crs_wkt'])
+        crs_dict = dataset.crs.to_dict()
+        print(crs_dict['attrs'])
+        crs = CRS.from_wkt(crs_dict['attrs']['crs_wkt'])
+        transform = Affine(crs_dict['attrs']['geotransform'][0], crs_dict['attrs']['geotransform'][1], crs_dict['attrs']['geotransform'][2], crs_dict['attrs']['geotransform'][3], crs_dict['attrs']['geotransform'][4], crs_dict['attrs']['geotransform'][5])
+    else:
+        transform = _get_transform_from_xr(dataset)
     with rasterio.open(
             tif_path,
             'w',
@@ -120,7 +123,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
             count=len(bands),
             dtype=dataset[bands[0]].dtype,#str(dataset[bands[0]].dtype),
             crs=crs,
-            transform=_get_transform_from_xr(dataset),
+            transform=transform,
             nodata=no_data) as dst:
         for index, band in enumerate(bands):
             dst.write_band(index + 1, dataset[band].values.astype(dataset[bands[0]].dtype), )
