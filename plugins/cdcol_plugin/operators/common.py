@@ -7,7 +7,6 @@ import numpy as np
 from datacube.drivers.netcdf import writer as netcdf_writer
 from datacube.utils.geometry import CRS
 from rasterio.transform import from_bounds
-from rasterio.crs import CRS
 from affine import Affine
 import rasterio
 import os
@@ -95,6 +94,7 @@ def _get_transform_from_xr(dataset):
     return geotransform
 
 def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:4326"):
+
     """Write a geotiff from an xarray dataset.
 
     Args:
@@ -112,10 +112,12 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
         f = y-coordinate of the of the upper-left corner of the upper-left pixel
 
     """
+    from rasterio.crs import CRS
     bands=list(dataset.data_vars.keys())
     assert isinstance(bands, list), "Bands must a list of strings"
     assert len(bands) > 0 and isinstance(bands[0], str), "You must supply at least one band."
     if dataset.crs:
+
         crs_dict = dataset.crs.to_dict()
         print(crs_dict['attrs'])
         crs = CRS.from_wkt(crs_dict['attrs']['crs_wkt'])
