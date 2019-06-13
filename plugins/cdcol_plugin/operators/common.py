@@ -126,6 +126,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
             transform = Affine(crs_dict['attrs']['GeoTransform'][1], crs_dict['attrs']['GeoTransform'][2], crs_dict['attrs']['GeoTransform'][0], crs_dict['attrs']['GeoTransform'][4], crs_dict['attrs']['GeoTransform'][5], crs_dict['attrs']['GeoTransform'][3])
         else:
             transform = _get_transform_from_xr(dataset)
+            type(dataset.crs)
             crs = dataset.crs
     else:
         transform = _get_transform_from_xr(dataset)
@@ -139,8 +140,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
             dtype=dataset[bands[0]].dtype,#str(dataset[bands[0]].dtype),
             crs=crs,
             transform=transform,
-            nodata=no_data,
-            resampling=Resampling.nearest) as dst:
+            nodata=no_data) as dst:
         for index, band in enumerate(bands):
             dst.write_band(index + 1, dataset[band].values.astype(dataset[bands[0]].dtype), )
             tag = {'Band_'+str(index+1): bands[index]}
