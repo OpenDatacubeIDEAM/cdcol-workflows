@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 # coding=utf8
-import datacube
-import numpy as np
+
 #from datacube.storage import netcdf_writer
 #from datacube.model import Variable
+import datacube
+import numpy as np
 from datacube.drivers.netcdf import writer as netcdf_writer
 from datacube.utils.geometry import CRS
 from rasterio.transform import from_bounds
@@ -117,12 +118,14 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
     bands=list(dataset.data_vars.keys())
     assert isinstance(bands, list), "Bands must a list of strings"
     assert len(bands) > 0 and isinstance(bands[0], str), "You must supply at least one band."
-    if dataset.crs:
-
-        crs_dict = dataset.crs.to_dict()
-        print(crs_dict['attrs'])
-        crs = CRS.from_wkt(crs_dict['attrs']['crs_wkt'])
-        transform = Affine(crs_dict['attrs']['GeoTransform'][1], crs_dict['attrs']['GeoTransform'][2], crs_dict['attrs']['GeoTransform'][0], crs_dict['attrs']['GeoTransform'][4], crs_dict['attrs']['GeoTransform'][5], crs_dict['attrs']['GeoTransform'][3])
+    if dataset.crs is not None:
+        if isinstance(_crs, xr.DataArray):
+            crs_dict = dataset.crs.to_dict()
+            print(crs_dict['attrs'])
+            crs = CRS.from_wkt(crs_dict['attrs']['crs_wkt'])
+            transform = Affine(crs_dict['attrs']['GeoTransform'][1], crs_dict['attrs']['GeoTransform'][2], crs_dict['attrs']['GeoTransform'][0], crs_dict['attrs']['GeoTransform'][4], crs_dict['attrs']['GeoTransform'][5], crs_dict['attrs']['GeoTransform'][3])
+        else:
+            crs = dataset.crs
     else:
         transform = _get_transform_from_xr(dataset)
     with rasterio.open(
