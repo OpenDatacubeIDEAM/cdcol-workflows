@@ -119,7 +119,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
     assert isinstance(bands, list), "Bands must a list of strings"
     assert len(bands) > 0 and isinstance(bands[0], str), "You must supply at least one band."
     if dataset.crs is not None:
-        if isinstance(_crs, xr.DataArray):
+        if isinstance(dataset.crs, xr.DataArray):
             crs_dict = dataset.crs.to_dict()
             print(crs_dict['attrs'])
             crs = CRS.from_wkt(crs_dict['attrs']['crs_wkt'])
