@@ -126,8 +126,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
             transform = Affine(crs_dict['attrs']['GeoTransform'][1], crs_dict['attrs']['GeoTransform'][2], crs_dict['attrs']['GeoTransform'][0], crs_dict['attrs']['GeoTransform'][4], crs_dict['attrs']['GeoTransform'][5], crs_dict['attrs']['GeoTransform'][3])
         else:
             transform = _get_transform_from_xr(dataset)
-            type(dataset.crs)
-            crs = dataset.crs
+            crs = dataset.crs.crs_str
     else:
         transform = _get_transform_from_xr(dataset)
     with rasterio.open(
