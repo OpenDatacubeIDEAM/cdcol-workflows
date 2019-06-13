@@ -8,6 +8,7 @@ from datacube.drivers.netcdf import writer as netcdf_writer
 from datacube.utils.geometry import CRS
 from rasterio.transform import from_bounds
 from rasterio.crs import CRS
+from affine import Affine
 import rasterio
 import os
 import re
@@ -102,6 +103,13 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
         bands: list of strings representing the bands in the order they should be written
         no_data: nodata value for the dataset
         crs: requested crs.
+        Affine(a,b,c,d,e,f)
+        a = width of a pixel
+        b = row rotation (typically zero)
+        c = x-coordinate of the upper-left corner of the upper-left pixel
+        d = column rotation (typically zero)
+        e = height of a pixel (typically negative)
+        f = y-coordinate of the of the upper-left corner of the upper-left pixel
 
     """
     bands=list(dataset.data_vars.keys())
@@ -111,7 +119,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
         crs_dict = dataset.crs.to_dict()
         print(crs_dict['attrs'])
         crs = CRS.from_wkt(crs_dict['attrs']['crs_wkt'])
-        transform = Affine(crs_dict['attrs']['geotransform'][0], crs_dict['attrs']['geotransform'][1], crs_dict['attrs']['geotransform'][2], crs_dict['attrs']['geotransform'][3], crs_dict['attrs']['geotransform'][4], crs_dict['attrs']['geotransform'][5])
+        transform = Affine(crs_dict['attrs']['geotransform'][1], crs_dict['attrs']['geotransform'][2], crs_dict['attrs']['geotransform'][0], crs_dict['attrs']['geotransform'][4], crs_dict['attrs']['geotransform'][5], crs_dict['attrs']['geotransform'][3])
     else:
         transform = _get_transform_from_xr(dataset)
     with rasterio.open(
