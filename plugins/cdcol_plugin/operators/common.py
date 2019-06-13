@@ -107,6 +107,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
     print(dataset.crs)
     if dataset.crs:
         crs = dataset.crs.to_dict()
+        crs = crs['attrs']
     with rasterio.open(
             tif_path,
             'w',
