@@ -89,6 +89,7 @@ def _get_transform_from_xr(dataset):
     """
     geotransform = from_bounds(dataset.longitude[0], dataset.latitude[-1], dataset.longitude[-1], dataset.latitude[0],
                                len(dataset.longitude), len(dataset.latitude))
+    print(geotransform)
     return geotransform
 
 def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:4326"):
@@ -108,6 +109,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
     print(dataset.crs)
     if dataset.crs:
         crs = dataset.crs.to_dict()
+        print(crs[attrs])
         crs = CRS.from_wkt(crs['attrs']['crs_wkt'])
     with rasterio.open(
             tif_path,
