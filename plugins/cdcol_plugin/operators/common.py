@@ -6,6 +6,7 @@ import numpy as np
 #from datacube.model import Variable
 from datacube.drivers.netcdf import writer as netcdf_writer
 from datacube.utils.geometry import CRS
+from rasterio.transform import from_bounds
 import os
 import re
 import xarray as xr
@@ -85,8 +86,6 @@ def getUpstreamVariable(task, context,key='return_value'):
 def _get_transform_from_xr(dataset):
     """Create a geotransform from an xarray dataset.
     """
-
-    from rasterio.transform import from_bounds
     geotransform = from_bounds(dataset.longitude[0], dataset.latitude[-1], dataset.longitude[-1], dataset.latitude[0],
                                len(dataset.longitude), len(dataset.latitude))
     return geotransform
@@ -102,12 +101,12 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
         crs: requested crs.
 
     """
-    print(dataset.data_vars.keys())
-    print(type(dataset.data_vars.keys()))
-    print(list(dataset.data_vars.keys()))
     bands=list(dataset.data_vars.keys())
     assert isinstance(bands, list), "Bands must a list of strings"
     assert len(bands) > 0 and isinstance(bands[0], str), "You must supply at least one band."
+    print(dataset.crs)
+    if dataset.crs:
+        crs = dataset.crs
     with rasterio.open(
             tif_path,
             'w',
