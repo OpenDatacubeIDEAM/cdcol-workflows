@@ -7,6 +7,7 @@ import numpy as np
 from datacube.drivers.netcdf import writer as netcdf_writer
 from datacube.utils.geometry import CRS
 from rasterio.transform import from_bounds
+from rasterio.warp import reproject, Resampling
 from affine import Affine
 import rasterio
 import os
@@ -134,7 +135,8 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
             dtype=dataset[bands[0]].dtype,#str(dataset[bands[0]].dtype),
             crs=crs,
             transform=transform,
-            nodata=no_data) as dst:
+            nodata=no_data,
+            resampling=Resampling.nearest) as dst:
         for index, band in enumerate(bands):
             dst.write_band(index + 1, dataset[band].values.astype(dataset[bands[0]].dtype), )
             tag = {'Band_'+str(index+1): bands[index]}
