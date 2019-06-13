@@ -7,6 +7,7 @@ import numpy as np
 from datacube.drivers.netcdf import writer as netcdf_writer
 from datacube.utils.geometry import CRS
 from rasterio.transform import from_bounds
+from rasterio.crs import CRS
 import os
 import re
 import xarray as xr
@@ -107,7 +108,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
     print(dataset.crs)
     if dataset.crs:
         crs = dataset.crs.to_dict()
-        crs = crs['attrs']
+        crs = CRS.from_wkt(crs['attrs']['crs_wkt'])
     with rasterio.open(
             tif_path,
             'w',
