@@ -106,7 +106,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
     assert len(bands) > 0 and isinstance(bands[0], str), "You must supply at least one band."
     print(dataset.crs)
     if dataset.crs:
-        crs = dataset.crs
+        crs = dataset.crs.to_dict()
     with rasterio.open(
             tif_path,
             'w',
