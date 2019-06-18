@@ -121,14 +121,19 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
     if dataset.crs is not None:
         if isinstance(dataset.crs, xr.DataArray):
             crs_dict = dataset.crs.to_dict()
-            print(crs_dict['attrs'])
             crs = CRS.from_wkt(crs_dict['attrs']['crs_wkt'])
-            transform = Affine(crs_dict['attrs']['GeoTransform'][1], crs_dict['attrs']['GeoTransform'][2], crs_dict['attrs']['GeoTransform'][0], crs_dict['attrs']['GeoTransform'][4], crs_dict['attrs']['GeoTransform'][5], crs_dict['attrs']['GeoTransform'][3])
+            transform = Affine(crs_dict['attrs']['GeoTransform'][1],
+                               crs_dict['attrs']['GeoTransform'][2],
+                               dataset.longitude[0],
+                               crs_dict['attrs']['GeoTransform'][4],
+                               crs_dict['attrs']['GeoTransform'][5],
+                               dataset.latitude[-1])
         else:
             transform = _get_transform_from_xr(dataset)
             crs = dataset.crs.crs_str
     else:
         transform = _get_transform_from_xr(dataset)
+    print(dataset[bands[0]].dtype)
     with rasterio.open(
             tif_path,
             'w',
@@ -141,7 +146,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
             transform=transform,
             nodata=no_data) as dst:
         for index, band in enumerate(bands):
-            print(dataset[band].shape)
+            print(dataset[band].dtype)
             dst.write_band(index + 1, dataset[band].values.astype(dataset[bands[0]].dtype), )
             tag = {'Band_'+str(index+1): bands[index]}
             dst.update_tags(**tag)
