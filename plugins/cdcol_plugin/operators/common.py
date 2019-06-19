@@ -157,7 +157,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
 
 
 def translate_netcdf_to_tiff(task_id, algorithm,folder,files):
-    bash_script_path = os.path.join(common.ALGORITHMS_FOLDER, "generate-geotiff", "generate-geotiff_1.0.sh")
+    bash_script_path = os.path.join(ALGORITHMS_FOLDER, "generate-geotiff", "generate-geotiff_1.0.sh")
     try:
         p = Popen([bash_script_path, task_id, algorithm, folder] + files, stdout=PIPE, stderr=PIPE)
         stdout, stderr = p.communicate()
