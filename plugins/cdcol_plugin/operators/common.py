@@ -9,6 +9,7 @@ from datacube.drivers.netcdf import writer as netcdf_writer
 from datacube.utils.geometry import CRS
 from rasterio.transform import from_bounds
 from rasterio.warp import reproject, Resampling
+from subprocess import CalledProcessError, Popen, PIPE, check_output
 from affine import Affine
 import rasterio
 import os
