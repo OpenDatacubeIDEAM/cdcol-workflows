@@ -149,6 +149,7 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
     else:
         transform = _get_transform_from_xr(dataset)
 
+    transform = _get_transform_from_xr(dataset)
 
     with rasterio.open(tif_path,'w',
                        driver='GTiff',
