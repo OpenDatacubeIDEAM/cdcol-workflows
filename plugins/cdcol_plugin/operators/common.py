@@ -127,13 +127,15 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
         if isinstance(dataset.crs, xr.DataArray):
             crs_dict = dataset.crs.to_dict()
             crs = CRS.from_wkt(crs_dict['attrs']['crs_wkt'])
-
-            dims = dataset.crs.dimensions
+            _crs = CRS(str(crs_dict['attrs']['spatial_ref']))
+            dims = _crs.dimensions
+            print(dims)
             xres, xoff = data_resolution_and_offset(dataset[dims[1]])
             yres, yoff = data_resolution_and_offset(dataset[dims[0]])
             crs_var.GeoTransform = [xoff, xres, 0.0, yoff, 0.0, yres]
             left, right = dataset[dims[1]][0] - 0.5 * xres, dataset[dims[1]][-1] + 0.5 * xres
             bottom, top = dataset[dims[0]][0] - 0.5 * yres, dataset[dims[0]][-1] + 0.5 * yres
+
             bounds = BoundingBox(left=left, bottom=bottomm, right=right, top=top)
         else:
             crs = dataset.crs.crs_str
