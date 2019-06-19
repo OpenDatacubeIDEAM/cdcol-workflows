@@ -119,14 +119,14 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
         f = y-coordinate of the of the upper-left corner of the upper-left pixel
 
     """
-    from rasterio.crs import CRS
+    from rasterio.crs import CRS as CRS_rasterio
     bands=list(dataset.data_vars.keys())
     assert isinstance(bands, list), "Bands must a list of strings"
     assert len(bands) > 0 and isinstance(bands[0], str), "You must supply at least one band."
     if dataset.crs is not None:
         if isinstance(dataset.crs, xr.DataArray):
             crs_dict = dataset.crs.to_dict()
-            crs = CRS.from_wkt(crs_dict['attrs']['crs_wkt'])
+            crs = CRS_rasterio.from_wkt(crs_dict['attrs']['crs_wkt'])
             _crs = CRS(str(crs_dict['attrs']['spatial_ref']))
             dims = _crs.dimensions
             print(dims)
