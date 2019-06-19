@@ -93,10 +93,25 @@ def getUpstreamVariable(task, context,key='return_value'):
 def _get_transform_from_xr(dataset):
     """Create a geotransform from an xarray dataset.
     """
-    geotransform = from_bounds(dataset.longitude[0], dataset.latitude[-1], dataset.longitude[-1], dataset.latitude[0],
+    geobox=calculate_bounds_geotransform(dataset)
+    # geotransform = from_bounds(dataset.longitude[0], dataset.latitude[-1], dataset.longitude[-1], dataset.latitude[0],
+    #                            len(dataset.longitude), len(dataset.latitude))
+    geotransform = from_bounds(geobox['left'], geobox['top'], geobox['right'], geobox['bottom'],
                                len(dataset.longitude), len(dataset.latitude))
     print(geotransform)
     return geotransform
+
+def calculate_bounds_geotransform(dataset):
+    crs_dict = dataset.crs.to_dict()
+    _crs = CRS(str(crs_dict['attrs']['spatial_ref']))
+    dims = _crs.dimensions
+    print(dims)
+    xres, xoff = data_resolution_and_offset(dataset[dims[1]])
+    yres, yoff = data_resolution_and_offset(dataset[dims[0]])
+    GeoTransform = [xoff, xres, 0.0, yoff, 0.0, yres]
+    left, right = dataset[dims[1]][0] - 0.5 * xres, dataset[dims[1]][-1] + 0.5 * xres
+    bottom, top = dataset[dims[0]][0] - 0.5 * yres, dataset[dims[0]][-1] + 0.5 * yres
+    return {'left':left, 'right':right,'bottom':bottom, 'top':top, 'GeoTransform': GeoTransform}
 
 
 
@@ -127,16 +142,8 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
         if isinstance(dataset.crs, xr.DataArray):
             crs_dict = dataset.crs.to_dict()
             crs = CRS_rasterio.from_wkt(crs_dict['attrs']['crs_wkt'])
-            _crs = CRS(str(crs_dict['attrs']['spatial_ref']))
-            dims = _crs.dimensions
-            print(dims)
-            xres, xoff = data_resolution_and_offset(dataset[dims[1]])
-            yres, yoff = data_resolution_and_offset(dataset[dims[0]])
-            crs_var.GeoTransform = [xoff, xres, 0.0, yoff, 0.0, yres]
-            left, right = dataset[dims[1]][0] - 0.5 * xres, dataset[dims[1]][-1] + 0.5 * xres
-            bottom, top = dataset[dims[0]][0] - 0.5 * yres, dataset[dims[0]][-1] + 0.5 * yres
-
-            bounds = BoundingBox(left=left, bottom=bottomm, right=right, top=top)
+            geobox = calculate_bounds_geotransform(dataset)
+            bounds = BoundingBox(left=geobox['left'], bottom=geobox['bottom'], right=geobox['right'], top=geobox['top'])
         else:
             crs = dataset.crs.crs_str
     else:
