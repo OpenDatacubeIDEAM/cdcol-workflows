@@ -95,6 +95,8 @@ def _get_transform_from_xr(dataset):
     print(geotransform)
     return geotransform
 
+
+
 def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:4326"):
 
     """Write a geotiff from an xarray dataset.
@@ -152,3 +154,22 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
             dst.update_tags(**tag)
             dst.set_band_description(index + 1, band)
         dst.close()
+
+
+def translate_netcdf_to_tiff(task_id, algorithm,folder,files):
+    bash_script_path = os.path.join(common.ALGORITHMS_FOLDER, "generate-geotiff", "generate-geotiff_1.0.sh")
+    try:
+        p = Popen([bash_script_path, task_id, algorithm, folder] + files, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = p.communicate()
+        stdout = stdout.decode('utf-8')
+        stderr = stderr.decode('utf-8')
+        # out = check_output([bash_script_path, folder]+_files)
+        if stdout:
+            print(stdout)
+            return glob.glob("{}*{}*".format(self.folder, self.task_id))
+        else:
+            print(stderr)
+            raise AirflowSkipException("ERROR")
+
+    except CalledProcessError as cpe:
+        print('Error generating geotiff ')
