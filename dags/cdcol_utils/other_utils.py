@@ -24,6 +24,9 @@ def compress_results(execID,**kwargs):
     dag_results_folder = "{}/{}/".format(common.RESULTS_FOLDER, execID)
     if os.path.exists(dag_results_folder) and os.path.isdir(dag_results_folder) and len(os.listdir(dag_results_folder))>0:
             for folder, subfolders, files in os.walk(dag_results_folder):
+                print(folder)
+                print(subfolder)
+                print(files)
                 with zipfile.ZipFile(os.path.join(dag_results_folder, "resultados_{}.zip".format(execID)),"w") as file_to_compress:
                     for subfolder in subfolders:
                         if len(os.listdir(os.path.join(folder,subfolder)))==0:
