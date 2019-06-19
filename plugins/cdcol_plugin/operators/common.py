@@ -167,10 +167,10 @@ def translate_netcdf_to_tiff(task_id, algorithm,folder,files):
         # out = check_output([bash_script_path, folder]+_files)
         if stdout:
             print(stdout)
-            return glob.glob("{}*{}*".format(self.folder, self.task_id))
+            return glob.glob("{}*{}*".format(folder, task_id))
         else:
             print(stderr)
             raise AirflowSkipException("ERROR")
 
     except CalledProcessError as cpe:
-        print('Error generating geotiff ')
+        print('Error: No se pudo generarel geotiff ')
