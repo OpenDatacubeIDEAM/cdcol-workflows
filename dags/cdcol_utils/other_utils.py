@@ -33,7 +33,11 @@ def compress_results(execID,**kwargs):
                             shutil.rmtree(os.path.join(folder,subfolder), ignore_errors=True)
                         else:
                             for file in os.listdir(os.path.join(folder,subfolder)):
-                                file_to_compress.write(os.path.join(folder, subfolder, file),compress_type=zipfile.ZIP_DEFLATED)
+                                file_to_compress.write(os.path.join(folder, subfolder, file),
+                                                       os.path.relpath(os.path.join(subfolder, file),
+                                                                       dag_results_folder),
+                                                       compress_type=zipfile.ZIP_DEFLATED)
+                                #file_to_compress.write(os.path.join(folder, subfolder, file),compress_type=zipfile.ZIP_DEFLATED)
                 file_to_compress.close()
                 return os.path.join(dag_results_folder, "resultados_{}.zip".format(execID))
 
