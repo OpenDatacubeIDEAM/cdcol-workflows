@@ -7,8 +7,10 @@ import datacube
 import numpy as np
 from datacube.drivers.netcdf import writer as netcdf_writer
 from datacube.utils.geometry import CRS
+from datacube.utils import geometry, data_resolution_and_offset
 from rasterio.transform import from_bounds
 from rasterio.warp import reproject, Resampling
+from rasterio.coords import BoundingBox
 from subprocess import CalledProcessError, Popen, PIPE, check_output
 from affine import Affine
 import rasterio
@@ -125,29 +127,30 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
         if isinstance(dataset.crs, xr.DataArray):
             crs_dict = dataset.crs.to_dict()
             crs = CRS.from_wkt(crs_dict['attrs']['crs_wkt'])
-            transform = Affine(crs_dict['attrs']['GeoTransform'][1],
-                               crs_dict['attrs']['GeoTransform'][2],
-                               dataset.longitude[0],
-                               crs_dict['attrs']['GeoTransform'][4],
-                               crs_dict['attrs']['GeoTransform'][5],
-                               dataset.latitude[-1])
+
+            dims = dataset.crs.dimensions
+            xres, xoff = data_resolution_and_offset(dataset[dims[1]])
+            yres, yoff = data_resolution_and_offset(dataset[dims[0]])
+            crs_var.GeoTransform = [xoff, xres, 0.0, yoff, 0.0, yres]
+            left, right = dataset[dims[1]][0] - 0.5 * xres, dataset[dims[1]][-1] + 0.5 * xres
+            bottom, top = dataset[dims[0]][0] - 0.5 * yres, dataset[dims[0]][-1] + 0.5 * yres
+            bounds = BoundingBox(left=left, bottom=bottomm, right=right, top=top)
         else:
-            transform = _get_transform_from_xr(dataset)
             crs = dataset.crs.crs_str
     else:
         transform = _get_transform_from_xr(dataset)
-    print(dataset[bands[0]].dtype)
-    with rasterio.open(
-            tif_path,
-            'w',
-            driver='GTiff',
-            height=dataset.dims['latitude'],
-            width=dataset.dims['longitude'],
-            count=len(bands),
-            dtype=dataset[bands[0]].dtype,#str(dataset[bands[0]].dtype),
-            crs=crs,
-            transform=transform,
-            nodata=no_data) as dst:
+
+
+    with rasterio.open(tif_path,'w',
+                       driver='GTiff',
+                       height=dataset.dims['latitude'],
+                       width=dataset.dims['longitude'],
+                       count=len(bands),
+                       dtype=dataset[bands[0]].dtype,#str(dataset[bands[0]].dtype),
+                       crs=crs,
+                       transform=transform,
+                       bounds=bounds,
+                       nodata=no_data) as dst:
         for index, band in enumerate(bands):
             print(dataset[band].dtype)
             dst.write_band(index + 1, dataset[band].values.astype(dataset[bands[0]].dtype), )
