@@ -37,7 +37,7 @@ def queryMapByTileByYear(lat, lon, time_ranges, queue, dag, algorithm, version, 
         alg_folder=alg_folder,
         dag=dag, task_id="{}{}{}_{}".format(task_id, str(LAT), str(LON), "01-01-" + str(T) + "_31-12-" + str(T)),
         **kwargs) for LAT in range(*lat) for LON in range(*lon) for T in
-        range(int(time_ranges[0].split('-')[0]), (int(time_ranges[1].split('-')[0])) + 1)]
+        range(int(time_ranges[0].split('-')[2]), (int(time_ranges[1].split('-')[2])) + 1)]
 
 
 def queryMapByTileByMonths(lat, lon, time_ranges, queue, dag, algorithm, version, params={}, months=12, to_tiff=False, task_id="med", alg_folder=common.ALGORITHMS_FOLDER,
