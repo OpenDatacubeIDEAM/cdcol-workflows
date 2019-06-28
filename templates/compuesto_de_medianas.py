@@ -15,14 +15,14 @@ _steps = {
         'algorithm': "mascara-landsat",
         'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges'][0]),
-        'params': {'bands': _params['bands']},
+        'params': {},
     },
     'reduccion': {
         'algorithm': "joiner-reduce",
         'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
-        'params': {'bands': _params['bands']},
+        'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
     'medianas': {
@@ -31,7 +31,7 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
         'params': {
-            'bands': _params['bands'],
+            'normalized':_params['normalized'],
             'minValid': _params['minValid'],
         },
         'del_prev_result': _params['elimina_resultados_anteriores'],
@@ -77,10 +77,10 @@ if len(_params['products']) > 1:
                                          task_id="mascara_" + _params['products'][1]['name'])
 
     reduccion = dag_utils.reduceByTile(mascara_0 + mascara_1,
-                                       product=_params['products'][0],
                                        algorithm=_steps['reduccion']['algorithm'],
                                        version=_steps['reduccion']['version'],
                                        queue=_steps['reduccion']['queue'],
+                                       product=_params['products'][0],
                                        dag=dag, task_id="joined",
                                        delete_partial_results=_steps['reduccion']['del_prev_result'],
                                        params=_steps['reduccion']['params'], )
@@ -95,10 +95,10 @@ medianas = dag_utils.IdentityMap(
     task_id="medianas",
     queue=_steps['medianas']['queue'], dag=dag,
     delete_partial_results=_steps['medianas']['del_prev_result'],
-    params=_steps['medianas']['params'], to_tiff= not _params['genera_mosaico'])
+    params=_steps['medianas']['params'], to_tiff= not (_params['genera_mosaico'] and queue_utils.get_tiles(_params['lat'],_params['lon'])>1))
 
 workflow = medianas
-if _params['genera_mosaico']:
+if _params['genera_mosaico'] and queue_utils.get_tiles(_params['lat'],_params['lon'])>1:
     mosaico = dag_utils.OneReduce(workflow, task_id="mosaic",
                                   algorithm=_steps['mosaico']['algorithm'],
                                   version=_steps['mosaico']['version'],

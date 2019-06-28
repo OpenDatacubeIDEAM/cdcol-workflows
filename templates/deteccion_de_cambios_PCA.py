@@ -1,4 +1,3 @@
-import airflow
 from airflow.models import DAG
 from airflow.operators import CDColQueryOperator, CDColFromFileOperator, CDColReduceOperator
 from airflow.operators.python_operator import PythonOperator
@@ -15,14 +14,14 @@ _steps = {
         'algorithm': "mascara-landsat",
         'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges'][0]),
-        'params': {'bands': _params['bands']},
+        'params': {},
     },
     'reduccion': {
         'algorithm': "joiner-reduce",
         'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
-        'params': {'bands': _params['bands']},
+        'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
     'medianas': {
@@ -31,7 +30,7 @@ _steps = {
         'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
         'params': {
-            'bands': _params['bands'],
+            'normalized':_params['normalized'],
             'minValid': _params['minValid'],
         },
         'del_prev_result': _params['elimina_resultados_anteriores'],
@@ -47,7 +46,7 @@ _steps = {
         'algorithm': "deteccion-cambios-pca-wf",
         'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
-        'params': {'bands':_params['bands']},
+        'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
     'geotiff': {
@@ -119,7 +118,7 @@ if queue_utils.get_tiles(_params['lat'],_params['lon'])>1:
                                             version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
                                             delete_partial_results=_steps['mosaico']['del_prev_result'],
                                             trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
-    
+
     resultado_completo = mosaico_periodo_1+mosaico_periodo_2
 else:
     resultado_completo = medianas_periodo_1+medianas_periodo_2
@@ -130,8 +129,10 @@ pca = dag_utils.reduceByTile(resultado_completo,
                              algorithm=_steps['pca']['algorithm'],
                              version=_steps['pca']['version'],
                              queue=_steps['pca']['queue'],
+                             product=_params['products'][0],
                              dag=dag,
                              delete_partial_results=_steps['pca']['del_prev_result'],
                              params=_steps['pca']['params'], to_tiff=True)
 
 pca
+

@@ -15,14 +15,14 @@ _steps = {
         'algorithm': "mascara-landsat",
         'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges'][0]),
-        'params': {'bands': _params['bands']},
+        'params': {},
     },
     'reduccion': {
         'algorithm': "joiner-reduce",
         'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
-        'params': {'bands': _params['bands']},
+        'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
     'medianas': {
@@ -30,10 +30,7 @@ _steps = {
         'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
-        'params': {
-            'bands': _params['bands'],
-            'minValid': _params['minValid'],
-        },
+        'params': {'minValid': _params['minValid'], 'normalized':_params['normalized']},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
     'ndvi': {
@@ -106,10 +103,10 @@ ndvi = dag_utils.IdentityMap(medianas, algorithm=_steps['ndvi']['algorithm'],
                              version=_steps['ndvi']['version'],
                              queue=_steps['ndvi']['queue'],
                              delete_partial_results=_steps['ndvi']['del_prev_result'], dag=dag,
-                             task_id="ndvi", to_tiff= not _params['genera_mosaico'])
+                             task_id="ndvi", to_tiff= not (_params['genera_mosaico'] and queue_utils.get_tiles(_params['lat'],_params['lon'])>1))
 
 workflow = ndvi
-if _params['genera_mosaico']:
+if _params['genera_mosaico'] and queue_utils.get_tiles(_params['lat'],_params['lon'])>1:
     mosaico = dag_utils.OneReduce(workflow, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],
                                   version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
                                   delete_partial_results=_steps['mosaico']['del_prev_result'],
@@ -118,3 +115,4 @@ if _params['genera_mosaico']:
     workflow = mosaico
 
 workflow
+

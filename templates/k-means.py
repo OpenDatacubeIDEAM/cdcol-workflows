@@ -14,24 +14,24 @@ _steps = {
     'mascara': {
         'algorithm': "mascara-landsat",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),
-        'params': {'bands': _params['bands']},
+        'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges'][0]),
+        'params': {},
     },
     'reduccion': {
         'algorithm': "joiner-reduce",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
-        'params': {'bands': _params['bands']},
+        'params': {},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     },
     'medianas': {
         'algorithm': "compuesto-temporal-medianas-wf",
         'version': '1.0',
-        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'],
+        'queue': queue_utils.assign_queue(input_type='multi_temporal_unidad', time_range=_params['time_ranges'][0],
                                           unidades=len(_params['products'])),
         'params': {
-            'bands': _params['bands'],
+            'normalized':_params['normalized'],
             'minValid': _params['minValid'],
         },
         'del_prev_result': _params['elimina_resultados_anteriores'],
@@ -47,7 +47,7 @@ _steps = {
         'algorithm': "k-means-wf",
         'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_area', lat=_params['lat'], lon=_params['lon']),
-        'params': {'classes': _params['classes']},
+        'params': {'clases': _params['clases']},
         'del_prev_result': _params['elimina_resultados_anteriores'],
     }
 
@@ -66,7 +66,7 @@ dag = DAG(
     dagrun_timeout=timedelta(minutes=120))
 
 mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
-                                     time_ranges=_params['time_ranges'],
+                                     time_ranges=_params['time_ranges'][0],
                                      algorithm=_steps['mascara']['algorithm'], version=_steps['mascara']['version'],
                                      product=_params['products'][0],
                                      params=_steps['mascara']['params'],
@@ -75,7 +75,7 @@ mascara_0 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
 
 if len(_params['products']) > 1:
     mascara_1 = dag_utils.queryMapByTile(lat=_params['lat'], lon=_params['lon'],
-                                         time_ranges=_params['time_ranges'],
+                                         time_ranges=_params['time_ranges'][0],
                                          algorithm=_steps['mascara']['algorithm'],
                                          version=_steps['mascara']['version'],
                                          product=_params['products'][1],
@@ -102,10 +102,14 @@ medianas = dag_utils.IdentityMap(
     delete_partial_results=_steps['medianas']['del_prev_result'],
     params=_steps['medianas']['params'])
 
-mosaico = dag_utils.OneReduce(medianas, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],product=_params['products'][0],
+workflow=medianas
+
+if  queue_utils.get_tiles(_params['lat'],_params['lon'])>1:
+    mosaico = dag_utils.OneReduce(workflow, task_id="mosaic", algorithm=_steps['mosaico']['algorithm'],product=_params['products'][0],
                                   version=_steps['mosaico']['version'], queue=_steps['mosaico']['queue'],
                                   delete_partial_results=_steps['mosaico']['del_prev_result'],
                                   trigger_rule=TriggerRule.NONE_FAILED, dag=dag)
+    workflow = mosaico
 
 kmeans = CDColFromFileOperator(task_id="k_means",
                                product=_params['products'][0],
@@ -115,4 +119,4 @@ kmeans = CDColFromFileOperator(task_id="k_means",
                                lat=_params['lat'], lon=_params['lon'],
                                params=_steps['k_means']['params'], to_tiff=True)
 
-mosaico >> kmeans
+workflow >> kmeans
