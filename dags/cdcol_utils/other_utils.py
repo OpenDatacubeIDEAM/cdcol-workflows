@@ -27,19 +27,20 @@ def compress_results(execID,**kwargs):
                 print(folder)
                 print(subfolders)
                 print(files)
-                with zipfile.ZipFile(os.path.join(dag_results_folder, "resultados_{}.zip".format(execID)),"w") as file_to_compress:
-                    for subfolder in subfolders:
+                for subfolder in subfolders:
                         if len(os.listdir(os.path.join(folder,subfolder)))==0:
                             shutil.rmtree(os.path.join(folder,subfolder), ignore_errors=True)
-                        else:
-                            for file in os.listdir(os.path.join(folder,subfolder)):
-                                file_to_compress.write(os.path.join(folder, subfolder, file),
-                                                       os.path.relpath(os.path.join(subfolder, file),
-                                                                       dag_results_folder),
-                                                       compress_type=zipfile.ZIP_DEFLATED)
-                                #file_to_compress.write(os.path.join(folder, subfolder, file),compress_type=zipfile.ZIP_DEFLATED)
-                file_to_compress.close()
-                return os.path.join(dag_results_folder, "resultados_{}.zip".format(execID))
+
+                if len(os.listdir(dag_results_folder))>0:
+                    with zipfile.ZipFile(os.path.join(dag_results_folder, "resultados_{}.zip".format(execID)),"w") as file_to_compress:
+                        for subfolder in subfolders:
+                            if os.path.exists(os.path.join(folder,subfolder)):
+                                for file in os.listdir(os.path.join(folder,subfolder)):
+                                    file_to_compress.write(os.path.join(folder, subfolder, file),os.path.relpath(os.path.join(subfolder, file),dag_results_folder),compress_type=zipfile.ZIP_DEFLATED)
+                                    #file_to_compress.write(os.path.join(folder, subfolder, file),compress_type=zipfile.ZIP_DEFLATED)
+                    file_to_compress.close()
+                    return os.path.join(dag_results_folder, "resultados_{}.zip".format(execID))
+               
 
 
 

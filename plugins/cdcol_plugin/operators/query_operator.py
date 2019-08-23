@@ -56,6 +56,7 @@ class CDColQueryOperator(BaseOperator):
         xanm = "xarr"
         start = time.time()
         bands = []
+        print(self.time_ranges)
         if self.product['bands'] != None and len(self.product['bands']) > 0:
             bands = self.product['bands']
         if isinstance(self.time_ranges, list) and self.alg_folder == common.COMPLETE_ALGORITHMS_FOLDER:
@@ -97,6 +98,7 @@ class CDColQueryOperator(BaseOperator):
                                                                        self.lon[0],
                                                                        re.sub('[^\w_.)(-]', '', str(self.time_ranges)))
                 common.write_geotiff_from_xr(filename, output)
+                #common.saveNC(output, filename, history)
             else:
                 filename = folder + "{}_{}_{}_{}_{}_output.nc".format(self.task_id, str(self.algorithm), self.lat[0],
                                                                       self.lon[0],

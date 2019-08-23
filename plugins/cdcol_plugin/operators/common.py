@@ -36,14 +36,56 @@ RESULTS_FOLDER = "/web_storage/results"
 LOGS_FOLDER = "/web_storage/logs"
 nodata=-9999
 
+
+#def saveNC(output,filename,history):
+#    output.to_netcdf(filename,format='NETCDF3_CLASSIC')
+
 def saveNC(output,filename,history):
+
+    logging.info('saveNC: dataset {} - {}'.format(
+        type(output),output
+        )
+    )
+
     start = time.time()
     nco=netcdf_writer.create_netcdf(filename)
     nco.history = (history.encode('ascii','replace'))
 
     coords=output.coords
     cnames=()
-    for x in coords:
+
+    # This 3 lines were created by Aurelio
+    # if an error occurs in this function please
+    # check this 3 lines first.
+    # we reorder the coordinates system to match
+    coord_names = list(output.coords.keys())
+
+    print('coord_names_antes',coord_names)
+
+    sample_coords = []
+    if 'time' in coord_names:
+        sample_coords.append('time')
+        coord_names.remove('time')
+
+    if 'latitude' in coord_names:
+        sample_coords.append('latitude')
+        coord_names.remove('latitude')
+    else:
+        raise Exception("No hay 'latitude' como coordenada en el dataset")
+
+    if 'longitude' in coord_names:
+        sample_coords.append('longitude')
+        coord_names.remove('longitude')
+    else:
+        raise Exception("No hay 'longitude' como coordenada en el dataset")
+
+    sample_coords = sample_coords + coord_names
+    coord_names = sample_coords
+
+    print('coord_names_despues',coord_names)
+
+    #for x in coords:
+    for x in coord_names:
         if not 'units' in coords[x].attrs:
             if x == "time":
                 coords[x].attrs["units"]=u"seconds since 1970-01-01 00:00:00"
@@ -66,6 +108,7 @@ def saveNC(output,filename,history):
     logging.info('TIEMPO SALIDA NC:' + str((end - start)))
 
 def readNetCDF(file):
+
     start = time.time()
     try:
         _xarr=xr.open_dataset(file, mask_and_scale=True)
@@ -74,6 +117,13 @@ def readNetCDF(file):
             _xarr = _xarr.drop('crs')
         end = time.time()
         logging.info('TIEMPO CARGA NC:' + str((end - start)))
+
+
+        logging.info('readNetCDF: dataset {} - {}'.format(
+            type(_xarr),_xarr
+            )
+        )
+
         return _xarr
     except Exception as e:
         logging.info('ERROR CARGA NC:' + str(e))
@@ -102,10 +152,24 @@ def _get_transform_from_xr(dataset):
     return geotransform
 
 def calculate_bounds_geotransform(dataset):
-    crs_dict = dataset.crs.to_dict()
-    _crs = CRS(str(crs_dict['attrs']['spatial_ref']))
+
+    # Convert rasterio CRS into datacube CRS object
+    if isinstance(dataset.crs,xr.DataArray):
+        crs_dict = dataset.crs.to_dict()
+        _crs = CRS(str(crs_dict['attrs']['spatial_ref']))
+
+    # Leave the CRS as it is (datacube CRS object)
+    elif isinstance(dataset.crs,datacube.utils.geometry._base.CRS):
+        _crs = dataset.crs
+
+    else:
+        raise Exception('dataset.crs datatype not know (please check calculate_bounds_geotransform)')
+
+    #crs_dict = dataset.crs.to_dict()
+    #_crs = CRS(str(crs_dict['attrs']['spatial_ref']))
+
     dims = _crs.dimensions
-    print(dims)
+
     xres, xoff = data_resolution_and_offset(dataset[dims[1]])
     yres, yoff = data_resolution_and_offset(dataset[dims[0]])
     GeoTransform = [xoff, xres, 0.0, yoff, 0.0, yres]
@@ -138,16 +202,40 @@ def write_geotiff_from_xr(tif_path, dataset, bands=[], no_data=-9999, crs="EPSG:
     bands=list(dataset.data_vars.keys())
     assert isinstance(bands, list), "Bands must a list of strings"
     assert len(bands) > 0 and isinstance(bands[0], str), "You must supply at least one band."
-    if dataset.crs is not None:
-        if isinstance(dataset.crs, xr.DataArray):
-            crs_dict = dataset.crs.to_dict()
-            crs = CRS_rasterio.from_wkt(crs_dict['attrs']['crs_wkt'])
-            geobox = calculate_bounds_geotransform(dataset)
-            bounds = BoundingBox(left=geobox['left'], bottom=geobox['bottom'], right=geobox['right'], top=geobox['top'])
-        else:
-            crs = dataset.crs.crs_str
+
+    logging.info('write_geotiff_from_xr: dataset {} - {}'.format(
+        type(dataset),dataset
+        )
+    )
+
+    #print(dataset.crs)
+    #if dataset.crs is not None:
+    #    if isinstance(dataset.crs, xr.DataArray):
+    #        print(type(dataset.crs))
+    #        crs_dict = dataset.crs.to_dict()
+    #        crs = CRS_rasterio.from_wkt(crs_dict['attrs']['crs_wkt'])
+    #        print(crs_dict['attrs'])
+    #        geobox = calculate_bounds_geotransform(dataset)
+    #        bounds = BoundingBox(left=geobox['left'], bottom=geobox['bottom'], right=geobox['right'], top=geobox['top'])
+    #    else:
+    #        crs = dataset.crs.crs_str
+    #else:
+    #    print("no entra")
+    #    transform = _get_transform_from_xr(dataset)
+
+    #transform = _get_transform_from_xr(dataset)
+
+    if isinstance(dataset.crs,xr.DataArray):
+        crs_dict = dataset.crs.to_dict()
+        crs = CRS_rasterio.from_wkt(crs_dict['attrs']['crs_wkt'])
+
+    elif isinstance(dataset.crs,datacube.utils.geometry._base.CRS):
+        crs = CRS_rasterio.from_string(dataset.crs.crs_str)
     else:
-        transform = _get_transform_from_xr(dataset)
+        raise Exception('dataset.crs datatype not know (please check calculate_bounds_geotransform)')
+
+    geobox = calculate_bounds_geotransform(dataset)
+    bounds = BoundingBox(left=geobox['left'], bottom=geobox['bottom'], right=geobox['right'], top=geobox['top'])
 
     transform = _get_transform_from_xr(dataset)
 

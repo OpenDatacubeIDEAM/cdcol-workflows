@@ -9,6 +9,15 @@ from cdcol_plugin.operators import common
 from datetime import timedelta, datetime
 from dateutil.relativedelta import relativedelta
 from pprint import pprint
+import logging
+
+logging.basicConfig(
+    format='%(levelname)s : %(asctime)s : %(message)s',
+    level=logging.DEBUG
+)
+
+# To print loggin information in the console
+logging.getLogger().addHandler(logging.StreamHandler())
 
 
 def queryMapByTile(lat, lon, time_ranges, queue, dag, algorithm, version, params={}, to_tiff=False, task_id="med", alg_folder=common.ALGORITHMS_FOLDER,  **kwargs):
@@ -25,19 +34,72 @@ def queryMapByTile(lat, lon, time_ranges, queue, dag, algorithm, version, params
         range(*lon)]
 
 
+#def queryMapByTileByYear(lat, lon, time_ranges, queue, dag, algorithm, version, params={}, to_tiff=False, task_id="med", alg_folder=common.ALGORITHMS_FOLDER, **kwargs):
+#    logging.info("queryMapByTileByYear Latitude: {}, Longitude: {}, Time Range: {}".format(lat,lon,time_ranges))
+#    tasks = [CDColQueryOperator(
+#        algorithm=algorithm, version=version,
+#        lat=(LAT, LAT + 1),
+#        lon=(LON, LON + 1),
+#        time_ranges=("01-01-" + str(T), "31-12-" + str(T)),
+#        params=params,
+#        queue=queue,
+#        to_tiff=to_tiff,
+#        alg_folder=alg_folder,
+#        dag=dag, task_id="{}{}{}_{}".format(task_id, str(LAT), str(LON), "01-01-" + str(T) + "_31-12-" + str(T)),
+#        **kwargs) for LAT in range(*lat) for LON in range(*lon) for T in
+#        range(int(time_ranges[0].split('-')[2]), (int(time_ranges[1].split('-')[2])) + 1)]
+#    return tasks
+
+
 def queryMapByTileByYear(lat, lon, time_ranges, queue, dag, algorithm, version, params={}, to_tiff=False, task_id="med", alg_folder=common.ALGORITHMS_FOLDER, **kwargs):
-    return [CDColQueryOperator(
-        algorithm=algorithm, version=version,
-        lat=(LAT, LAT + 1),
-        lon=(LON, LON + 1),
-        time_ranges=("01-01-" + str(T), "31-12-" + str(T)),
-        params=params,
-        queue=queue,
-        to_tiff=to_tiff,
-        alg_folder=alg_folder,
-        dag=dag, task_id="{}{}{}_{}".format(task_id, str(LAT), str(LON), "01-01-" + str(T) + "_31-12-" + str(T)),
-        **kwargs) for LAT in range(*lat) for LON in range(*lon) for T in
-        range(int(time_ranges[0].split('-')[2]), (int(time_ranges[1].split('-')[2])) + 1)]
+    logging.info("queryMapByTileByYear Latitude: {}, Longitude: {}, Time Range: {}".format(lat,lon,time_ranges))
+
+    lat_min, lat_max = lat
+    lon_min, lon_max = lon
+
+    # Time ranges is a tuple 
+    time_min, time_max = time_ranges
+
+    time_min = datetime.strptime(time_min, '%Y-%m-%d')
+    time_max = datetime.strptime(time_max, '%Y-%m-%d')
+
+    tasks = []
+
+    # range exclude the last number, example range(1,5) = [1,2,3,4]
+    for latitude in range(lat_min,lat_max):
+        for longitude in range(lon_min,lon_max):
+            for time_year in range(time_min.year,time_max.year + 1):
+
+                time_range_min =  "{}-{}-{}".format(time_year,time_min.strftime('%m'),time_min.strftime('%d'))
+                time_range_max =  "{}-{}-{}".format(time_year,time_max.strftime('%m'),time_max.strftime('%d'))
+
+                logging.info("queryMapByTileByYear Time Range {} and {}".format(time_range_min,time_range_max))
+
+                # Task id can not be more than 250 charecters
+                task_ident = "{}{}{}_{}".format(task_id, latitude, longitude, time_range_min + "_" + time_range_max)
+
+                logging.info("queryMapByTileByYear Task id len: {}-{}".format( len(task_id),task_id ) )
+
+                task = CDColQueryOperator(
+                    dag=dag,
+                    task_id=task_ident,
+                    queue=queue,
+
+                    algorithm=algorithm, 
+                    version=version,
+                    lat=(latitude, latitude + 1),
+                    lon=(longitude, longitude + 1),
+                    time_ranges=(time_range_min, time_range_max),
+                    to_tiff=to_tiff,
+                    alg_folder=alg_folder,
+                    **kwargs
+                )
+
+                tasks.append(task)
+
+    return tasks
+
+
 
 
 def queryMapByTileByMonths(lat, lon, time_ranges, queue, dag, algorithm, version, params={}, months=12, to_tiff=False, task_id="med", alg_folder=common.ALGORITHMS_FOLDER,

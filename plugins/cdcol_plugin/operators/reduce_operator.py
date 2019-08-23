@@ -82,10 +82,13 @@ class CDColReduceOperator(BaseOperator):
             if self.to_tiff:
                 filename = folder + "{}_output.tif".format(_exp)
                 common.write_geotiff_from_xr(filename, output)
-                # filename = folder + "{}_{}_{}_{}_{}_output.nc".format(self.task_id, str(self.algorithm),
+                # Siguientes 4 lineas descomentadas por Aurelio
+                #filename = folder + "{}_output.nc".format(_exp)
+
+                #filename = folder + "{}_{}_{}_{}_{}_output.nc".format(self.task_id, str(self.algorithm),
                 #                                                       _fn.split("_")[2], _fn.split("_")[3],
                 #                                                       _fn.split("_")[4])
-                # common.saveNC(output, filename, history)
+                #common.saveNC(output, filename, history)
                 # common.translate_netcdf_to_tiff(self.task_id, str(self.algorithm), self.folder, [filename])
             else:
                 filename = folder + "{}_output.nc".format(_exp)
