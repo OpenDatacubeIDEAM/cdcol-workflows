@@ -1,0 +1,446 @@
+[2020-10-08 09:14:00,776] {settings.py:174} INFO - settings.configure_orm(): Using pool settings. pool_size=5, pool_recycle=1800, pid=31044
+[2020-10-08 09:14:02,077] {__init__.py:51} INFO - Using executor CeleryExecutor
+[2020-10-08 09:14:02,272] {models.py:273} INFO - Filling up the DagBag from /home/cubo/airflow/dags
+****************************************************************************************************
+Reduccion: 
+<class 'dict_values'>
+dict_values([<Task(CDColReduceOperator): joined_10_11_-75_-74>])
+Mosaico:
+<class 'list'>
+[<Task(CDColQueryOperator): consulta_referencia_DEM_Mosaico10-75>]
+[2020-10-08 09:14:02,709] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (4, 6), Longitude: (-71, -69), Time Range: ('2011-03-01', '2011-03-31')
+[2020-10-08 09:14:02,710] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,710] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,711] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,711] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,711] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,712] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,712] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,712] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,718] {models.py:377} ERROR - Failed to import: /home/cubo/airflow/dags/exec_4415.py
+Traceback (most recent call last):
+  File "/home/cubo/airflow/dags/cdcol_utils/queue_utils.py", line 38, in assign_queue
+    start_date_value = datetime.datetime.strptime(time_range[0], "%d-%m-%Y")
+TypeError: strptime() argument 1 must be str, not tuple
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/cubo/anaconda/lib/python3.6/site-packages/airflow/models.py", line 374, in process_file
+    m = imp.load_source(mod_name, filepath)
+  File "/home/cubo/anaconda/lib/python3.6/imp.py", line 172, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 684, in _load
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 678, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/cubo/airflow/dags/exec_4415.py", line 36, in <module>
+    'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),
+  File "/home/cubo/airflow/dags/cdcol_utils/queue_utils.py", line 41, in assign_queue
+    start_date_value = datetime.datetime.strptime(time_range[0], "%Y-%m-%d")
+TypeError: strptime() argument 1 must be str, not tuple
+[2020-10-08 09:14:02,726] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (6, 8), Longitude: (-73, -71), Time Range: ('2011-02-01', '2011-02-28')
+[2020-10-08 09:14:02,727] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,727] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,727] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,727] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,728] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,728] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,728] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,729] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,736] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (6, 8), Longitude: (-71, -69), Time Range: ('2011-02-01', '2011-02-28')
+[2020-10-08 09:14:02,736] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,736] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,737] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,737] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,737] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,737] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,738] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,738] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,745] {models.py:377} ERROR - Failed to import: /home/cubo/airflow/dags/exec_4593.py
+Traceback (most recent call last):
+  File "/home/cubo/anaconda/lib/python3.6/site-packages/airflow/models.py", line 374, in process_file
+    m = imp.load_source(mod_name, filepath)
+  File "/home/cubo/anaconda/lib/python3.6/imp.py", line 172, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 684, in _load
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 678, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/cubo/airflow/dags/exec_4593.py", line 202, in <module>
+    reduccion_lansat + mascara_dem_mosaic,
+TypeError: unsupported operand type(s) for +: 'dict_values' and 'list'
+[2020-10-08 09:14:02,748] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (4, 6), Longitude: (-74, -71), Time Range: ('2011-04-01', '2011-04-30')
+[2020-10-08 09:14:02,748] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,749] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,749] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,749] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,749] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,750] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,750] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,750] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,750] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,751] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,751] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,751] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,758] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (4, 6), Longitude: (-74, -71), Time Range: ('2011-01-01', '2011-01-31')
+[2020-10-08 09:14:02,758] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,759] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,759] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,759] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,759] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,759] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,760] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,760] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,760] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,760] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,761] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,761] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,769] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (6, 8), Longitude: (-73, -71), Time Range: ('2011-04-01', '2011-04-30')
+[2020-10-08 09:14:02,770] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,770] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,770] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,770] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,771] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,771] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,771] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,771] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,776] {models.py:377} ERROR - Failed to import: /home/cubo/airflow/dags/exec_4472.py
+Traceback (most recent call last):
+  File "/home/cubo/anaconda/lib/python3.6/site-packages/airflow/models.py", line 374, in process_file
+    m = imp.load_source(mod_name, filepath)
+  File "/home/cubo/anaconda/lib/python3.6/imp.py", line 172, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 684, in _load
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 678, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/cubo/airflow/dags/exec_4472.py", line 36, in <module>
+    'params': {'bands': _params['bands']},
+KeyError: 'bands'
+[2020-10-08 09:14:02,778] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (4, 6), Longitude: (-71, -69), Time Range: ('2011-01-01', '2011-01-31')
+[2020-10-08 09:14:02,778] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,778] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,779] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,779] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,779] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,779] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,780] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,780] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,795] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (4, 6), Longitude: (-71, -69), Time Range: ('2011-04-01', '2011-04-30')
+[2020-10-08 09:14:02,795] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,796] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,796] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,796] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,796] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,796] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,797] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:02,797] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,804] {models.py:377} ERROR - Failed to import: /home/cubo/airflow/dags/exec_4471.py
+Traceback (most recent call last):
+  File "/home/cubo/anaconda/lib/python3.6/site-packages/airflow/models.py", line 374, in process_file
+    m = imp.load_source(mod_name, filepath)
+  File "/home/cubo/anaconda/lib/python3.6/imp.py", line 172, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 684, in _load
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 674, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 781, in get_code
+  File "<frozen importlib._bootstrap_external>", line 741, in source_to_code
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/cubo/airflow/dags/exec_4471.py", line 13
+    _params =
+            ^
+SyntaxError: invalid syntax
+[2020-10-08 09:14:02,815] {models.py:377} ERROR - Failed to import: /home/cubo/airflow/dags/exec_4412.py
+Traceback (most recent call last):
+  File "/home/cubo/airflow/dags/cdcol_utils/queue_utils.py", line 38, in assign_queue
+    start_date_value = datetime.datetime.strptime(time_range[0], "%d-%m-%Y")
+TypeError: strptime() argument 1 must be str, not tuple
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/cubo/anaconda/lib/python3.6/site-packages/airflow/models.py", line 374, in process_file
+    m = imp.load_source(mod_name, filepath)
+  File "/home/cubo/anaconda/lib/python3.6/imp.py", line 172, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 684, in _load
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 678, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/cubo/airflow/dags/exec_4412.py", line 36, in <module>
+    'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),
+  File "/home/cubo/airflow/dags/cdcol_utils/queue_utils.py", line 41, in assign_queue
+    start_date_value = datetime.datetime.strptime(time_range[0], "%Y-%m-%d")
+TypeError: strptime() argument 1 must be str, not tuple
+[2020-10-08 09:14:02,817] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (4, 6), Longitude: (-74, -71), Time Range: ('2011-02-01', '2011-02-28')
+[2020-10-08 09:14:02,817] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,818] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,818] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,818] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,818] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,819] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,819] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,819] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,819] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,820] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,820] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,820] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,824] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (6, 8), Longitude: (-73, -71), Time Range: ('2011-06-01', '2011-06-30')
+[2020-10-08 09:14:02,825] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-06-01 and 2011-06-30
+[2020-10-08 09:14:02,825] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,825] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-06-01 and 2011-06-30
+[2020-10-08 09:14:02,825] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,826] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-06-01 and 2011-06-30
+[2020-10-08 09:14:02,826] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,826] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-06-01 and 2011-06-30
+[2020-10-08 09:14:02,826] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,832] {models.py:377} ERROR - Failed to import: /home/cubo/airflow/dags/exec_4175.py
+Traceback (most recent call last):
+  File "/home/cubo/anaconda/lib/python3.6/site-packages/airflow/models.py", line 374, in process_file
+    m = imp.load_source(mod_name, filepath)
+  File "/home/cubo/anaconda/lib/python3.6/imp.py", line 172, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 684, in _load
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 678, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/cubo/airflow/dags/exec_4175.py", line 69, in <module>
+    'product':_params['products'][0]
+IndexError: list index out of range
+[2020-10-08 09:14:02,843] {models.py:377} ERROR - Failed to import: /home/cubo/airflow/dags/exec_4411.py
+Traceback (most recent call last):
+  File "/home/cubo/airflow/dags/cdcol_utils/queue_utils.py", line 38, in assign_queue
+    start_date_value = datetime.datetime.strptime(time_range[0], "%d-%m-%Y")
+TypeError: strptime() argument 1 must be str, not tuple
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/cubo/anaconda/lib/python3.6/site-packages/airflow/models.py", line 374, in process_file
+    m = imp.load_source(mod_name, filepath)
+  File "/home/cubo/anaconda/lib/python3.6/imp.py", line 172, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 684, in _load
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 678, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/cubo/airflow/dags/exec_4411.py", line 36, in <module>
+    'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges']),
+  File "/home/cubo/airflow/dags/cdcol_utils/queue_utils.py", line 41, in assign_queue
+    start_date_value = datetime.datetime.strptime(time_range[0], "%Y-%m-%d")
+TypeError: strptime() argument 1 must be str, not tuple
+***********************************
+Reduccion: 
+<class 'dict_values'>
+Mosaico:
+<class 'list'>
+[2020-10-08 09:14:02,851] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (6, 8), Longitude: (-71, -69), Time Range: ('2011-05-01', '2011-05-31')
+[2020-10-08 09:14:02,851] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,852] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,852] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,852] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,853] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,853] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,853] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,853] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,858] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (6, 8), Longitude: (-73, -71), Time Range: ('2011-03-01', '2011-03-31')
+[2020-10-08 09:14:02,858] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,859] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,859] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,859] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,860] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,860] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,860] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,861] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,876] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (6, 8), Longitude: (-71, -69), Time Range: ('2011-03-01', '2011-03-31')
+[2020-10-08 09:14:02,876] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,876] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,876] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,876] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,877] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,877] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,878] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,878] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,885] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (4, 6), Longitude: (-71, -69), Time Range: ('2011-05-01', '2011-05-31')
+[2020-10-08 09:14:02,885] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,885] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,886] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,886] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,886] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,886] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,887] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,887] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,899] {models.py:377} ERROR - Failed to import: /home/cubo/airflow/dags/exec_4573.py
+Traceback (most recent call last):
+  File "/home/cubo/anaconda/lib/python3.6/site-packages/airflow/models.py", line 374, in process_file
+    m = imp.load_source(mod_name, filepath)
+  File "/home/cubo/anaconda/lib/python3.6/imp.py", line 172, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 684, in _load
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 678, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/cubo/airflow/dags/exec_4573.py", line 202, in <module>
+    reduccion_lansat + mascara_dem_mosaic,
+TypeError: unsupported operand type(s) for +: 'dict_values' and 'list'
+[2020-10-08 09:14:02,920] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (6, 8), Longitude: (-73, -71), Time Range: ('2011-05-01', '2011-05-31')
+[2020-10-08 09:14:02,921] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,921] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,921] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,922] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,922] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,922] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,923] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,923] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,947] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (6, 8), Longitude: (-73, -71), Time Range: ('2011-01-01', '2011-01-31')
+[2020-10-08 09:14:02,947] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,947] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,947] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,948] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,948] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,948] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,948] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:02,949] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,952] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (4, 6), Longitude: (-74, -71), Time Range: ('2011-05-01', '2011-05-31')
+[2020-10-08 09:14:02,952] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,953] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,953] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,953] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,954] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,954] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,954] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,955] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,955] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,955] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,956] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-05-01 and 2011-05-31
+[2020-10-08 09:14:02,956] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,965] {models.py:377} ERROR - Failed to import: /home/cubo/airflow/dags/exec_4330.py
+Traceback (most recent call last):
+  File "/home/cubo/anaconda/lib/python3.6/site-packages/airflow/models.py", line 374, in process_file
+    m = imp.load_source(mod_name, filepath)
+  File "/home/cubo/anaconda/lib/python3.6/imp.py", line 172, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 684, in _load
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 678, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/cubo/airflow/dags/exec_4330.py", line 69, in <module>
+    'product':_params['products'][0]
+IndexError: list index out of range
+[2020-10-08 09:14:02,971] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (4, 6), Longitude: (-74, -71), Time Range: ('2011-03-01', '2011-03-31')
+[2020-10-08 09:14:02,972] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,972] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,972] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,973] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,973] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,973] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,974] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,974] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,974] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,974] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,975] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-03-01 and 2011-03-31
+[2020-10-08 09:14:02,975] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,985] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (4, 6), Longitude: (-71, -69), Time Range: ('2011-02-01', '2011-02-28')
+[2020-10-08 09:14:02,985] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,986] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,986] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,986] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,987] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,987] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,987] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-02-01 and 2011-02-28
+[2020-10-08 09:14:02,987] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:02,993] {models.py:377} ERROR - Failed to import: /home/cubo/airflow/dags/exec_4591.py
+Traceback (most recent call last):
+  File "/home/cubo/anaconda/lib/python3.6/site-packages/airflow/models.py", line 374, in process_file
+    m = imp.load_source(mod_name, filepath)
+  File "/home/cubo/anaconda/lib/python3.6/imp.py", line 172, in load_source
+    module = _load(spec)
+  File "<frozen importlib._bootstrap>", line 684, in _load
+  File "<frozen importlib._bootstrap>", line 665, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 678, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/home/cubo/airflow/dags/exec_4591.py", line 181, in <module>
+    reduccion_landsat
+NameError: name 'reduccion_landsat' is not defined
+[2020-10-08 09:14:03,000] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (6, 8), Longitude: (-71, -69), Time Range: ('2011-04-01', '2011-04-30')
+[2020-10-08 09:14:03,000] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:03,000] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:03,001] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:03,001] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:03,001] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:03,001] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:03,001] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-04-01 and 2011-04-30
+[2020-10-08 09:14:03,002] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:03,005] {dag_utils.py:55} INFO - queryMapByTileByYear Latitude: (6, 8), Longitude: (-71, -69), Time Range: ('2011-01-01', '2011-01-31')
+[2020-10-08 09:14:03,006] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:03,006] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:03,006] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:03,007] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:03,007] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:03,007] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:03,008] {dag_utils.py:76} INFO - queryMapByTileByYear Time Range 2011-01-01 and 2011-01-31
+[2020-10-08 09:14:03,008] {dag_utils.py:81} INFO - queryMapByTileByYear Task id len: 4-wofs
+[2020-10-08 09:14:03,012] {models.py:360} INFO - File /home/cubo/airflow/dags/cdcol_utils/__init__.py assumed to contain no DAGs. Skipping.
+
+
+-------------------------------------------------------------------
+DAGS
+-------------------------------------------------------------------
+AL_L8_BNB_B
+cdcol_cleaner_dag
+cdcol_updater_dag
+exec_4542
+exec_4543
+exec_4544
+exec_4545
+exec_4546
+exec_4547
+exec_4548
+exec_4549
+exec_4550
+exec_4551
+exec_4552
+exec_4553
+exec_4554
+exec_4555
+exec_4556
+exec_4557
+exec_4558
+exec_4559
+exec_4560
+exec_4561
+exec_4562
+exec_4563
+exec_4564
+exec_4565
+exec_4566
+exec_4567
+exec_4568
+exec_4569
+exec_4570
+exec_4571
+exec_4572
+exec_4574
+exec_4575
+exec_4576
+exec_4577
+exec_4578
+exec_4579
+exec_4580
+exec_4581
+exec_4582
+exec_4583
+exec_4584
+exec_4585
+exec_4586
+exec_4587
+exec_4588
+exec_4589
+exec_4590
+exec_4592
+exec_4594
+exec_4595
+savi
+
