@@ -51,6 +51,7 @@ zip_file.close()
 #files = [f for f in os.listdir(train_data_path) if f.endswith('.shp')]
 files = [f for f in os.listdir(train_folder_path) if f.endswith('.shp')]
 classes = [f.split('.')[0] for f in files]
+print(classes)
 #shapefiles = [os.path.join(train_data_path, f) for f in files if f.endswith('.shp')]
 shapefiles = [os.path.join(train_folder_path, f) for f in files if f.endswith('.shp')]
 
@@ -79,7 +80,7 @@ for band in product['bands']:
 bands_data = np.dstack(bands_data)
 training_samples = bands_data[is_train]
 print('training_samples')
-print(training_samples)
+#print(training_samples.shape())
 
 rows, cols, n_bands = bands_data.shape
 
@@ -93,9 +94,11 @@ mask_nan=np.isnan(training_samples)
 training_samples[mask_nan]=-9999
 print('training_samples')
 print(training_samples)
+#print(training_samples.shape())
 
 print('training_labels')
 print(training_labels)
+#print(training_labels.shape())
 
 classifier = RandomForestClassifier(n_jobs=-1, n_estimators=50, verbose=1)
 
@@ -105,5 +108,7 @@ classifier.fit(training_samples, training_labels)
 
 outputxcom=posixpath.join(folder,'modelo_random_forest.pkl')
 with open(outputxcom, 'wb') as fid:
+    print('output',classifier)
     joblib.dump(classifier, fid)
 
+print(classifier)
