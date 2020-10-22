@@ -38,6 +38,7 @@ km_centroids, kmvalues=kmeans2(r_PCA.Y,4)
 salida[:,nan_mask.reshape(sp)]=np.nan
 kmv= kmvalues.T.reshape(sp)
 kmv[nan_mask.reshape(sp)]=nodata
+
 coordenadas = []
 dimensiones =[]
 xcords = {}
