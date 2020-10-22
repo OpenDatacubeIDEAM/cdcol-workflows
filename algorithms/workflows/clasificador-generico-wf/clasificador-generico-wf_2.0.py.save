@@ -1,3 +1,4 @@
+
 # In[7]:
 import xarray as xr
 import numpy as np
@@ -29,6 +30,18 @@ for band in medians1.data_vars.keys():
     else:
         nmed=np.vstack((nmed,b))
 
+print('medians1.datavars',sp)
+
+
+n_samples = sp*cols
+flat_pixels = bands_data.reshape((n_samples, n_bands))
+#mascara valores nan por valor no data
+mask_nan=np.isnan(flat_pixels)
+flat_pixels[mask_nan]=-9999
+result = bagging_clf.predict(flat_pixels)
+classification = result.reshape((rows, cols))
+
+
 # In[12]:
 
 import os
@@ -45,16 +58,15 @@ if model is None:
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", category=UserWarning)
-    classifier = joblib.load(model)
+    bagging_clf = joblib.load(model)
+    print(bagging_clf)
 
-print(classifier)
-print('nmedT',nmed.T)
-result = classifier.predict(nmed.T)
-print('result1',result)
+result = bagging_clf.predict(flat_pixels)
+classification = result.reshape((rows, cols))
 
-result = result.reshape(sp)
-print('result2',result)
 
+#result = bagging_clf.predict(nmed.T)
+#result = result.reshape(sp)
 
 # In[ ]:
 
