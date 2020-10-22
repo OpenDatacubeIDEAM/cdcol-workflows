@@ -87,8 +87,8 @@ _steps = {
             'bands': _params['products'][0]['bands'],
             'train_data_path': _params['modelos']
         },
-        #'del_prev_result': _params['elimina_resultados_anteriores'],
-        'del_prev_result': False
+        'del_prev_result': _params['elimina_resultados_anteriores'],
+        #'del_prev_result': False
     },
     'clasificador': {
         'algorithm': "clasificador-generico-wf",
@@ -195,6 +195,7 @@ clasificador = CDColReduceOperator(
     lat=_params['lat'],
     lon=_params['lon'],
     params=_steps['clasificador']['params'],
+    delete_partial_results=_steps['clasificador']['del_prev_result'],
     to_tiff=True
 )
 
