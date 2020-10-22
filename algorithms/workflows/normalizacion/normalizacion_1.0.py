@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import time
 from arrnorm.auxil.auxil import similarity
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from scipy import stats
 from arrnorm.auxil.auxil import orthoregress
 from operator import itemgetter
@@ -11,20 +11,25 @@ import arrnorm.auxil.auxil as auxil
 from datetime import datetime
 import xarray as xr
 
+
 #mosaico de LS8
 print(xarrs.keys())
-inDataset1=[xarrs[k] for k in xarrs.keys() if 'medianas' in k][0];
-inDataset1.sortby('latitude', ascending=False)
+inDataset1=[xarrs[k] for k in xarrs.keys() if 'mosaico_medianas_all_all' in k][0];
+#inDataset1.sortby('latitude', ascending=False)
+inDataset1 = inDataset1.sortby('latitude', ascending=False)
 #consulta de mosaico
 inDataset2=[xarrs[k] for k in xarrs.keys() if 'consulta_referencia' in k][0];
 
+print('plot_objetivo_inDataset1')
 print(inDataset1)
+print('plot_referencia_inDataset2')
 print(inDataset2)
 
 band_pos=None
 dims=None
 max_iters=20
 nodata=-9999
+
 
 try:
     rows = list(inDataset1.dims.values())[0]
@@ -47,6 +52,7 @@ except Exception as err:
     print('Error: {}  --Images could not be read.'.format(err))
     sys.exit(1)
 
+print('Hola 10.4')
 if bands != bands2:
     sys.stderr.write("The number of bands does not match between reference and target image")
     sys.exit(1)
@@ -321,3 +327,4 @@ output = xr.Dataset(variables, attrs={'crs': inDataset1.crs})
 for x in output.coords:
     output.coords[x].attrs["units"]=inDataset1.coords[x].units
 print(output)
+
