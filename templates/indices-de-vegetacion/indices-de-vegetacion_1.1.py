@@ -21,17 +21,6 @@ _steps = {
         ),
         'params': {},
     },
-    'medianas': {
-        'algorithm': "compuesto-temporal-medianas-wf",
-        'version': '1.0',
-        'queue': queue_utils.assign_queue(
-            input_type='multi_temporal_unidad',
-            time_range=_params['time_ranges'][0],
-            unidades=len(_params['products'])
-        ),
-        'params': {'minValid': _params['minValid']},
-        'del_prev_result': _params['elimina_resultados_anteriores'],
-        },
     'greenest_pixel':{
         'algorithm': "greenest_pixel-wf",
         'version': '1.0',
