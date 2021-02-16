@@ -10,11 +10,19 @@ from pprint import pprint
 
 _params = {{params}}
 
+# definir unidades FNF, y DEM por defecto (una sola banda)
+_params['products'].append({'name': 'DEM_Mosaico', 'bands': ['dem']})
+_params['products'].append({'name': 'FNF_COL_UTM', 'bands': ['fnf_mask']})
+
+# Definir periodo de tiempo DEM
+_params['time_ranges'] = [('2013-01-01','2013-12-31')] + _params['time_ranges']
+
+# sort params products by name
 _params['products'].sort(key = lambda d: d['name'])
 
 """
 Templeate modified my Crhsitian Segura
-05-oct-2020
+27-oct-2020
 """
 """
 _params = {'minValid': 1, 'normalized': False,
@@ -36,7 +44,7 @@ _params = {'minValid': 1, 'normalized': False,
 _steps = {
     'mascara': {
         'algorithm': "mascara-landsat",
-        'version': '2.0',
+        'version': '1.0',
         'queue': queue_utils.assign_queue(input_type='multi_temporal', time_range=_params['time_ranges'][2]),
         'params': {'bands': _params['products'][2]['bands']},
     },
@@ -288,7 +296,7 @@ mascara_fnf = CDColReduceOperator(algorithm=_steps['mascara_fnf']['algorithm'],
                                        queue=_steps['mascara_fnf']['queue'],
                                        params=_steps['mascara_fnf']['params'],
                                        delete_partial_results=_steps['mascara_fnf']['del_prev_result'],
-                                       dag=dag, task_id="mascara_fnf", to_tiff=True)
+                                       dag=dag, task_id="clasificacion_final", to_tiff=True)
 
 
 entrenamiento>>clasificador

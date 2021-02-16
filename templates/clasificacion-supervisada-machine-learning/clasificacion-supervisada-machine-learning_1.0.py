@@ -77,7 +77,7 @@ _steps = {
     },
     'entrenamiento': {
         'algorithm': "random-forest-training",
-        'version': '1.0',
+        'version': '4.0',
         'queue': queue_utils.assign_queue(
             input_type='multi_area',
             lat=_params['lat'],

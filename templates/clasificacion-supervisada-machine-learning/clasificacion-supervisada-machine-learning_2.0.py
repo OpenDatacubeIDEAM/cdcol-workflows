@@ -10,11 +10,11 @@ from pprint import pprint
 
 _params = {{params}}
 
-#
+# definir unidades FNF, y DEM por defecto (una sola banda)
 _params['products'].append({'name': 'DEM_Mosaico', 'bands': ['dem']})
 _params['products'].append({'name': 'FNF_COL_UTM', 'bands': ['fnf_mask']})
 
-
+# Definir periodo de tiempo DEM
 _params['time_ranges'] = [('2013-01-01','2013-12-31')] + _params['time_ranges']
 
 # sort params products by name

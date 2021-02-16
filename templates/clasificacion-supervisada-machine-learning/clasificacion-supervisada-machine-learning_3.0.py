@@ -9,6 +9,17 @@ from datetime import timedelta
 from pprint import pprint
 
 _params = {{params}}
+
+# definir unidades FNF, y DEM por defecto (una sola banda)
+_params['products'].append({'name': 'DEM_Mosaico', 'bands': ['dem']})
+_params['products'].append({'name': 'FNF_COL_UTM', 'bands': ['fnf_mask']})
+
+# Definir periodo de tiempo DEM
+_params['time_ranges'] = [('2013-01-01','2013-12-31')] + _params['time_ranges']
+
+# sort params products by name
+_params['products'].sort(key = lambda d: d['name'])
+
 """
 _params = {'minValid': 1, 'normalized': False,
     'modelos': '/web_storage/downloads/3625',
@@ -215,7 +226,7 @@ mascara_fnf = CDColReduceOperator(algorithm=_steps['mascara_fnf']['algorithm'],
                                        queue=_steps['mascara_fnf']['queue'],
                                        params=_steps['mascara_fnf']['params'],
                                        delete_partial_results=_steps['mascara_fnf']['del_prev_result'],
-                                       dag=dag, task_id="mascara_fnf", to_tiff=True)
+                                       dag=dag, task_id="clasificacion_final", to_tiff=True)
 
 
 entrenamiento>>clasificador
