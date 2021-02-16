@@ -27,6 +27,13 @@ from sklearn.svm import SVC
 #bands: Las bandas a utilizar
 #train_data_path: Ubicación de los shape files .shp
 
+'''
+Voting algorithm
+Edited by Crhistian Segura
+Date 23 - 11 2020
+Description Add metrics to algorithm
+'''
+
 def enmascarar_entrenamiento(vector_data_path, cols, rows, geo_transform, projection, target_value=1):
     data_source = gdal.OpenEx(vector_data_path, gdal.OF_VECTOR)
     layer = data_source.GetLayer(0)
@@ -138,17 +145,51 @@ clf_array=[rf,dtree,nn,svml,extrat,grad_boost]
 eclf = VotingClassifier(estimators=[('Random Forest', rf), ('Decision Tree' , dtree),('NN', nn),('GRADIENT',grad_boost),('EXTRAT',extrat)])#('NN',nn),
 
 
-
 for clf_array, label in zip([rf,dtree,svml,nn,grad_boost,extrat,eclf], ['Random Forest', 'Decision Tree','SVML', 'NN','GRADIENT','EXTRAT', 'Ensemble']):#'NN',
     scores = cross_val_score(clf_array, training_samples, training_labels, cv=2, scoring='accuracy')
     print("Accuracy: %0.3f ( %0.3f) [%s]" % (scores.mean(), scores.std(), label))
+
     print ("Mean of: {1:.3f}, std: (+/-) {2:.3f}[{0}]"
                        .format(eclf.__class__.__name__,
                        scores.mean(), scores.std()))
-   
 
-eclf.fit(training_samples, training_labels)
+# Split train/test
+from sklearn.model_selection import train_test_split
 
+X_train, X_test, y_train, y_test = train_test_split(training_samples, training_labels, test_size=0.3)
+
+print(f'Train X {len(X_train)/len(training_samples)*100:.2f}%')
+print(f'Train Y {len(y_train)/len(training_samples)*100:.2f}%')
+print(f'Test  X {len(X_test )/len(training_samples)*100:.2f}%')
+print(f'Test  Y {len(y_test )/len(training_samples)*100:.2f}%')
+
+print('trainning samples',X_train)
+print('trainning labels',y_train)
+
+#eclf.fit(training_samples, training_labels)
+eclf.fit(X_train, y_train)
+
+# Calculo de y_pred
+print('Estimar y con datos de entrada')
+y_pred = eclf.predict(X_test)
+
+# Calculo de matrix de confusion
+from sklearn.metrics import confusion_matrix, cohen_kappa_score, precision_score
+
+mconf = confusion_matrix(y_test,y_pred)
+# Calculo de kappa score
+kappa = cohen_kappa_score(y_test, y_pred)
+# Calculo de precision score
+prec = precision_score(y_test, y_pred,average = 'weighted')
+
+# Save metrics to file
+with open(posixpath.join(folder+'metrics.txt'),'w') as file_metrics:
+    print(f'matriz de confusion: {mconf}')
+    print(f'kappa score: {kappa}')
+    print(f'precision score (weighted): {prec}')
+    file_metrics.write('matriz de confusion: \n'+str(mconf))
+    file_metrics.write('\nkappa score: '+str(kappa))
+    file_metrics.write('\nprecision score (weighted): '+str(prec))
 
 
 print('fin entrenamiento Voting eclf')

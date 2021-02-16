@@ -155,7 +155,7 @@ nn = MLPClassifier(alpha=0.0001,  hidden_layer_sizes=(500,),random_state=None,ma
 grad_boost=GradientBoostingClassifier(n_estimators=500,learning_rate=1)
 extrat = ExtraTreesClassifier(n_estimators=50, max_depth=None,class_weight='balanced')
 
-clf_array=[rf,extrat,dtree,nn,svml,grad_boost]#svml,nn,grad_boost,extrat,dtree
+clf_array=[rf]#extrat,dtree,nn,svml,grad_boost,rf]#svml,nn,grad_boost,extrat,dtree
 
 for clf in clf_array:
     vanilla_scores = cross_val_score(clf, training_samples, training_labels, cv=2, n_jobs=-1)
@@ -171,7 +171,50 @@ for clf in clf_array:
                         bagging_scores.mean(), bagging_scores.std()))
 
 
-bagging_clf.fit(training_samples, training_labels)
+
+# Split train/test
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(training_samples, training_labels, test_size=0.3)
+
+print(f'Train X {len(X_train)/len(training_samples)*100:.2f}%')
+print(f'Train Y {len(y_train)/len(training_samples)*100:.2f}%')
+print(f'Test  X {len(X_test )/len(training_samples)*100:.2f}%')
+print(f'Test  Y {len(y_test )/len(training_samples)*100:.2f}%')
+
+print('trainning samples',X_train)
+print('trainning labels',y_train)
+
+
+
+#bagging_clf.fit(training_samples, training_labels)
+bagging_clf.fit(X_train, y_train)
+
+
+# Calculo de y_pred
+print('Estimar y con datos de entrada')
+y_pred = bagging_clf.predict(X_test)
+
+# Calculo de matrix de confusion
+from sklearn.metrics import confusion_matrix, cohen_kappa_score, precision_score
+
+mconf = confusion_matrix(y_test,y_pred)
+# Calculo de kappa score
+kappa = cohen_kappa_score(y_test, y_pred)
+# Calculo de precision score
+prec = precision_score(y_test, y_pred,average = 'weighted')
+
+# Save metrics to file
+with open(posixpath.join(folder+'metrics.txt'),'w') as file_metrics:
+    print(f'matriz de confusion: {mconf}')
+    print(f'kappa score: {kappa}')
+    print(f'precision score (weighted): {prec}')
+    file_metrics.write('matriz de confusion: \n'+str(mconf))
+    file_metrics.write('\nkappa score: '+str(kappa))
+    file_metrics.write('\nprecision score (weighted): '+str(prec))
+
+
+
 
 print('bagging mean')
 print(bagging_scores.mean())

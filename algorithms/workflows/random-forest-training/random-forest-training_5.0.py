@@ -12,6 +12,12 @@ from sklearn.externals import joblib
 #bands: Las bandas a utilizar
 #train_data_path: Ubicación de los shape files .shp
 
+'''
+	Code edited by Crhistian Segura
+ 	Date: 17-nov-2020
+	Modif: add train test split and statistics for validation
+'''
+
 def enmascarar_entrenamiento(vector_data_path, cols, rows, geo_transform, projection, target_value=1):
     data_source = gdal.OpenEx(vector_data_path, gdal.OF_VECTOR)
     layer = data_source.GetLayer(0)
@@ -70,10 +76,15 @@ labeled_pixels = rasterizar_entrenamiento(shapefiles, rows, cols, geo_transform,
 is_train = np.nonzero(labeled_pixels)
 training_labels = labeled_pixels[is_train]
 bands_data=[]
+#reordenar bandas
+xarr0 = xarr0[['swir2','nir','blue','nbr','ndvi']]
 
 print(xarr0)
+#print("aaaaaaaaaa")
+#print(df)
 
-for band in product['bands']:
+
+for band in ['swir2','nir','blue','nbr','ndvi']:
     # pixel_qa is removed from xarr0 by Compuesto Temporal de Medianas
     if band != 'pixel_qa':
         bands_data.append(xarr0[band])
@@ -100,11 +111,49 @@ print('training_labels')
 print(training_labels)
 #print(training_labels.shape())
 
-classifier = RandomForestClassifier(n_jobs=-1, n_estimators=50, verbose=1)
+# Split train/test
+from sklearn.model_selection import train_test_split
 
-print('trainning samples',training_samples)
-print('trainning labels',training_labels)
-classifier.fit(training_samples, training_labels)
+X_train, X_test, y_train, y_test = train_test_split(training_samples, training_labels, test_size=0.3)
+
+print(f'Train X {len(X_train)/len(training_samples)*100:.2f}%')
+print(f'Train Y {len(y_train)/len(training_samples)*100:.2f}%')
+print(f'Test  X {len(X_test )/len(training_samples)*100:.2f}%')
+print(f'Test  Y {len(y_test )/len(training_samples)*100:.2f}%')
+
+#import matplotlib.pyplot as plt
+#plt.hist(y_train,bins=np.arange(1,len(np.unique(training_labels))+2)-0.5)
+#plt.rcParams['figure.facecolor'] = 'white'
+#plt.savefig(posixpath.join(folder,'Histogram_tain_data.png'))
+print('Se usaran 500 arboles!!')
+classifier = RandomForestClassifier(n_jobs=-1, n_estimators=500, verbose=1)
+
+print('trainning samples',X_train)
+print('trainning labels',y_train)
+#classifier = RandomForestClassifier(n_jobs=-1, n_estimators=50, verbose=1)
+classifier.fit(X_train, y_train)
+
+# Calculo de y_pred
+print('Estimar y con datos de entrada')
+y_pred = classifier.predict(X_test)
+
+# Calculo de matrix de confusion
+from sklearn.metrics import confusion_matrix, cohen_kappa_score, precision_score
+
+mconf = confusion_matrix(y_test,y_pred)
+# Calculo de kappa score
+kappa = cohen_kappa_score(y_test, y_pred)
+# Calculo de precision score
+prec = precision_score(y_test, y_pred,average = 'weighted')
+
+# Save metrics to file
+with open(posixpath.join(folder+'metrics.txt'),'w') as file_metrics:
+    print(f'matriz de confusion: {mconf}')
+    print(f'kappa score: {kappa}')
+    print(f'precision score (weighted): {prec}')
+    file_metrics.write('matriz de confusion: \n'+str(mconf))
+    file_metrics.write('\nkappa score: '+str(kappa))
+    file_metrics.write('\nprecision score (weighted): '+str(prec))
 
 # write shapefiles list
 file = open(folder+"shapefiles_list.txt", "w")
