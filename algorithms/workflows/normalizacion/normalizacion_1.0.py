@@ -125,12 +125,14 @@ for band in range(len(Bands)):
     # check the target image
     if not rasterBands2[band].any():
         sys.exit(1)
-
+print("inicio ciclo while...")
+rows = rows2
 while current_iter < max_iters:
-    try:
+    try:	
         for row in range(rows):
             for k in range(len(Bands)):
                 bandSour = np.asarray(rasterBands2[k])
+
                 tile[:, k] = np.asarray([bandSour[0][row]])
                 bandTarg = np.asarray(rasterBands1[k])
                 tile[:, bands + k] = np.asarray([bandTarg[0][row]])
@@ -206,6 +208,7 @@ while current_iter < max_iters:
 
     except Exception as err:
         print(err)
+        raise err
         print("\n WARNING: Occurred a exception value error for the last iteration No. {},\n"
               " then the ArrNorm will be use the best result at the moment calculated, you\n"
               " should check the result and all bands in input file if everything is correct.".format(current_iter))
