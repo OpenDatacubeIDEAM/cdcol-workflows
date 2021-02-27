@@ -115,20 +115,24 @@ for i in range(len(train_kfold.Cha_HD)):
         """
         #for i in range(30):
         xarr_0 = dc.load(
-            product=product['name'],
-            time=time_ranges[0],
+            product='LS7_ETM_LEDAPS_MOSAIC',
+            time=("2016-01-01", "2016-12-31"),
             geopolygon=geom,
-            measurements=product['bands'],
         )
 
+        
         mask = geometry_mask([geom], xarr_0.geobox, invert=True)
         
         xarr_0 = xarr_0.where(mask)
+        xarr_0=xarr_0.isel(time=0)
 
+
+        '''
         # mascara de nubes
         import numpy as np
 
         nodata=-9999
+	    
         validValues=set()
         if product['name']=="LS7_ETM_LEDAPS" or product['name'] == "LS5_TM_LEDAPS":
             validValues=[66,68,130,132]
@@ -164,13 +168,15 @@ for i in range(len(train_kfold.Cha_HD)):
                 medians[band][np.sum(allNan,0)<minValid]=np.nan
 
         del datos
-        """
+        '''
+        medians={} 
         # normalizar bandas
-        medians["red"]   = medians["red"]  /10000
-        medians["nir"]   = medians["nir"]  /10000
-        medians["swir1"] = medians["swir1"]/10000
-        medians["swir2"] = medians["swir2"]/10000
-        """
+        medians["red"]   = xarr_0["red"]  /10000
+        medians["nir"]   = xarr_0["nir"]  /10000
+        medians["swir1"] = xarr_0["swir1"]/10000
+        medians["swir2"] = xarr_0["swir2"]/10000
+       
+
         # Calculo de indices
         medians["ndvi"]=(medians["nir"]-medians["red"])/(medians["nir"]+medians["red"])
         medians["nbr"] =(medians["nir"]-medians["swir2"])/(medians["nir"]+medians["swir2"])
@@ -248,7 +254,7 @@ nullData=training_pd_samples[0].isnull()
 all_data=pd.concat((training_pd_samples[~nullData],training_pd_labels[~nullData]),axis=1)
 
 all_data_shuf=all_data.sample(frac=1).reset_index(drop=True)
-
+all_data_shuf=all_data_shuf.dropna()
 # Select data for clasification
 X=all_data_shuf.loc[:,all_data_shuf.columns!=DV]
 y=all_data_shuf[DV].to_numpy()
