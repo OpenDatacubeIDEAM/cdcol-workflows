@@ -82,7 +82,7 @@ If the execution_date - today() of a dag exceeds
 this number. And they are in success or failed state,
 they will be deleted.
 """
-DAYS_OLD = 10
+DAYS_OLD = 2
 
 
 def select_query(query_str,conn_data):
