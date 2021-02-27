@@ -26,7 +26,15 @@ bands_data=[]
 
 """
 
+# Escalar bandas
+
+output0["red"]=output0["red"]/10000
+output0["nir"]=output0["nir"]/10000
+output0["swir1"]=output0["swir1"]/10000
+output0["swir2"]=output0["swir2"]/10000
+
 # Agregar Indices
+
 output0["ndvi"]=(output0["nir"]-output0["red"])/(output0["nir"]+output0["red"])
 output0["nbr"] =(output0["nir"]-output0["swir2"])/(output0["nir"]+output0["swir2"])
 output0["savi"]=((output0["nir"]-output0["red"])/(output0["nir"]+output0["red"] + (0.5)))*(1+0.5)
@@ -49,7 +57,13 @@ n_samples = rows*cols
 flat_pixels = bands_data.reshape((n_samples, n_bands))
 
 where_are_NaNs = np.isnan(flat_pixels)
+print(f'NaNs in data : {where_are_NaNs.sum()}')
 flat_pixels[where_are_NaNs] = -9999
+
+where_are_Infs = np.isinf(flat_pixels)
+print(f'Infs in data : {where_are_Infs .sum()}')
+flat_pixels[where_are_Infs] = -9999
+
 
 print(f'Flat_pixels shape: {flat_pixels.shape}')
 print(f'Flat_pixels: {flat_pixels}')
@@ -94,10 +108,22 @@ valores = {"classified": xr.DataArray(result, dims=dimensiones, coords=coordenad
 #array = xr.DataArray(result, dims=dimensiones, coords=coordenadas)
 #array.astype('float32')
 #valores = {"classified": array}
+print('creacion mapa biomasa')
 
-output = xr.Dataset(valores, attrs={'crs': xarrs[0].crs})
-for coordenada in output.coords:
-    output.coords[coordenada].attrs["units"] = xarrs[0].coords[coordenada].units
 
-classified = output.classified
+biomasa = xr.Dataset(valores, attrs={'crs': xarrs[0].crs})
+for coordenada in output0.coords:
+    biomasa.coords[coordenada].attrs["units"] = xarrs[0].coords[coordenada].units
+print('creacion mapa carbono')
+
+carbono = biomasa.copy()*0.47
+
+print('preparacion salidas')
+outputs = {'biomasa': biomasa,
+'carbono': carbono }
+print(f'outputs:{outputs}')
+
+
+classified = biomasa.classified
 classified.values = classified.values.astype('float32')
+
